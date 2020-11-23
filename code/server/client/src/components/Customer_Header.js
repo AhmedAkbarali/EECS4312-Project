@@ -26,13 +26,8 @@ const useStyles = makeStyles((theme) => ({
 
 function Customer_Header() {
     const classes = useStyles();
-    const [auth, setAuth] = React.useState(true);
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
-  
-    const handleChange = (event) => {
-      setAuth(event.target.checked);
-    };
   
     const handleMenu = (event) => {
       setAnchorEl(event.currentTarget);
@@ -55,7 +50,7 @@ function Customer_Header() {
             <Button color="inherit">Search</Button>
             <Button color="inherit">Cart</Button>
 
-            {auth && (
+
               <div>
                 <IconButton
                   aria-label="account of current user."
@@ -87,7 +82,7 @@ function Customer_Header() {
                   <MenuItem onClick={handleClose}>Logout</MenuItem>
                 </Menu>
               </div>
-            )}
+
           </Toolbar>
         </AppBar>
       </div>
