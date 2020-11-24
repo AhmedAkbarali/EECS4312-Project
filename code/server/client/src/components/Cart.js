@@ -22,7 +22,7 @@ function Cart() {
 
     return (
         <div >
-            <h1 style={{justifySelf: 'center'}}>Your Cart</h1>
+            <h1 className="your-cart">Your Cart</h1>
             <div className="cart">
                 <div className="shopping-list">
                     <div >
@@ -35,12 +35,14 @@ function Cart() {
                             </div>
                         ))}
                     </div>
-                    <div className="order-subtotal">
-                        Subtotal:
-                        #######
-                    </div>
                 </div>
                 <div className="order-summary">
+                    <div style={{fontWeight: '700'}}>
+                        Subtotal:
+                    </div>
+                    <div style={{paddingBottom: '15px'}}>
+                        #######
+                    </div>
                     <Button variant="contained" color="secondary">Checkout</Button>
                 </div>
             </div>

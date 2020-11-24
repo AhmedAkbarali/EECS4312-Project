@@ -4,6 +4,10 @@
     align-content: flex-start;
     flex-wrap: nowrap;
 }
+
+.your-cart {
+    padding-bottom: 80px;
+}
 .shopping-list {
     max-height: 70vh;
     min-width: 70vw;
@@ -25,16 +29,13 @@
 }
 
 .order-subtotal {
-    display: inline-flex;
-    justify-self: flex-end;
-    justify-content: flex-start;
-    min-width: 150px;
+    padding-bottom: 20px;
+    width: 150px;
 }
 
 .order-summary {
+    border-style: outset;
     max-width: 20vw;
     align-self: flex-end;
-    border-color: #282c34;
-    border-width: 4px;
-    padding-left: 100px;
+    padding: 50px;
 }
