@@ -3,6 +3,7 @@ import './App.css';
 
 import Login from './components/Login.js';
 import Cart from './components/Cart.js';
+import Checkout from './components/Checkout.js';
 import Customer_Header from './components/Customer_Header.js';
 import Landing_Page from './components/Landing_Page.js';
 import Profile from './components/Profile.js';
@@ -17,12 +18,13 @@ function App() {
   return (
     <div className="App">
       <Customer_Header></Customer_Header>
-
       <Switch>
-      <Route  path="/" exact component={Login}/> 
-      <Route  path="/register" component={Register}/>
-      <Route  path="/profile" component={Profile}/>
-      <Route  path="/home" component={Landing_Page}/>
+          <Route  path="/" exact component={Login}/>
+          <Route  path="/register" component={Register}/>
+          <Route  path="/profile" component={Profile}/>
+          <Route  path="/home" component={Landing_Page}/>
+          <Route path="/cart" component={Cart} />
+          <Route path="/checkout" component={Checkout} />
       </Switch>
     </div>
 
