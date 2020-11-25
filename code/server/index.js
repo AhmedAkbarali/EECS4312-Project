@@ -1,8 +1,11 @@
 const express = require('express');
 const cookieSession = require('cookie-session');
 const bodyParser = require('body-parser');
-
 const app = express();
+const mongoose = require('mongoose');
+
+
+
 
 app.use(bodyParser.json());
 app.use(
@@ -11,7 +14,14 @@ app.use(
         keys: ["p9q8wrghuasgf98a34yhfauisd"]
     })
 );
-
+const uri = "mongodb+srv://user123:UwHUrc1iI87dMAIN@cluster0.rerpk.mongodb.net/videoco?retryWrites=true&w=majority";
+mongoose.connect(uri,
+    { useNewUrlParser: true },
+    () => console.log('Connected to DB.')
+    );
+app.get('/test' (req,res) = () => {
+    res.json({id:10});
+});
 
 if(process.env.NODE_ENV === 'production') {
     //Express will serve up production assets like main.js
@@ -23,6 +33,7 @@ if(process.env.NODE_ENV === 'production') {
         res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
     });
 }
+app.use('/user',require('./routes/users.js'));
 
 
 const PORT = process.env.PORT || 5000;

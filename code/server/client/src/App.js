@@ -10,20 +10,22 @@ import Register from './components/Register.js';
 import Search from './components/Search.js';
 import Results from './components/Results.js';
 
+import { Switch, Route, Link } from 'react-router-dom';
 
 
 function App() {
   return (
     <div className="App">
       <Customer_Header></Customer_Header>
-      <Login></Login>
-      <Cart></Cart>
-      <Landing_Page></Landing_Page>
-      <Profile></Profile>
-      <Register></Register>
-      <Search></Search>
-      <Results></Results>
+
+      <Switch>
+      <Route  path="/" exact component={Login}/> 
+      <Route  path="/register" component={Register}/>
+      <Route  path="/profile" component={Profile}/>
+      <Route  path="/home" component={Landing_Page}/>
+      </Switch>
     </div>
+
   );
 }
 

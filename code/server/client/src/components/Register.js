@@ -1,10 +1,11 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
 import { makeStyles } from '@material-ui/core/styles';
 import './Register.css';
+import axios from 'axios';
 /*
 A customer account shall contain the following information: 
 the customer’s first name, last name, email address, home address, phone number, credit card information,6 digit mobile pin ,and loyalty point information
@@ -14,6 +15,19 @@ the customer’s first name, last name, email address, home address, phone numbe
 
 
 function Register() {
+
+
+  useEffect(() => {
+    axios.get("/").then(
+      response => {
+        console.log(response);
+      }
+    )
+
+  },[]);
+
+
+
     return (
         <div className="reg_div">
         <Typography variant='h4' >Customer Register</Typography>
