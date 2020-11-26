@@ -11,22 +11,22 @@
 .shopping-list {
     max-height: 70vh;
     min-width: 70vw;
-    display: grid;
 }
 
 .order-item {
     display: flex;
-    min-height: 50px;
-    flex-direction: row;
-    justify-content: space-between;
+    min-height: 30px;
     padding-left: 20px;
 }
 
 .item-info {
-    display: inline-flex;
     min-width: 150px;
-    align-self: flex-start;
+    justify-self: flex-start;
+    text-align: left;
+    margin-left: 30px;
 }
+
+.late { color: red}
 
 .order-subtotal {
     padding-bottom: 20px;
