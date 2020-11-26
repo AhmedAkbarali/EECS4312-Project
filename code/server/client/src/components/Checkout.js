@@ -33,6 +33,29 @@ class Checkout extends Component {
       this.setState({value: e.target.value})
     };
 
+    renderPayment () {
+        {
+            switch (this.state.value) {
+                case null:
+                    return;
+                case 'credit':
+                    return (
+                        <div>
+                            <input></input>
+                        </div>
+                    );
+                case 'loyalty':
+                    return (
+                        <div>Loyalty</div>
+                    );
+                default:
+                    return [
+                        <div>Credit</div>
+                    ];
+            }
+        }
+    }
+
     render (){
         return (
             <div >
@@ -56,6 +79,7 @@ class Checkout extends Component {
                                 <FormControlLabel value="loyalty" control={<Radio />} onClick={ e => this.handlePaymentToggle(e)} label="Loyalty Points" />
                             </RadioGroup>
                         </FormControl>
+                        {this.renderPayment()}
                         <div className="" style={{display: 'flex', flexDirection: 'column', justifySelf: 'flex-end'}}>
                             <div style={{fontWeight: '700'}}>
                                 Total:
