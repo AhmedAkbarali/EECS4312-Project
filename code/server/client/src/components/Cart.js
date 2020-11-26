@@ -4,6 +4,7 @@ import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import '../style/Cart.css';
+import { Link } from 'react-router-dom';
 
 const CART_LIST = [
     {name: '0',price: '10'},
@@ -31,6 +32,7 @@ function Cart() {
                                 <img className="order-icon" alt="icon of movie" />
                                 <div className="item-info">Title: {(value.name.length > 9) ? value.name.substring(0,10) + "..." : value.name}</div>
                                 <div className="item-info">Price: {value.price}</div>
+                                <div>Return date</div>
                                 <div className="item-info">Remove</div>
                             </div>
                         ))}
@@ -43,11 +45,11 @@ function Cart() {
                     <div style={{paddingBottom: '15px'}}>
                         #######
                     </div>
-                    <Button variant="contained" color="secondary">Checkout</Button>
+                    <Button component={ Link } to="/checkout" variant="contained" color="primary">Checkout</Button>
                 </div>
             </div>
         </div>
     )
 }
 
-export default Cart
+export default Cart;
