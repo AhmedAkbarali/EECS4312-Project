@@ -19,8 +19,8 @@ mongoose.connect(uri,
     { useNewUrlParser: true },
     () => console.log('Connected to DB.')
     );
-app.get('/test' (req,res) = () => {
-    res.json({id:10});
+app.get('/test',(req, res) => {
+    res.status(200).json({id:10});
 });
 
 if(process.env.NODE_ENV === 'production') {

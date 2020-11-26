@@ -12,7 +12,7 @@ function Login() {
     const [password, setPass] = useState('');
 
     useEffect(()=>{
-        axios.get(API_URL+"test")
+        axios.get("test")
         .then(response => {
             console.log(response);
         })
