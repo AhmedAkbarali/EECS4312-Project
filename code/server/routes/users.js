@@ -52,7 +52,7 @@ router.post('/register', (req, res) => {
             {
                 if (!result)
                 {
-                    res.status(401).send(password+" "+ user.password);
+                    res.status(401).send("Invalid Password!");
                 }
                 else{
                     const token = jwt.sign({email}, secret, {
