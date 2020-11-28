@@ -3,7 +3,9 @@ const cookieSession = require('cookie-session');
 const bodyParser = require('body-parser');
 const app = express();
 const mongoose = require('mongoose');
+const cors = require('cors');
 
+app.use(cors());
 
 
 
@@ -19,9 +21,6 @@ mongoose.connect(uri,
     { useNewUrlParser: true },
     () => console.log('Connected to DB.')
     );
-app.get('/test' (req,res) = () => {
-    res.json({id:10});
-});
 
 if(process.env.NODE_ENV === 'production') {
     //Express will serve up production assets like main.js
@@ -34,7 +33,7 @@ if(process.env.NODE_ENV === 'production') {
     });
 }
 app.use('/user',require('./routes/users.js'));
-
+app.use('/access',require('./routes/access.js'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT);

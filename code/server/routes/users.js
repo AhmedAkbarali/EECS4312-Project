@@ -52,11 +52,11 @@ router.post('/register', (req, res) => {
             {
                 if (!result)
                 {
-                    res.status(401).send(password+" "+ user.password);
+                    res.status(401).send("Invalid Password!");
                 }
                 else{
-                    const token = jwt.sign({email}, secret, {
-                        expiresIn: '1h'
+                    const token = jwt.sign({id: user.id}, secret, {
+                        expiresIn: 86400
                       });
                       try{
                     User.findById(user._id, function (err, doc) {

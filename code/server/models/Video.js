@@ -16,4 +16,4 @@ const VideoSchema = new mongoose.Schema({
     copy : {type: Number, required: true},
   });
 
-module.exports = mongoose.model('Video', VideoSchema);
+module.exports = mongoose.model('video', VideoSchema);
