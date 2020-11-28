@@ -33,7 +33,7 @@ if(process.env.NODE_ENV === 'production') {
     });
 }
 app.use('/user',require('./routes/users.js'));
-
+app.use('/access',require('./routes/access.js'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT);

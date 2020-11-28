@@ -12,13 +12,7 @@ function Login() {
     const [user_email, setEmail] = useState('');
     const [password, setPass] = useState('');
     let history = useHistory();
-    useEffect(()=>{
-        axios.get("test")
-        .then(response => {
-            console.log(response);
-        })
-
-    },[]);
+    
     const handleEmailChange = (e) => {
         setEmail(e.target.value)
         console.log("email");
@@ -35,11 +29,13 @@ function Login() {
             email:user_email,
             password: password
           })
-          .then(function (response) {
+          .then(function (response) { // logged in
             alert(response.data.data.role);
+            console.log(response);
+            localStorage.setItem('token',response.data.data.token);
             history.push("/home");
           })
-          .catch(function (error) {
+          .catch(function (error) { // invalid login
             alert(error.response.data);
           });
     }
