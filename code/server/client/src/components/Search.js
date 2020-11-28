@@ -34,9 +34,13 @@ function Search() {
         setValue(event.target.value);
     };
 
+    const handleSearchSubmit = (event) => {
+
+    };
+
     return (
         <div>
-            <form className={classes.searchForm}>
+            <form className={classes.searchForm} onSubmit={handleSearchSubmit}>
                 <FormControl component="fieldset" className={classes.formControl}>
                     <TextField 
                         id="outlined-textarea"
@@ -44,6 +48,7 @@ function Search() {
                         placeholder={"Enter the " + value + " of the video"} 
                         multiline
                         variant="outlined"
+                        label="Search Info"
                     >    
                     </TextField>
                     <Button variant="contained" color="primary" className={classes.button}>

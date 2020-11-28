@@ -1,14 +1,19 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
+/*
+A video shall contain the following information: 
+the video’s title, director's full name, description, price, genre, availability, tier, dayRent, Copy
 
-const videoSchema =  new Schema ({
-    title: String,
-    director: String,
-    description: String,
-    price: String,
-    rentalPeriod: String,
-    available: Number,
-    copies: Number
-});
+*/
+const VideoSchema = new mongoose.Schema({
+    title: { type: String, required: true,},
+    director: { type: String, required: true },
+    desription : { type: String, required: true },
+    price : { type: Number, required: true },
+    genre : { type: String, required: true },
+    availability : { type: String, required: true },
+    tier : { type: Number, required: true},
+    dayRent: {type: Number, required: true},
+    copy : {type: Number, required: true},
+  });
 
-mongoose.model('video', videoSchema);
+module.exports = mongoose.model('video', VideoSchema);
