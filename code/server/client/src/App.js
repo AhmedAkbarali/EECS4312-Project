@@ -10,7 +10,7 @@ import Profile from './components/Profile.js';
 import Register from './components/Register.js';
 import Search from './components/Search.js';
 import Results from './components/Results.js';
-
+import Manager_Page from './components/Manager_Page';
 import { Switch, Route, Link } from 'react-router-dom';
 
 
@@ -25,6 +25,7 @@ function App() {
           <Route  path="/home" component={Landing_Page}/>
           <Route path="/cart" component={Cart} />
           <Route path="/checkout" component={Checkout} />
+          <Route path="/manager" component={Manager_Page}/>
       </Switch>
     </div>
 
