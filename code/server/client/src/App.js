@@ -12,6 +12,7 @@ import Search from './components/Search.js';
 import Results from './components/Results.js';
 import Manager_Page from './components/Manager_Page';
 import { Switch, Route, Link } from 'react-router-dom';
+import routeTest from "./components/routeTest";
 
 
 function App() {
