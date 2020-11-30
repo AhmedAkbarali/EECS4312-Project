@@ -12,6 +12,7 @@ import Search from './components/Search.js';
 import Results from './components/Results.js';
 
 import { Switch, Route, Link } from 'react-router-dom';
+import routeTest from "./components/routeTest";
 
 
 function App() {
