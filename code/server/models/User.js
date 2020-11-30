@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const orderSchema = require('./Order');
 /*
 A customer account shall contain the following information: 
 the customer’s first name, last name, email address, home address, phone number, credit card information,6 digit mobile pin ,and loyalty point information
@@ -11,7 +12,7 @@ const UserSchema = new mongoose.Schema({
     last_name : { type: String, required: true },
     address : { type: String, required: true },
     phone_no : { type: String, required: true },
-    cc_info : { type: String},
+    cc_info : { type: String },
     role : {
       type: String,
       default: 'customer',
@@ -19,7 +20,10 @@ const UserSchema = new mongoose.Schema({
     },
     accessToken: {
       type: String
-    }
+    },
+    orders: [orderSchema],
+    warehouseLocation: String,
+    outstandingFees: Number
   });
 
 module.exports = mongoose.model('User', UserSchema);
