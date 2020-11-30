@@ -6,7 +6,6 @@ const orderSchema =  new Schema ({
     id: String,
     videos: [videoSchema, Date],
     subtotal: Number,
-    paymentStatus: String,
     shippingStatus: String
 });
 
