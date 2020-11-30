@@ -1,13 +1,16 @@
 import React, { Component } from 'react'
 import TextField from "@material-ui/core/TextField"
-import { makeStyles, withStyles } from '@material-ui/styles'
+import { withStyles } from '@material-ui/styles'
 import Accordion from '@material-ui/core/Accordion'
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import AccordionSummary from '@material-ui/core/AccordionSummary'
 import Typography from '@material-ui/core/Typography'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { DataGrid } from '@material-ui/data-grid';
 
+import axios from 'axios';
 
+const API_URL = "http://localhost:5000/"
 
 const styles = theme => ({
     textField: {
@@ -39,28 +42,58 @@ const styles = theme => ({
     },
 });
 
-const data_sample = [
-    {"id": 1, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 10.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    {"id": 2, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 5.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    {"id": 3, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 4.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    {"id": 4, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 15.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    {"id": 5, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 20.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    {"id": 6, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 4.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    {"id": 7, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 3.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    {"id": 8, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 9.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    {"id": 9, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 29.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    {"id": 10, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 11.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    {"id": 11, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 12.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    {"id": 12, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 6.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17}
+const columns = [
+    // { field: 'id', headerName: 'ID', width: 50},
+    { field: 'title', headerName: 'Title', width: 500 },
+    { field: 'director', headerName: 'Director', width: 300 },
+    {
+      field: 'availability',
+      headerName: 'Availability',
+      type: 'string',
+      width: 100,
+    },
 ];
+
+// const data_sample = [
+//     {"id": 1, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 10.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+//     {"id": 2, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 5.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+//     {"id": 3, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 4.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+//     {"id": 4, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 15.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+//     {"id": 5, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 20.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+//     {"id": 6, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 4.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+//     {"id": 7, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 3.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+//     {"id": 8, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 9.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+//     {"id": 9, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 29.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+//     {"id": 10, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 11.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+//     {"id": 11, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 12.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+//     {"id": 12, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 6.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17}
+// ];
 
 class Operator extends Component {
 
     state = {
         text: "",
         expanded: false,
-        data: data_sample,
+        data: [],
     };
+
+    componentDidMount() {
+        console.log("Component Did Mount");
+        axios.get(API_URL + "video/all")
+            .then(response => {
+                console.log(response);
+                let tempData = []
+                let currentData = response.data;
+                // var idCreators = 1;
+                currentData.map((data) => {
+                    tempData.push({"id": data._id, "title": data.Title, "director": data.Director, "availability": data.Availability});
+                    // idCreators = idCreators + 1;
+                })
+                this.setState({data: tempData});
+            }).catch((error) => {
+                console.log(error);
+            })
+    }
 
     handleTextChange = (event) => {
         // event.stopPropagation();
@@ -95,20 +128,12 @@ class Operator extends Component {
                         >    
                         </TextField>
                         <div style={{ height: 400, width: '100%' }}>
-                            <table className={classes.videoTable}>
-                                <tr className={classes.videoTr}>
-                                    <th className={classes.videoTh}>Title</th>
-                                    <th className={classes.videoTh}>Director</th>
-                                    <th className={classes.videoTh}>Available</th>
-                                </tr>
-                                {this.state.data.map((entry) => (
-                                <tr id={entry.id} className={classes.videoTr}>
-                                    <td className={classes.videoTd}>{entry.title}</td>
-                                    <td className={classes.videoTd}>{entry.director}</td>
-                                    <td className={classes.videoTd}>{entry.availability}</td>
-                                </tr>
-                                ))}
-                            </table>
+                            <DataGrid 
+                                rows={this.state.data} 
+                                columns={columns} 
+                                pageSize={15}
+                                checkboxSelection
+                            />
                         </div>
                     </AccordionDetails>
                 </Accordion>

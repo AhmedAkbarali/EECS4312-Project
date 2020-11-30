@@ -10,6 +10,7 @@ import Profile from './components/Profile.js';
 import Register from './components/Register.js';
 import Search from './components/Search.js';
 import Results from './components/Results.js';
+import Operator from './components/Operator.js';
 
 import { Switch, Route, Link } from 'react-router-dom';
 
@@ -17,7 +18,7 @@ import { Switch, Route, Link } from 'react-router-dom';
 function App() {
   return (
     <div className="App">
-      <Customer_Header></Customer_Header>
+      {/* <Customer_Header></Customer_Header>
       <Switch>
           <Route  path="/" exact component={Login}/>
           <Route  path="/register" component={Register}/>
@@ -25,7 +26,8 @@ function App() {
           <Route  path="/home" component={Landing_Page}/>
           <Route path="/cart" component={Cart} />
           <Route path="/checkout" component={Checkout} />
-      </Switch>
+      </Switch> */}
+      <Operator></Operator>
     </div>
 
   );
