@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 const videoSchema = require('./Video');
 
 const orderSchema =  new Schema ({
-    videos: [videoSchema, Date],
+    //videos: [videoSchema, Date],
     subtotal: Number,
     shippingStatus: String
 });
