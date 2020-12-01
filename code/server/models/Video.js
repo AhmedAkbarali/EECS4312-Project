@@ -16,7 +16,7 @@ const VideoSchema = new mongoose.Schema({
     Copy : {type: Number, required: true},
     }, 
     {
-      collection: "video",
+      collection: "videos",
     }
   );
 

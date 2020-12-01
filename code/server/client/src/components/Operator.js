@@ -2,13 +2,13 @@ import React, { Component } from 'react'
 import TextField from "@material-ui/core/TextField"
 import { withStyles } from '@material-ui/styles'
 import Accordion from '@material-ui/core/Accordion'
-import AccordionDetails from '@material-ui/core/AccordionDetails';
+import AccordionDetails from '@material-ui/core/AccordionDetails'
 import AccordionSummary from '@material-ui/core/AccordionSummary'
 import Typography from '@material-ui/core/Typography'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { DataGrid } from '@material-ui/data-grid';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { DataGrid } from '@material-ui/data-grid'
 
-import axios from 'axios';
+import axios from 'axios'
 
 const API_URL = "http://localhost:5000/"
 
@@ -77,6 +77,16 @@ class Operator extends Component {
         data: [],
     };
 
+    handleTextChange = (event) => {
+        // event.stopPropagation();
+        this.setState({text: event.target.text});
+    };
+
+    handleSectionChange = (panel) => (event, isExpanded) => {
+        this.setState({expanded: isExpanded ? panel : false});
+    };
+  
+
     componentDidMount() {
         console.log("Component Did Mount");
         axios.get(API_URL + "video/all")
@@ -95,15 +105,7 @@ class Operator extends Component {
             })
     }
 
-    handleTextChange = (event) => {
-        // event.stopPropagation();
-        this.setState({text: event.target.text});
-    };
-
-    handleSectionChange = (panel) => (event, isExpanded) => {
-        this.setState({expanded: isExpanded ? panel : false});
-    };
-
+    
     render() {
         const { classes } = this.props;
         return (

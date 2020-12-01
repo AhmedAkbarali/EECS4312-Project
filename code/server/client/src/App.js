@@ -27,7 +27,8 @@ function App() {
           <Route path="/cart" component={Cart} />
           <Route path="/checkout" component={Checkout} />
       </Switch> */}
-      <Operator></Operator>
+      {/* <Operator></Operator> */}
+      <Search></Search>
     </div>
 
   );
