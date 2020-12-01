@@ -4,21 +4,21 @@ import './App.css';
 import Login from './components/Login.js';
 import Cart from './components/Cart.js';
 import Checkout from './components/Checkout.js';
-import Customer_Header from './components/Customer_Header.js';
+import Dynamic_Header from './components/Dynamic_Header.js';
 import Landing_Page from './components/Landing_Page.js';
 import Profile from './components/Profile.js';
 import Register from './components/Register.js';
 import Search from './components/Search.js';
 import Results from './components/Results.js';
-import Operator from './components/Operator.js';
-
+import Manager_Page from './components/Manager_Page';
 import { Switch, Route, Link } from 'react-router-dom';
+
 
 
 function App() {
   return (
     <div className="App">
-      {/* <Customer_Header></Customer_Header>
+      <Dynamic_Header></Dynamic_Header>
       <Switch>
           <Route  path="/" exact component={Login}/>
           <Route  path="/register" component={Register}/>
@@ -26,9 +26,8 @@ function App() {
           <Route  path="/home" component={Landing_Page}/>
           <Route path="/cart" component={Cart} />
           <Route path="/checkout" component={Checkout} />
-      </Switch> */}
-      {/* <Operator></Operator> */}
-      <Search></Search>
+          <Route path="/manager" component={Manager_Page}/>
+      </Switch>
     </div>
 
   );

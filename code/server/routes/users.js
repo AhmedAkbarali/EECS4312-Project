@@ -63,9 +63,9 @@ router.post('/register', (req, res) => {
                         if (err) { return err;}
                        doc.accessToken = token;
                        doc.save();
+                       res.status(200).json({
+                        data: { email: user.email, role: user.role, token: token },
                      });
-                      res.status(200).json({
-                       data: { email: user.email, role: user.role, token: user.accessToken },
                       });
                      } catch (error) {
                         console.log(error);
@@ -77,5 +77,97 @@ router.post('/register', (req, res) => {
         }
   })});
   
+
+  verifyToken = (req,res,next) => {
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+    if (token == null) return res.send({message:"No token!"}); // if there isn't any token
+  
+    jwt.verify(token,secret, (err, decoded) => {
+        if (err) {
+          return res.send("token not matched");//res.status(401).send({ message: "Unauthorized!" });
+        }
+        req.userId = decoded.id;
+        next();
+      });
+};
+
+router.get('/',[verifyToken],(req,res) => {
+    User.findById(req.userId).exec((err, user) => {
+        if (err) {
+          return res.status(404).send("User Not Found!");
+        }
+        else{
+            res.status(200).json(user);
+        }
+})
+});
+
+router.put('/change_name',[verifyToken],(req,res) => {
+    const {first_name, last_name} = req.body;
+    User.findByIdAndUpdate(req.userId, {"$set": { "first_name": first_name, "last_name": last_name}}).exec(function(err,result) 
+    {   
+        if (err){
+            res.status(200).send("user not found");
+        }
+        else
+        {
+            res.status(200).json(result);
+        }
+
+    });
+
+});
+
+router.put('/change_email',[verifyToken],(req,res) => {
+    const {email} = req.body;
+    User.findByIdAndUpdate(req.userId, {"$set": { "email": email}}).exec(function(err,result) 
+    {   
+        if (err){
+            res.status(200).send("user not found");
+        }
+        else
+        {
+            res.status(200).json(result);
+        }
+
+    });
+
+});
+
+router.put('/change_address',[verifyToken],(req,res) => {
+    const {address} = req.body;
+    User.findByIdAndUpdate(req.userId, {"$set": { "address": address}}).exec(function(err,result) 
+    {   
+        if (err){
+            res.status(200).send("user not found");
+        }
+        else
+        {
+            res.status(200).json(result);
+        }
+
+    });
+
+});
+
+router.put('/change_phone',[verifyToken],(req,res) => {
+    const {phone_no} = req.body;
+    User.findByIdAndUpdate(req.userId, {"$set": { "phone_no": phone_no}}).exec(function(err,result) 
+    {   
+        if (err){
+            res.status(200).send("user not found");
+        }
+        else
+        {
+            res.status(200).json(result);
+        }
+
+    });
+
+});
+
+
+
 
 module.exports = router;
