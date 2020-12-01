@@ -91,18 +91,17 @@ class Search extends Component {
             query: "",
             searchData: [],
             filterData: [],
+            priceFilter: "0",
+            availFilter: "yes",
+            tierFilter: "all",
 
-            filter: {
-                "price": "0",
-                "available": "yes",
-                "tier": "All",
-            },
         };
     
         this.handleChange = this.handleChange.bind(this);
         this.handleQueryChange = this.handleQueryChange.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
-        this.handlePriceFilter = this.handlePriceFilter.bind(this);
+        // this.handlePriceFilter = this.handlePriceFilter.bind(this);
+        this.handleFilter = this.handleFilter.bind(this)
       }
     
     // state = {
@@ -111,64 +110,88 @@ class Search extends Component {
     //     searchData: [],
     // }
 
-    
-
-    handleTierFilter= (event) => {
-        var currentValue = event.target.value
-
-        this.setState({filter: {
-            "price": this.state.filter.price,
-            "available": this.state.filter.available,
-            "tier": currentValue,
-        }})
-    
-        let filterT = this.state.searchData.filter(data => 
-            data.price >= this.state.filter.price
-            && data.availability === this.state.filter.available
-            && data.tier == this.state.filter.tier
-        );
-
-        this.setState({filterData: filterT});
-        // this.setState({tierFilter: currentValue});
+    filterOptions = (price, tier, availability) =>{
+        return tier == this.state.tier;
     }
 
-    handleAvailFilter= (event) => {
-        var currentValue = event.target.value
+    handleFilter = (event) => {
+        let currentValue = event.target.value;
+        console.log(currentValue);
+        console.log(event.target.name);
 
-        this.setState({filter: {
-            "price": this.state.filter.price,
-            "available": currentValue,
-            "tier": this.state.filter.tier,
-        }})
-    
-        let filterT = this.state.searchData.filter(data => 
-            data.price >= this.state.filter.price
-            && data.availability === this.state.filter.available
-            && data.tier == this.state.filter.tier
-        );
+        console.log(this.state.priceFilter);
+        console.log(this.state.tierFilter);
+        console.log(this.state.availFilter);
 
-        this.setState({filterData: filterT});
-        // this.setState({availFilter: currentValue});
+        this.setState({[event.target.name]: currentValue});
+
+        console.log(this.state.priceFilter);
+        console.log(this.state.tierFilter);
+        console.log(this.state.availFilter);
+        
+
+        let filter_result = this.state.searchData.filter(data => this.filterOptions(data.price, data.tier, data.availability))
+        console.log(filter_result);
+        this.setState({filterData: filter_result});
     }
 
-    handlePriceFilter= (event) => {
-        var currentValue = event.target.value
 
-        this.setState({filter: {
-            "price": currentValue,
-            "available": this.state.filter.available,
-            "tier": this.state.filter.tier,
-        }})
+    // handleTierFilter= (event) => {
+    //     var currentValue = event.target.value
+
+    //     this.setState({filter: {
+    //         "price": this.state.filter.price,
+    //         "available": this.state.filter.available,
+    //         "tier": currentValue,
+    //     }})
     
-        let filterT = this.state.searchData.filter(data => 
-            data.price >= this.state.filter.price
-            && data.availability === this.state.filter.available
-            && data.tier == this.state.filter.tier
-        );
+    //     let filterT = this.state.searchData.filter(data => 
+    //         data.price >= this.state.filter.price
+    //         && data.availability === this.state.filter.available
+    //         && data.tier == this.state.filter.tier
+    //     );
 
-        this.setState({filterData: filterT});
-        // this.setState({tierFilter: currentValue});
-    }
+    //     this.setState({filterData: filterT});
+    //     // this.setState({tierFilter: currentValue});
+    // }
+
+    // handleAvailFilter= (event) => {
+    //     var currentValue = event.target.value
+
+    //     this.setState({filter: {
+    //         "price": this.state.filter.price,
+    //         "available": currentValue,
+    //         "tier": this.state.filter.tier,
+    //     }})
+    
+    //     let filterT = this.state.searchData.filter(data => 
+    //         data.price >= this.state.filter.price
+    //         && data.availability === this.state.filter.available
+    //         && data.tier == this.state.filter.tier
+    //     );
+
+    //     this.setState({filterData: filterT});
+    //     // this.setState({availFilter: currentValue});
+    // }
+
+    // handlePriceFilter= (event) => {
+    //     var currentValue = event.target.value
+
+    //     this.setState({filter: {
+    //         "price": currentValue,
+    //         "available": this.state.filter.available,
+    //         "tier": this.state.filter.tier,
+    //     }})
+    
+    //     let filterT = this.state.searchData.filter(data => 
+    //         data.price >= this.state.filter.price
+    //         && data.availability === this.state.filter.available
+    //         && data.tier == this.state.filter.tier
+    //     );
+
+    //     this.setState({filterData: filterT});
+    //     // this.setState({tierFilter: currentValue});
+    // }
 
     handleChange = (event) => {
         // setValue(event.target.value);
@@ -223,9 +246,10 @@ class Search extends Component {
                     <FormLabel coponent="legend">Filter</FormLabel>
                     <Box>
                         <label>Price Filter:</label>
-                        <RadioGroup aria-label="Price" name="priceFilter" 
-                            value={this.state.filter.price} 
-                            onChange={this.handlePriceFilter}
+                        <RadioGroup aria-label="Price" 
+                            name="priceFilter" 
+                            value={this.state.priceFilter} 
+                            onChange={this.handleFilter}
                         >
                             <FormControlLabel value="0" control={<Radio />} label="All" />
                             <FormControlLabel value="5" control={<Radio />} label=">5" />
@@ -235,11 +259,12 @@ class Search extends Component {
 
                     <Box>
                         <label>Tier Filter:</label>
-                        <RadioGroup aria-label="Tier" name="tierFilter" 
-                            value={this.state.filter.tier} 
-                            onChange={this.handleTierFilter}
+                        <RadioGroup aria-label="Tier" 
+                            name="tierFilter" 
+                            value={this.state.tierFilter} 
+                            onChange={this.handleFilter}
                         >
-                            <FormControlLabel value="All" control={<Radio />} label="All" />
+                            <FormControlLabel value="all" control={<Radio />} label="All" />
                             <FormControlLabel value="1" control={<Radio />} label="1" />
                             <FormControlLabel value="2" control={<Radio />} label="2" />
                             <FormControlLabel value="3" control={<Radio />} label="3" />
@@ -248,9 +273,10 @@ class Search extends Component {
 
                     <Box>
                         <label>Availability Filter:</label>
-                        <RadioGroup aria-label="Availability" name="availableFilter" 
-                            value={this.state.filter.available} 
-                            onChange={this.handleAvailFilter}
+                        <RadioGroup aria-label="Availability" 
+                            name="availFilter" 
+                            value={this.state.availFilter} 
+                            onChange={this.handleFilter}
                         >
                             <FormControlLabel value="yes" control={<Radio />} label="yes" />
                             <FormControlLabel value="no" control={<Radio />} label="no" />
