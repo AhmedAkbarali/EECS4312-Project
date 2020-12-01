@@ -27,6 +27,7 @@ function App() {
           <Route path="/cart" component={Cart} />
           <Route path="/checkout" component={Checkout} />
           <Route path="/manager" component={Manager_Page}/>
+          <Route path="/search" component={Search} />
       </Switch>
     </div>
 
