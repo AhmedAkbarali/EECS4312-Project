@@ -101,7 +101,7 @@ function Dynamic_Header() {
             {(userType==="manager") && (
             <div>
             <Button component={ Link } to="/search" variant="contained" color="primary">Search</Button>
-            <Button component={ Link } to="/" variant="contained" color="primary">ManagerThings</Button>
+            <Button component={ Link } to="/manager" variant="contained" color="primary">ManagerThings</Button>
             </div>
             )}
 
