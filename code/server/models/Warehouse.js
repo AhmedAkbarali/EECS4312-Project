@@ -4,7 +4,7 @@ const videoSchema = require('./Video');
 
 const warehouseSchema =  new Schema ({
     location: String,
-    inventory: [videoSchema]
+    inventory: [String]
 });
 
 mongoose.model('warehouse', warehouseSchema);

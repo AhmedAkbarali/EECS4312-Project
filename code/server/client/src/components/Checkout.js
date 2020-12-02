@@ -1,8 +1,5 @@
 import React, {Component} from 'react';
-import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
 import '../style/Cart.css';
 import { Link } from 'react-router-dom';
 import FormControl from "@material-ui/core/FormControl";
@@ -10,7 +7,7 @@ import FormLabel from "@material-ui/core/FormLabel";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
-import * as axios from "mongoose/lib/promise_provider";
+import RouteTest from "./RouteTest";
 
 const CART_LIST = [
     {name: '0',price: '10'},
@@ -92,6 +89,7 @@ class Checkout extends Component {
                         </div>
                     </div>
                 </div>
+                <RouteTest></RouteTest>
             </div>
         )
     }

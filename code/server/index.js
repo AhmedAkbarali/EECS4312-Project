@@ -5,10 +5,12 @@ const app = express();
 const mongoose = require('mongoose');
 const cors = require('cors');
 
+require('./models/User');
+require('./models/Order');
+require('./models/Video');
+require('./models/Warehouse');
+
 app.use(cors());
-
-
-
 app.use(bodyParser.json());
 app.use(
     cookieSession({
@@ -16,6 +18,11 @@ app.use(
         keys: ["p9q8wrghuasgf98a34yhfauisd"]
     })
 );
+
+
+require('./routes/orderRoutes')(app);
+
+
 const uri = "mongodb+srv://user123:UwHUrc1iI87dMAIN@cluster0.rerpk.mongodb.net/videoco?retryWrites=true&w=majority";
 mongoose.connect(uri,
     { useNewUrlParser: true },
