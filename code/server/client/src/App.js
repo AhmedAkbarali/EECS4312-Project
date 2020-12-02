@@ -15,8 +15,6 @@ import { Switch, Route, Link } from 'react-router-dom';
 import Warehouse_Active_Orders from './components/Warehouse_Active_Orders.js'
 import Warehouse_Inventory from './components/Warehouse_Inventory.js'
 
-
-
 function App() {
   return (
     <div className="App">

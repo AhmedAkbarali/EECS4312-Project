@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const videoSchema = require('./Video');
 
 const orderSchema =  new Schema ({
-    //videos: [videoSchema, Date],
+    videos: [String, Date],
     subtotal: Number,
-    shippingStatus: String
+    shippingStatus: String,
+    user: String
 });
 
 mongoose.model('order', orderSchema);
