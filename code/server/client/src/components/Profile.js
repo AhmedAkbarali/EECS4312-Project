@@ -1,7 +1,8 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid, Avatar, Container, Card } from '@material-ui/core';
+import axios from 'axios';
 
 const useStyles =   makeStyles((theme) => ({
   large:{
@@ -12,6 +13,58 @@ const useStyles =   makeStyles((theme) => ({
 
 function Profile() {
     const classes = useStyles();
+    const [userData, setData] = useState({
+      urole:"",
+      ufname:"",
+      ulname:"",
+      uemail:"",
+      uaddress:"",
+      uphone_no:"",
+      ucc_info:"",
+    });
+/*
+    useEffect(() => {
+      axios.put("user/change_name",{
+        first_name : "Digen",
+        last_name : "Gill",
+      },{headers: {
+        'Authorization': `token ${localStorage.getItem('token')}`
+      }})
+      .then(function (response) {
+        console.log(response); 
+      })
+      .catch(function (error) {
+        alert(error.response.data);
+      });
+    },[]);
+*/
+
+    useEffect(() => {
+      axios.get("user",{
+        headers: {
+        'Authorization': `token ${localStorage.getItem('token')}`
+      }})
+      .then(function (response) {
+        console.log(response); 
+        console.log(response.data.address); 
+
+        setData({
+          urole:response.data.role,
+          ufname:response.data.first_name,
+          ulname:response.data.last_name,
+          uemail:response.data.email,
+          uaddress:response.data.address,
+          uphone_no:response.data.phone_no,
+          ucc_info:response.data.cc_info,
+        });
+      })
+      .catch(function (error) {
+        alert(error.response.data);
+      });
+    },[]);
+
+    
+
     return (
         <div>
             <Container fixed>
@@ -33,13 +86,13 @@ function Profile() {
                 <Grid item sm = {4} style={{textAlign:"left"}}>
                   <Card>
                     <div style = {{marginLeft:"25px"}}>
-                      <p>Account Type:</p>
-                      <p>Name:</p>
-                      <p>E-mail:</p>
-                      <p>Address:</p>
-                      <p>Phone Number:</p>
+                      <p>Account Type: {userData.urole}</p>
+                      <p>Name: {userData.ufname}  {userData.ulname}</p>
+                      <p>E-mail: {userData.uemail}</p>
+                      <p>Address: {userData.uaddress}</p>
+                      <p>Phone Number: {userData.uphone_no}</p>
                       <p>Loyalty Points</p>
-                      <p>Credit Card Number : XXXXXXXXXXXX</p>
+                      <p>Credit Card Number : {userData.ucc_info}</p>
                     </div>
                     
                   </Card>

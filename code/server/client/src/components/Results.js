@@ -9,7 +9,7 @@ import CardContent from '@material-ui/core/CardContent'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import IconButton from '@material-ui/core/IconButton'
-import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
+import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart'
 import RadioGroup from '@material-ui/core/RadioGroup'
 import Radio from '@material-ui/core/Radio'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
@@ -46,7 +46,8 @@ const useStyles = makeStyles((theme)=> ({
         flexDirection: "column",
         margin: theme.spacing(2),
         border: "2px black solid",
-        width: "100%"
+        width: "100%",
+        height: 600,
     },
 
     videoItem: {
@@ -66,36 +67,39 @@ const useStyles = makeStyles((theme)=> ({
     },
 }));
 
-function Results() {
+function Results(props) {
 
     const classes = useStyles();
 
     const [value, setValue] = React.useState('None')
 
-    const data = [
-        {"id": 1, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 10.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-        {"id": 2, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 5.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-        {"id": 3, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 4.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-        {"id": 4, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 15.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-        {"id": 5, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 20.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-        {"id": 6, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 4.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-        {"id": 7, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 3.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-        {"id": 8, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 9.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-        {"id": 9, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 29.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-        {"id": 10, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 11.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-        {"id": 11, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 12.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-        {"id": 12, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 6.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17}
-    ];
+    // const data = [
+    //     {"id": 1, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 10.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+    //     {"id": 2, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 5.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+    //     {"id": 3, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 4.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+    //     {"id": 4, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 15.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+    //     {"id": 5, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 20.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+    //     {"id": 6, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 4.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+    //     {"id": 7, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 3.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+    //     {"id": 8, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 9.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+    //     {"id": 9, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 29.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+    //     {"id": 10, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 11.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+    //     {"id": 11, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 12.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
+    //     {"id": 12, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 6.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17}
+    // ];
 
-    var [filterData, setFilterData] = React.useState(data);
+    const [searchData, setSearchData] = React.useState([]);
+    const [filterData, setFilterData] = React.useState(searchData);
+
+    setSearchData(props.searchData);
 
     const handleChange = (event) => {
         var currentValue = event.target.value
 
         if (currentValue === 'None')
-            setFilterData(data)
+            setFilterData(searchData)
         else {
-            setFilterData(data.filter(data => data.price >= currentValue))
+            setFilterData(searchData.filter(data => data.price >= currentValue))
         }
         setValue(currentValue)
     }

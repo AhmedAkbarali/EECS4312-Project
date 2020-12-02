@@ -24,6 +24,8 @@ require('./routes/orderRoutes')(app);
 
 
 const uri = "mongodb+srv://user123:UwHUrc1iI87dMAIN@cluster0.rerpk.mongodb.net/videoco?retryWrites=true&w=majority";
+
+
 mongoose.connect(uri,
     { useNewUrlParser: true },
     () => console.log('Connected to DB.')
@@ -41,6 +43,7 @@ if(process.env.NODE_ENV === 'production') {
 }
 app.use('/user',require('./routes/users.js'));
 app.use('/access',require('./routes/access.js'));
+app.use('/video', require('./routes/videos.js'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT);
