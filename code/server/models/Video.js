@@ -12,7 +12,7 @@ const VideoSchema = new mongoose.Schema({
     Genre : { type: String, required: true },
     Availability : { type: String, required: true },
     Tier : { type: Number, required: true},
-    DayRent: {type: Number, required: true},
+    DaysRent: {type: Number, required: true},
     Copy : {type: Number, required: true},
     }, 
     {

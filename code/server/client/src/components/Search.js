@@ -90,8 +90,7 @@ class Search extends Component {
             value: "title",
             query: "",
             searchData: [],
-            filterData: [],
-            priceFilter: "0",
+            priceFilter: "all",
             availFilter: "yes",
             tierFilter: "all",
 
@@ -100,98 +99,12 @@ class Search extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleQueryChange = this.handleQueryChange.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
-        // this.handlePriceFilter = this.handlePriceFilter.bind(this);
-        this.handleFilter = this.handleFilter.bind(this)
+        this.handleFilter = this.handleFilter.bind(this);
       }
-    
-    // state = {
-    //     value: "title",
-    //     query: "",
-    //     searchData: [],
-    // }
-
-    filterOptions = (price, tier, availability) =>{
-        return tier == this.state.tier;
-    }
 
     handleFilter = (event) => {
-        let currentValue = event.target.value;
-        console.log(currentValue);
-        console.log(event.target.name);
-
-        console.log(this.state.priceFilter);
-        console.log(this.state.tierFilter);
-        console.log(this.state.availFilter);
-
-        this.setState({[event.target.name]: currentValue});
-
-        console.log(this.state.priceFilter);
-        console.log(this.state.tierFilter);
-        console.log(this.state.availFilter);
-        
-
-        let filter_result = this.state.searchData.filter(data => this.filterOptions(data.price, data.tier, data.availability))
-        console.log(filter_result);
-        this.setState({filterData: filter_result});
+        this.setState({...this.state, [event.target.name]: event.target.value});
     }
-
-
-    // handleTierFilter= (event) => {
-    //     var currentValue = event.target.value
-
-    //     this.setState({filter: {
-    //         "price": this.state.filter.price,
-    //         "available": this.state.filter.available,
-    //         "tier": currentValue,
-    //     }})
-    
-    //     let filterT = this.state.searchData.filter(data => 
-    //         data.price >= this.state.filter.price
-    //         && data.availability === this.state.filter.available
-    //         && data.tier == this.state.filter.tier
-    //     );
-
-    //     this.setState({filterData: filterT});
-    //     // this.setState({tierFilter: currentValue});
-    // }
-
-    // handleAvailFilter= (event) => {
-    //     var currentValue = event.target.value
-
-    //     this.setState({filter: {
-    //         "price": this.state.filter.price,
-    //         "available": currentValue,
-    //         "tier": this.state.filter.tier,
-    //     }})
-    
-    //     let filterT = this.state.searchData.filter(data => 
-    //         data.price >= this.state.filter.price
-    //         && data.availability === this.state.filter.available
-    //         && data.tier == this.state.filter.tier
-    //     );
-
-    //     this.setState({filterData: filterT});
-    //     // this.setState({availFilter: currentValue});
-    // }
-
-    // handlePriceFilter= (event) => {
-    //     var currentValue = event.target.value
-
-    //     this.setState({filter: {
-    //         "price": currentValue,
-    //         "available": this.state.filter.available,
-    //         "tier": this.state.filter.tier,
-    //     }})
-    
-    //     let filterT = this.state.searchData.filter(data => 
-    //         data.price >= this.state.filter.price
-    //         && data.availability === this.state.filter.available
-    //         && data.tier == this.state.filter.tier
-    //     );
-
-    //     this.setState({filterData: filterT});
-    //     // this.setState({tierFilter: currentValue});
-    // }
 
     handleChange = (event) => {
         // setValue(event.target.value);
@@ -220,16 +133,13 @@ class Search extends Component {
                     "genre": data.Genre,
                     "availability": data.Availability,
                     "tier": data.Tier,
-                    "dayRent": data.DayRent,
+                    "daysRent": data.DaysRent,
                     "Copy": data.Copy});
             })
             this.setState({searchData: tempData});
-            this.setState({filterData: tempData});
         }).catch((err) => {
             console.log(err);
         })
-        // console.log(this.state.query);
-        // console.log(this.state.value);
     };
    
 
@@ -238,6 +148,20 @@ class Search extends Component {
         
         // This should be in Result.js but running inot error if use the component
         let result;
+
+        var filterData = this.state.searchData;
+
+        if (this.state.priceFilter !== "all"){
+            var p = Number(this.state.priceFilter);
+            filterData = filterData.filter(data => data.price >= p);
+        }
+
+        if(this.state.tierFilter !== "all"){
+            var t = Number(this.state.tierFilter);
+            filterData = filterData.filter(data => data.tier === t);
+        }
+
+        filterData = filterData.filter(data => data.availability === this.state.availFilter);
 
         if (this.state.searchData.length > 0){
             result =  (<div className={classes.root}>
@@ -251,7 +175,7 @@ class Search extends Component {
                             value={this.state.priceFilter} 
                             onChange={this.handleFilter}
                         >
-                            <FormControlLabel value="0" control={<Radio />} label="All" />
+                            <FormControlLabel value="all" control={<Radio />} label="All" />
                             <FormControlLabel value="5" control={<Radio />} label=">5" />
                             <FormControlLabel value="10" control={<Radio />} label=">10" />
                         </RadioGroup>
@@ -285,7 +209,7 @@ class Search extends Component {
                 </FormControl>
             </form>
             <List className={classes.videoList}>
-                {this.state.filterData && this.state.filterData.map((d) => (
+                {filterData && filterData.map((d) => (
                     <ListItem id={d.id} key={d.id} className={classes.videoItem}>
                         <Card className={classes.videoCard}>
                             <div>

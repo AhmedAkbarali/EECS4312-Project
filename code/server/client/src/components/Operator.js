@@ -88,7 +88,7 @@ class Operator extends Component {
   
 
     componentDidMount() {
-        console.log("Component Did Mount");
+        // console.log("Component Did Mount");
         axios.get(API_URL + "video/all")
             .then(response => {
                 console.log(response);
