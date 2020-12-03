@@ -118,7 +118,7 @@ class Search extends Component {
 
     handleSearch = (event) => {
         axios.post(API_URL + "video/search/", {
-            query: this.state.query,
+            query: this.state.query.trim(),
             value: this.state.value,
         }).then(response => {
             let tempData = []

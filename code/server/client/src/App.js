@@ -9,6 +9,7 @@ import Landing_Page from './components/Landing_Page.js';
 import Profile from './components/Profile.js';
 import Register from './components/Register.js';
 import Search from './components/Search.js';
+import Operator from './components/Operator.js';
 import Results from './components/Results.js';
 import Manager_Page from './components/Manager_Page';
 import { Switch, Route, Link } from 'react-router-dom';
@@ -28,6 +29,7 @@ function App() {
           <Route path="/checkout" component={Checkout} />
           <Route path="/manager" component={Manager_Page}/>
           <Route path="/search" component={Search} />
+          <Route path="/operator" component={Operator} />
       </Switch>
     </div>
 
