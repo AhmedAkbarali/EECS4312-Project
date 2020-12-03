@@ -181,6 +181,20 @@ router.post('/get_customer', (req, res) => {
 });
 
 
+router.put('/pay_fees',[verifyToken],(req,res) => {
+    User.findByIdAndUpdate(req.userId, {"$set": { "outstandingFees": 0}}).exec(function(err,result) 
+    {   
+        if (err){
+            res.status(200).send("user not found");
+        }
+        else
+        {
+            res.status(200).json(result);
+        }
+      
+    });
+
+});
 
 
 module.exports = router;

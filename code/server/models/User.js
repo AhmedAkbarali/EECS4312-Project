@@ -12,9 +12,16 @@ const UserSchema = new mongoose.Schema({
     last_name : { type: String, required: true },
     address : { type: String, required: true },
     phone_no : { type: String, required: true },
-    cc_info : { type: String },
-    loyalty_points: {type : Number },
-    
+    cc_info : { type: String, default: "Not added card to account." },
+    loyalty_points: {type : Number, default:0 },
+    outstandingFees: {type: Number, default:0},
+    six_digit_pin: {type: Number},
+    cart : [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Video',
+        }
+    ],
     role : {
       type: String,
       default: 'customer',
@@ -25,7 +32,7 @@ const UserSchema = new mongoose.Schema({
     },
     orders: [orderSchema],
     warehouseLocation: String,
-    outstandingFees: Number
+
   });
 
 module.exports = mongoose.model('User', UserSchema);
