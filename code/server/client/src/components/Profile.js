@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
-import { Grid, Avatar, Container, Card } from '@material-ui/core';
+import { Grid, Avatar, Container, Card, Button, DialogTitle, DialogContent,DialogContentText,TextField,DialogActions,Dialog, } from '@material-ui/core';
 import axios from 'axios';
 
 const useStyles =   makeStyles((theme) => ({
@@ -21,25 +21,46 @@ function Profile() {
       uaddress:"",
       uphone_no:"",
       ucc_info:"",
+      uoutstandingFee:0,
+      uloyaltypoints:0
     });
-/*
-    useEffect(() => {
-      axios.put("user/change_name",{
-        first_name : "Digen",
-        last_name : "Gill",
-      },{headers: {
-        'Authorization': `token ${localStorage.getItem('token')}`
-      }})
-      .then(function (response) {
-        console.log(response); 
-      })
-      .catch(function (error) {
-        alert(error.response.data);
-      });
-    },[]);
-*/
+    const [editData, setEditData] = useState({
+      eemail:"",
+      efname:"",
+      elname:"",
+      eaddress:"",
+      ephone_no:"",
+      ecc_info:"",
+    });
+
+    const handleProfileChange = e => {
+      const {name, value} = e.target;
+      setEditData(prevState => ({
+        ...prevState,
+        [name]: value
+    }));
+    console.log(editData);
+    }
+
+    const [edit_open, setOpen] = useState(false);
+    const [userType, setType] = useState(0);
+
 
     useEffect(() => {
+      console.log(editData);
+      axios.get("/access/customer",{
+        headers: {
+          'Authorization': `token ${localStorage.getItem('token')}`
+        }})
+        .then(response => {
+            console.log(response);
+            setType(1);
+        })
+        .catch(error => {
+            setType(0);
+        });
+
+
       axios.get("user",{
         headers: {
         'Authorization': `token ${localStorage.getItem('token')}`
@@ -47,7 +68,6 @@ function Profile() {
       .then(function (response) {
         console.log(response); 
         console.log(response.data.address); 
-
         setData({
           urole:response.data.role,
           ufname:response.data.first_name,
@@ -56,6 +76,8 @@ function Profile() {
           uaddress:response.data.address,
           uphone_no:response.data.phone_no,
           ucc_info:response.data.cc_info,
+          uoutstandingFee:response.data.outstandingFees,
+          uloyaltypoints:response.data.loyalty_points
         });
       })
       .catch(function (error) {
@@ -63,6 +85,103 @@ function Profile() {
       });
     },[]);
 
+
+    const handleClickOpen = () => {
+      setOpen(true);
+    };
+  
+    const handleClose = () => {
+      setOpen(false);
+    };
+
+    const handleSubmit = () => {
+      handleClose();
+
+      if (editData.efname !== "") {
+        if (editData.elname === "") {
+          editData.elname = userData.ulname;
+        }
+          axios.put("user/change_name",{
+            first_name: editData.efname,
+            last_name: editData.elname
+          },{headers: {
+            'Authorization': `token ${localStorage.getItem('token')}`
+          }})
+          .then(function (response) {
+            console.log(response); 
+          })
+          .catch(function (error) {
+            alert(error.response.data);
+          });
+        
+      }
+      if (editData.elname !== "") {
+        if (editData.efname === "") {
+          editData.efname = userData.ufname;
+        }
+          axios.put("user/change_name",{
+            first_name: editData.efname,
+            last_name: editData.elname
+          },{headers: {
+            'Authorization': `token ${localStorage.getItem('token')}`
+          }})
+          .then(function (response) {
+            console.log(response); 
+          })
+          .catch(function (error) {
+            alert(error.response.data);
+          });
+      }
+
+      if (editData.eaddress !== "") {
+        axios.put("user/change_address",{
+          address: editData.eaddress
+        },{headers: {
+          'Authorization': `token ${localStorage.getItem('token')}`
+        }})
+        .then(function (response) {
+          console.log(response); 
+        })
+        .catch(function (error) {
+          alert(error.response.data);
+        });
+      }
+      if (editData.ephone_no !== "") {
+        axios.put("user/change_phone",{
+          phone_no: editData.ephone_no
+        },{headers: {
+          'Authorization': `token ${localStorage.getItem('token')}`
+        }})
+        .then(function (response) {
+          console.log(response); 
+        })
+        .catch(function (error) {
+          alert(error.response.data);
+        });
+      }
+      if (editData.eemail !== "") {
+          axios.put("user/change_email",{
+            email: editData.eemail
+          },{headers: {
+            'Authorization': `token ${localStorage.getItem('token')}`
+          }})
+          .then(function (response) {
+            console.log(response); 
+          })
+          .catch(function (error) {
+            alert(error.response.data);
+          });
+          console.log("email changed");
+      }
+      window.location.reload(false);
+
+      setEditData({eemail:"",
+      efname:"",
+      elname:"",
+      eaddress:"",
+      ephone_no:"",
+      ecc_info:"",});
+    }
     
 
     return (
@@ -91,37 +210,98 @@ function Profile() {
                       <p>E-mail: {userData.uemail}</p>
                       <p>Address: {userData.uaddress}</p>
                       <p>Phone Number: {userData.uphone_no}</p>
-                      <p>Loyalty Points</p>
-                      <p>Credit Card Number : {userData.ucc_info}</p>
+                      { userType && (<div><p>Credit Card Number: {userData.ucc_info}</p>
+                      <p>Loyalty Points: {userData.uloyaltypoints}</p>
+                      <p>Outstanding Overdue Charges: {userData.uoutstandingFee}</p>
+                      </div>)
+                      }
                     </div>
                     
                   </Card>
                 </Grid>
-                <Grid item sm={6} container spacing = {2} direction = "column">
-                  <Grid item xs = {4}>
-                    <Card style = {{height:"75px"}}>
-                      <Typography style={{marginTop:"25px"}}>
-                        Edit user info
-                      </Typography>
-                    </Card>
-                  </Grid>
-                  <Grid item xs = {4}>
-                    <Card style = {{height:"75px"}}>
-                      <Typography style={{marginTop:"25px"}}>
-                        Change e-mail
-                      </Typography>
-                    </Card>
-                  </Grid>
-                  <Grid item xs = {4}>
-                    <Card style = {{height:"75px"}}>
-                      <Typography style={{marginTop:"25px"}}>
-                        Change e-mail
-                      </Typography>
-                    </Card>
-                  </Grid>
-                </Grid>
+                <Button variant="contained" color="primary" onClick={handleClickOpen}  style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'} }>Edit Profile</Button>
+               
               </Grid>
+              { userType && (<div>
+                <Button variant="contained" color="primary"  style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'} }>Active Rentals</Button>
+                <Button variant="contained" color="primary"  style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'} }>Rental History</Button>
+              </div>)}
             </Container>
+            <Dialog open={edit_open} onClose={handleClose} aria-labelledby="form-dialog-title">
+              <DialogTitle id="form-dialog-title">Edit Information</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  To subscribe to this website, please enter your email address here. We will send updates
+                  occasionally.
+                </DialogContentText>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  name="efname"
+                  label="First Name"
+                  type="text"
+                  onChange={handleProfileChange}
+
+                />
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  name="elname"
+                  label="Last Name"
+                  type="text"
+                  onChange={handleProfileChange}
+
+                />
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  name="eemail"
+                  label="Email Address"
+                  type="email"
+                  fullWidth
+                  onChange={handleProfileChange}
+
+                />
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  name="eaddress"
+                  label="Address"
+                  type="text"
+                  fullWidth
+                  onChange={handleProfileChange}
+
+                />
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  name="ephone_no"
+                  label="Phone No."
+                  type="text"
+                  fullWidth
+                  onChange={handleProfileChange}
+
+                />
+                { userType && (<TextField
+                  autoFocus
+                  margin="dense"
+                  name="ecc_info"
+                  label="Credit Card Number"
+                  type="text"
+                  fullWidth
+                  onChange={handleProfileChange}
+
+                />)}
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose} color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={handleSubmit} color="primary">
+                  Change
+                </Button>
+              </DialogActions>
+            </Dialog>
         </div>
     )
 }
