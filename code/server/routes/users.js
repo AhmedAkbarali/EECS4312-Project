@@ -167,6 +167,19 @@ router.put('/change_phone',[verifyToken],(req,res) => {
 
 });
 
+router.post('/get_customer', (req, res) => {
+   const {phone_no, pin} = req.body;
+
+   User.findOne({phone_no: phone_no, pin: pin}).exec(function(err, result){
+        if (err){
+            res.status(200).send("Customer not found");
+        }
+        else {
+            res.json(result);
+        }
+   })
+});
+
 
 
 
