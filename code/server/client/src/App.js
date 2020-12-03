@@ -13,8 +13,8 @@ import Operator from './components/Operator.js';
 import Results from './components/Results.js';
 import Manager_Page from './components/Manager_Page';
 import { Switch, Route, Link } from 'react-router-dom';
-
-
+import Warehouse_Active_Orders from './components/Warehouse_Active_Orders.js'
+import Warehouse_Inventory from './components/Warehouse_Inventory.js'
 
 function App() {
   return (
@@ -30,6 +30,8 @@ function App() {
           <Route path="/manager" component={Manager_Page}/>
           <Route path="/search" component={Search} />
           <Route path="/operator" component={Operator} />
+          <Route path="/warehouseActiveOrders" component={Warehouse_Active_Orders} />
+          <Route path="/warehouseInventory" component={Warehouse_Inventory} />
       </Switch>
     </div>
 

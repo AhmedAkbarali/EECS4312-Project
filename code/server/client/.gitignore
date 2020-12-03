@@ -7,7 +7,7 @@
 
 # testing
 /coverage
-/src/components/routeTest.js
+/src/components/RouteTest.js
 # production
 /build
 

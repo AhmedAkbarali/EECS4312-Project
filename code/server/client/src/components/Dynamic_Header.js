@@ -73,6 +73,7 @@ function Dynamic_Header() {
                 <MenuItem value={"admin"}>Admin</MenuItem>
                 <MenuItem value={"manager"}>Manager</MenuItem>
                 <MenuItem value={"operator"}>Operator</MenuItem>
+                <MenuItem value={"warehouse"}>WarehouseTeam</MenuItem>
               </Select>
               </FormControl>
             </section>
@@ -101,7 +102,7 @@ function Dynamic_Header() {
             {(userType==="manager") && (
             <div>
             <Button component={ Link } to="/search" variant="contained" color="primary">Search</Button>
-            <Button component={ Link } to="/" variant="contained" color="primary">ManagerThings</Button>
+            <Button component={ Link } to="/manager" variant="contained" color="primary">ManagerThings</Button>
             </div>
             )}
 
@@ -109,6 +110,13 @@ function Dynamic_Header() {
             <div>
             <Button component={ Link } to="/search" variant="contained" color="primary">Search</Button>
             <Button component={ Link } to="/" variant="contained" color="primary">OperatorThings</Button>
+            </div>
+            )}
+
+            {(userType==="warehouse") && (
+            <div>
+            <Button component={ Link } to="/warehouseActiveOrders" variant="contained" color="primary">Active Orders</Button>
+            <Button component={ Link } to="/warehouseInventory" variant="contained" color="primary">Inventory</Button>
             </div>
             )}
 

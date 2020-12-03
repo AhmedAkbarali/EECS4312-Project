@@ -13,10 +13,12 @@ const UserSchema = new mongoose.Schema({
     address : { type: String, required: true },
     phone_no : { type: String, required: true },
     cc_info : { type: String },
+    loyalty_points: {type : Number },
+    
     role : {
       type: String,
       default: 'customer',
-      enum: ['customer','manager','operator', 'warehouse']
+      enum: ['customer','manager','operator', 'shipper','warehouse']
     },
     accessToken: {
       type: String
