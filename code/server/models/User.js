@@ -15,8 +15,13 @@ const UserSchema = new mongoose.Schema({
     cc_info : { type: String, default: "Not added card to account." },
     loyalty_points: {type : Number, default:0 },
     outstandingFees: {type: Number, default:0},
-    six_digit_pin: {type: Number, required: true},
-
+    six_digit_pin: {type: Number},
+    cart : [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Video',
+        }
+    ],
     role : {
       type: String,
       default: 'customer',
