@@ -1,11 +1,25 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
+
 const orderSchema =  new Schema ({
-    videos: [String, Date],
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+    },
+    videos: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Video',
+        }
+    ],
     subtotal: Number,
-    shippingStatus: String,
-    user: String
+    status: 
+    {
+        type: String,
+        default: "preparing",
+        enum: ["preparing", "gathering", "shipped", "received"],
+    },
 });
 
 mongoose.model('order', orderSchema);

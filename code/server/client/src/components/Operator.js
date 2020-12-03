@@ -11,10 +11,15 @@ import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import { DataGrid } from '@material-ui/data-grid';
 import Button from '@material-ui/core/Button';
+import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
+import Input from '@material-ui/core/Input';
+import InputLabel from '@material-ui/core/InputLabel'
 
 import axios from 'axios';
 import Register from './Register';
 import Cart from './Cart';
+
 
 const API_URL = "http://localhost:5000/";
 
@@ -46,34 +51,11 @@ const styles = theme => ({
         textAlign: 'left',
         padding: "8 8 8 8",
     },
+
+    form: {
+        
+    }
 });
-
-// const columns = [
-//     // { field: 'id', headerName: 'ID', width: 50},
-//     { field: 'title', headerName: 'Title', width: 500 },
-//     { field: 'director', headerName: 'Director', width: 300 },
-//     {
-//       field: 'availability',
-//       headerName: 'Availability',
-//       type: 'string',
-//       width: 300,
-//       renderCell: (params) => (
-//         <strong>
-//             {params.value}
-//             <Button
-//                 variant="contained"
-//                 color="primary"
-//                 size="small"
-//                 style={{ marginLeft: 16 }}
-//                 onClick={() => {console.log(params)}}
-//             >
-//                 Add Cart
-//             </Button>
-//         </strong>
-//       ),
-//     },
-// ];
-
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -132,6 +114,8 @@ class Operator extends Component {
         videos: [],
         tempVideos: [],
         sectionIndex: 0,
+        customerPIN: "",
+        customerPhoneNum: ""
     };
 
     columns = [
@@ -169,26 +153,31 @@ class Operator extends Component {
         else {
             alert("Video already exists in the Cart.")
         }
-    }
+    };
 
     deleteVideoFromCart = (data) => {
         let videos = this.state.videos;
         videos.splice(data, 1);
         this.setState({videos})
-    }
+    };
 
     handleTextChange = (event) => {
         // event.stopPropagation();
         this.setState({text: event.target.value});
     };
-
-    // handleSectionChange = (panel) => (event, isExpanded) => {
-    //     this.setState({expanded: isExpanded ? panel : false});
-    // };
   
     handleSectionChange = (event, newValue) => {
         this.setState({sectionIndex: newValue});
-    }
+    };
+
+    getCustomerInfo = (event) => {
+        axios.post('user/get_customer', {
+            phone_no: this.state.customerPhoneNum.trim(),
+            pin: this.state.customerPIN.trim(),
+        }).then((res) => {
+            console.log(res);
+        })
+    };
 
     componentDidMount() {
         // console.log("Component Did Mount");
@@ -196,10 +185,8 @@ class Operator extends Component {
             .then(response => {
                 let tempData = []
                 let currentData = response.data;
-                // var idCreators = 1;
                 currentData.map((data) => {
                     tempData.push({"id": data._id, "title": data.Title, "director": data.Director, "price": data.Price, "availability": data.Availability});
-                    // idCreators = idCreators + 1;
                 })
                 this.setState({data: tempData});
             }).catch((error) => {
@@ -238,36 +225,62 @@ class Operator extends Component {
                 </TabPanel>
                 <TabPanel value={this.state.sectionIndex} index={2}>
                     <label>Customer Access can access the account of the Customer and delete the account if the Customer requests</label>
+                    <form className={classes.form}>
+                        <FormLabel component="legend">Customer Access</FormLabel>
+                        <FormControl component="fieldset">
+                            <Box>
+                                <label>
+                                    Phone Number: <Input required value={this.state.customerPhoneNum}></Input>
+                                </label>
+                            </Box>
+                        </FormControl>
+                        <FormControl component="fieldset">
+                            <Box>
+                                <label>
+                                    PIN: <Input required value={this.state.customerPIN}></Input>
+                                </label>
+                            </Box>
+                        </FormControl>
+                        <Button  
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            style={{ marginLeft: 16 }}
+                            onClick={this.getCustomerInfo}
+                        >
+                            Access
+                        </Button>
+                    </form>
                 </TabPanel>
                 <TabPanel value={this.state.sectionIndex} index={3}>
                     <TextField
-                                className={classes.textField}
-                                id="outlined-textarea"
-                                placeholder="Enter the text to sort the title of the videos"
-                                value={this.state.text} 
-                                multiline
-                                variant="outlined"
-                                label="Video Title"
-                                onChange={this.handleTextChange}
-                            >    
-                            </TextField>
-                            <div style={{ height: 400, width: '100%' }}>
-                                <DataGrid 
-                                    rows={filterData} 
-                                    columns={this.columns} 
-                                    pageSize={15}
-                                />
-                            </div>
-                            <div>
-                                <label>Order</label>
-                                <Cart 
-                                    orderId="Order ID here" 
-                                    videos={this.state.videos}
-                                    deleteVideoFromCart={this.deleteVideoFromCart}
-                                >                          
-                                </Cart>
-                            </div>
-                    </TabPanel>
+                        className={classes.textField}
+                        id="outlined-textarea"
+                        placeholder="Enter the text to sort the title of the videos"
+                        value={this.state.text} 
+                        multiline
+                        variant="outlined"
+                        label="Video Title"
+                        onChange={this.handleTextChange}
+                    >    
+                    </TextField>
+                    <div style={{ height: 400, width: '100%' }}>
+                        <DataGrid 
+                            rows={filterData} 
+                            columns={this.columns} 
+                            pageSize={15}
+                        />
+                    </div>
+                    <div>
+                        <label>Order</label>
+                        <Cart 
+                            orderId="Order ID here" 
+                            videos={this.state.videos}
+                            deleteVideoFromCart={this.deleteVideoFromCart}
+                        >                          
+                        </Cart>
+                    </div>
+                </TabPanel>
                 <TabPanel value={this.state.sectionIndex} index={4}>
                     <label>Remove Order(s)</label>
                 </TabPanel>
