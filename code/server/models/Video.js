@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 A video shall contain the following information: 
 the video’s title, director's full name, description, price, genre, availability, tier, dayRent, Copy
 
+Video with tier and price range (CAD):
+Tier 1:     3       -     13 
+Tier 2:     13.25   -     25
+Tier 3:     25.25   -     40
+
 */
 const VideoSchema = new mongoose.Schema({
     Title: { type: String, required: true,},

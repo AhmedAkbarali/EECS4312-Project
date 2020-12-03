@@ -44,4 +44,40 @@ router.route('/search/').post((req, res) => {
     };
 })
 
+router.route('/add').post((req, res) => {
+    const {title, director, description, price, genre, availability, tier, daysRent, copy} = req.body;
+
+    Video.findOne({Title: title, Director: director}, function (error, video) {
+            if (!video) {
+                Video.create({
+                    Title: title,
+                    Director: director,
+                    Description: description,
+                    Price: price, 
+                    Genre: genre,
+                    Availability: availability,
+                    Tier: tier,
+                    DaysRent: daysRent,
+                    Copy: copy,
+                }, (error) => {
+                    console.log(error);
+                });
+            }
+            else {
+                res.status(404).send("Video already exists !!");
+            }
+        }
+    );
+})
+
+router.route('delete/').post((req, res) => {
+    const { videoId } = req.body;
+
+    Video.findByIdAndDelete({videoId}, function(error){
+        if(error){
+            res.status(404).send("Something goes wrong witht the deletion");
+        }
+    })
+})
+
 module.exports = router;
