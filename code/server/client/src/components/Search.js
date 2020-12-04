@@ -93,7 +93,6 @@ class Search extends Component {
             priceFilter: "all",
             availFilter: "yes",
             tierFilter: "all",
-
         };
     
         this.handleChange = this.handleChange.bind(this);
@@ -148,6 +147,7 @@ class Search extends Component {
         
         // This should be in Result.js but running inot error if use the component
         let result;
+        // let sdata = this.state.searchData
 
         var filterData = this.state.searchData;
 
@@ -164,6 +164,12 @@ class Search extends Component {
         filterData = filterData.filter(data => data.availability === this.state.availFilter);
 
         if (this.state.searchData.length > 0){
+            // // result = (
+            // //     <Result
+            // //         searchData={sdata}
+            // //     ></Result>
+            // //     )
+            // console.log(this.state.searchData);
             result =  (<div className={classes.root}>
             <form className={classes.form}>
                 <FormControl component="fieldset">

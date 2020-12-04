@@ -90,21 +90,6 @@ function a11yProps(index) {
     };
   }
 
-// const data_sample = [
-//     {"id": 1, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 10.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-//     {"id": 2, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 5.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-//     {"id": 3, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 4.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-//     {"id": 4, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 15.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-//     {"id": 5, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 20.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-//     {"id": 6, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 4.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-//     {"id": 7, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 3.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-//     {"id": 8, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 9.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-//     {"id": 9, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 29.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-//     {"id": 10, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 11.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-//     {"id": 11, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 12.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-//     {"id": 12, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 6.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17}
-// ];
-
 class Operator extends Component {
 
     state = {
@@ -112,10 +97,15 @@ class Operator extends Component {
         expanded: false,
         data: [],
         videos: [],
+        counter: 0,
+        videoIds: [],
         tempVideos: [],
         sectionIndex: 0,
         customerPIN: "",
-        customerPhoneNum: ""
+        customerPhoneNum: "",
+        customerId:"",
+        customerOrders: [],
+        customerName:"",
     };
 
     columns = [
@@ -148,18 +138,31 @@ class Operator extends Component {
         if (!(this.state.videos.some(video=> video.id === data.id))){
             let temp = this.state.videos;
             temp.push(data);
-            this.setState({videos: temp});
+            this.setState({videos: temp, counter: this.state.counter + 1});
         }
         else {
             alert("Video already exists in the Cart.")
         }
     };
 
+    videoCoverted = (data) => {
+        let tempData = []
+        let currentData = data;
+        currentData.map((data) => {
+            tempData.push({"id": data._id, "title": data.Title, "director": data.Director, "price": data.Price, "availability": data.Availability});
+        })
+        return tempData;
+    }
+
     deleteVideoFromCart = (data) => {
         let videos = this.state.videos;
         videos.splice(data, 1);
-        this.setState({videos})
+        this.setState({videos, counter: this.state.counter - 1})
     };
+
+    handleCustomerChange = (event) =>{
+        this.setState({[event.target.name]: event.target.value});
+    }
 
     handleTextChange = (event) => {
         // event.stopPropagation();
@@ -170,40 +173,89 @@ class Operator extends Component {
         this.setState({sectionIndex: newValue});
     };
 
+    exitCurrentCustomer= () => {
+        this.setState({
+            customerId: "", 
+            customerName: "", 
+            customerOrders: [],
+            videos: [],
+            counter: 0,
+        });
+    }
+
     getCustomerInfo = (event) => {
-        axios.post('user/get_customer', {
+        axios.post(API_URL + 'user/get_customer', {
             phone_no: this.state.customerPhoneNum.trim(),
             pin: this.state.customerPIN.trim(),
         }).then((res) => {
             console.log(res);
-        })
+            this.setState({
+                customerId: res.data._id,
+                customerName: res.data.first_name + " " + res.data.last_name,
+                videoIds: res.data.cart,
+            });
+
+            axios.post(API_URL + 'video/get_videos_with_ids', {
+                list_of_ids: res.data.cart,
+            }).then((res1) => {
+                console.log(res1);
+                let tempData = this.videoCoverted(res1.data);
+                this.setState({
+                    videos: tempData,
+                })
+            })
+        });
+
+        
     };
 
     componentDidMount() {
         // console.log("Component Did Mount");
         axios.get(API_URL + "video/all")
             .then(response => {
-                let tempData = []
-                let currentData = response.data;
-                currentData.map((data) => {
-                    tempData.push({"id": data._id, "title": data.Title, "director": data.Director, "price": data.Price, "availability": data.Availability});
-                })
+                let tempData = this.videoCoverted(response.data);
                 this.setState({data: tempData});
             }).catch((error) => {
                 console.log(error);
             })
     }
 
-    // componentDidUpdate(){
-    //     console.log("The text get updated: " + this.state.text);
-    // }
+    componentDidUpdate(prevProps, prevState){
+        // console.log(prevState.counter);
+        // console.log(this.state.counter);
+        // console.log(prevState.counter !== this.state.counter);
+
+        if(prevState.counter !== this.state.counter){
+            let ids = this.state.videos.map(video => video.id);
+            if (this.state.customerId){
+                axios.post("user/update_user_cart", {
+                    userId: this.state.customerId,
+                    cartIds: ids,
+                }).then((res) => {
+                    console.log(res);
+                });
+            };
+        }
+    }
 
     render() {
         const { classes } = this.props;
         var filterData = this.state.data;
 
+        var customerButton;
+
         if (this.state.text)
             filterData = filterData.filter(d => d.title.toLowerCase().indexOf(this.state.text.toLowerCase().trim()) >= 0);
+
+        if (this.state.customerId)
+            customerButton = (
+                <Button 
+                    color="secondary"
+                    onClick={this.exitCurrentCustomer} 
+                >
+                    Exit Customer: {this.state.customerName} 
+                </Button>
+            );
 
         return (
             <div>
@@ -215,6 +267,7 @@ class Operator extends Component {
                         <Tab value={3} label="Create/Update Cart" {...a11yProps(3)} />
                         <Tab value={4} label="Remove Order" {...a11yProps(4)} />
                     </Tabs>
+                    {customerButton}
                 </AppBar>
 
                 <TabPanel value={this.state.sectionIndex} index={0}>
@@ -230,14 +283,24 @@ class Operator extends Component {
                         <FormControl component="fieldset">
                             <Box>
                                 <label>
-                                    Phone Number: <Input required value={this.state.customerPhoneNum}></Input>
+                                    Phone Number: <Input 
+                                        required
+                                        name="customerPhoneNum"
+                                        value={this.state.customerPhoneNum}
+                                        onChange={this.handleCustomerChange}
+                                    ></Input>
                                 </label>
                             </Box>
                         </FormControl>
                         <FormControl component="fieldset">
                             <Box>
                                 <label>
-                                    PIN: <Input required value={this.state.customerPIN}></Input>
+                                    PIN: <Input 
+                                        required
+                                        name="customerPIN"
+                                        value={this.state.customerPIN}
+                                        onChange={this.handleCustomerChange}
+                                    ></Input>
                                 </label>
                             </Box>
                         </FormControl>

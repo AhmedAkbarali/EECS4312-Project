@@ -27,7 +27,7 @@ const uri = "mongodb+srv://user123:UwHUrc1iI87dMAIN@cluster0.rerpk.mongodb.net/v
 
 
 mongoose.connect(uri,
-    { useNewUrlParser: true },
+    { useNewUrlParser: true, useFindAndModify: false},
     () => console.log('Connected to DB.')
     );
 

@@ -25,6 +25,7 @@ function Register() {
     uaddress:"",
     uphone_no:"",
     ucc_info:"",
+    upin:"",
   });
 
   useEffect(() => {
@@ -54,7 +55,8 @@ function Register() {
       last_name: userData.ulname,
       address: userData.uaddress,
       phone_no: userData.uphone_no,
-      cc_info: userData.ucc_info
+      cc_info: userData.ucc_info,
+      six_digit_pin: userData.upin,
     })
     .then(function (response) {
       alert("Account created");
@@ -136,6 +138,8 @@ function Register() {
             required
           id="standard-error-helper-text"
           label="6-digit mobile pin"
+          name="upin"
+          onChange={handleChange}
         />
         <div className="reg_button_div">
         <Button onClick={handleSubmit} variant="contained" color="primary" style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'}}>Register</Button>

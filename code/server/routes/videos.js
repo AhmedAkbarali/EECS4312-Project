@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
 const Video = require('../models/Video.js')
 // const db = mongoose.connection;
@@ -70,7 +71,7 @@ router.route('/add').post((req, res) => {
     );
 })
 
-router.route('delete/').post((req, res) => {
+router.route('/delete').post((req, res) => {
     const { videoId } = req.body;
 
     Video.findByIdAndDelete({videoId}, function(error){
@@ -79,5 +80,22 @@ router.route('delete/').post((req, res) => {
         }
     })
 })
+
+router.route('/get_videos_with_ids').post((req, res) => {
+    const { list_of_ids } = req.body;
+
+    // console.log(list_of_ids);
+    var ids = list_of_ids.map(id => mongoose.Types.ObjectId(id));
+
+    Video.find({
+        '_id': {$in: ids}
+    }, function(err, videos){
+        if (err)
+            res.status(404).send("Can't not retrieve the user's cart");
+        else
+            res.json(videos);
+    });
+})
+
 
 module.exports = router;

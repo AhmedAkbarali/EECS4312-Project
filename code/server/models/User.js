@@ -18,7 +18,7 @@ const UserSchema = new mongoose.Schema({
     six_digit_pin: {type: Number},
     cart : [
         {
-          type: mongoose.Schema.Types.ObjectId,
+          type: mongoose.Types.ObjectId,
           ref: 'Video',
         }
     ],
@@ -30,9 +30,6 @@ const UserSchema = new mongoose.Schema({
     accessToken: {
       type: String
     },
-    orders: [orderSchema],
-    warehouseLocation: String,
-
   });
 
 module.exports = mongoose.model('User', UserSchema);

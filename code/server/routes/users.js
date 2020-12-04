@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 const secret = 'xxxxxxxxxxxx';
 
 router.post('/register', (req, res) => {
-    const { email, password,first_name,last_name,address,phone_no,cc_info, role} = req.body;
+    const { email, password,first_name,last_name,address,phone_no,cc_info,six_digit_pin, role} = req.body;
     
     User.findOne({email: email}).then(user => {
     if (user)
@@ -18,7 +18,7 @@ router.post('/register', (req, res) => {
     }
     else
     {
-        const user = new User({ email, password,first_name,last_name,address,phone_no,cc_info,role});
+        const user = new User({ email, password,first_name,last_name,address,phone_no,cc_info,six_digit_pin,role});
 
         bcrypt.genSalt(10, (err, salt) => {
                     bcrypt.hash(user.password, salt, (err, hash) => {
@@ -167,20 +167,6 @@ router.put('/change_phone',[verifyToken],(req,res) => {
 
 });
 
-router.post('/get_customer', (req, res) => {
-   const {phone_no, pin} = req.body;
-
-   User.findOne({phone_no: phone_no, pin: pin}).exec(function(err, result){
-        if (err){
-            res.status(200).send("Customer not found");
-        }
-        else {
-            res.json(result);
-        }
-   })
-});
-
-
 router.put('/pay_fees',[verifyToken],(req,res) => {
     User.findByIdAndUpdate(req.userId, {"$set": { "outstandingFees": 0}}).exec(function(err,result) 
     {   
@@ -195,6 +181,35 @@ router.put('/pay_fees',[verifyToken],(req,res) => {
     });
 
 });
+
+router.post('/get_customer', (req, res) => {
+    const {phone_no, pin} = req.body;
+ 
+    User.findOne({phone_no: phone_no, six_digit_pin: pin}).exec(function(err, result){
+         if (err){
+             res.status(200).send("Customer not found");
+         }
+         else {
+             res.json(result);
+         }
+    })
+ });
+
+ router.post('/update_user_cart', (req, res) => {
+     const { userId, cartIds } = req.body;
+
+    //  var ids = cartIds.map(id => mongoose.Types.ObjectId(id));
+    //  console.log(ids);
+    //  console.log(userId);
+
+     User.findByIdAndUpdate(userId, {"$set": {"cart": ids}}, function(err, result){
+        if(err){
+            res.status(200).send("Cannot update the user's cart");
+        } else {
+            res.send("Update completes.");
+        }
+     });
+ })
 
 
 module.exports = router;
