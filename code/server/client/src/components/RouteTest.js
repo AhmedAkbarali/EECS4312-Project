@@ -10,7 +10,7 @@ class RouteTest extends Component {
     }
     componentDidMount() {
         this.setState({
-             orderId: "5fc7e296f0c0a93314d3223b"
+             orderId: "5fca09a41b31ce4d2c42e4ff"
         });
     }
 
@@ -19,40 +19,48 @@ class RouteTest extends Component {
         let payload = {
             videos: 'movie 1',
             subtotal: '',
-            shippingStatus: '',
-            user: localStorage.getItem('token')
+            shippingStatus: ''
         };
 
-        /*Add Order
-        await axios.post("/api/orders", payload).then(
+        //Add Order
+        await axios.post("/api/orders",[{
+        headers: {
+        'Authorization': `token ${localStorage.getItem('token')}`
+      }}, payload]).then(
             res => {
                 console.log('added')
             }
         ).catch((error) => {
             console.log(error)
         });
-         */
 
+        //Get all orders
         await axios.get('/api/orders').then(
           res => {console.log(res.data)}
         ).catch((error) => {
             console.log(error)
         });
 
+        //Get order by ID
         await axios.get('/api/orders/' + this.state.orderId).then(
             res => {console.log(res.data)}
         ).catch((error) => {
             console.log(error)
         });
 
-        await axios.get('/api/orders/user/' + payload.user).then(
+        //Get all of a users orders
+        await axios.get('/api/orders/user/', {
+            headers: {
+                'Authorization': `token ${localStorage.getItem('token')}`
+            }})
+        .then(
             res => {console.log(res.data)}
         ).catch((error) => {
             console.log(error)
         });
 
-        //Update Order
-        await axios.put("/api/orders/update/" + this.state.orderId, {shippingStatus: ''}).then(
+        //Update Order shipping status
+        await axios.post("/api/orders/update/" + this.state.orderId, {shippingStatus: ''}).then(
             () =>  console.log('Order Cancelled')
         ).catch((error) => {
             console.log(error)

@@ -30,6 +30,9 @@ const UserSchema = new mongoose.Schema({
     accessToken: {
       type: String
     },
+//     Not needed for now
+//     orders: [orderSchema],
+    warehouseLocation: String,
   });
 
 module.exports = mongoose.model('User', UserSchema);

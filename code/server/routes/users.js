@@ -9,7 +9,7 @@ const bcrypt = require('bcrypt');
 const secret = 'xxxxxxxxxxxx';
 
 router.post('/register', (req, res) => {
-    const { email, password,first_name,last_name,address,phone_no,cc_info,six_digit_pin, role} = req.body;
+    const { email, password,first_name,last_name,address,phone_no,cc_info, role,six_digit_pin, warehouseLocation} = req.body;
     
     User.findOne({email: email}).then(user => {
     if (user)
@@ -18,7 +18,7 @@ router.post('/register', (req, res) => {
     }
     else
     {
-        const user = new User({ email, password,first_name,last_name,address,phone_no,cc_info,six_digit_pin,role});
+        const user = new User({ email, password,first_name,last_name,address,phone_no,cc_info,role,six_digit_pin, warehouseLocation});
 
         bcrypt.genSalt(10, (err, salt) => {
                     bcrypt.hash(user.password, salt, (err, hash) => {
