@@ -8,6 +8,7 @@ import Dynamic_Header from './components/Dynamic_Header.js';
 import Landing_Page from './components/Landing_Page.js';
 import Profile from './components/Profile.js';
 import Register from './components/Register.js';
+import EmployeeRegister from './components/EmployeeRegister.js';
 import Search from './components/Search.js';
 import Operator from './components/Operator.js';
 import Results from './components/Results.js';
@@ -23,6 +24,7 @@ function App() {
       <Switch>
           <Route  path="/" exact component={Login}/>
           <Route  path="/register" component={Register}/>
+          <Route  path="/eregister" component={EmployeeRegister}/>
           <Route  path="/profile" component={Profile}/>
           <Route  path="/home" component={Landing_Page}/>
           <Route path="/cart" component={Cart} />

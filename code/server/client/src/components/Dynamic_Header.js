@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -38,6 +39,70 @@ function Dynamic_Header() {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
   
+    const [user, setUser] = useState(0);
+    const [manager, setManager] = useState(0);
+    const [operator, setOperator] = useState(0);
+    const [shipper, setShipper] = useState(0);
+    const [warehouse, setWarehouse] = useState(0);
+
+    useEffect(()=>{
+        axios.get("/access/customer",{
+        headers: {
+          'Authorization': `token ${localStorage.getItem('token')}`
+        }})
+        .then(response => {
+            console.log(response);
+            setUser(1);
+        })
+        .catch(error => {
+            setUser(0);
+        });
+        axios.get("/access/manager",{
+            headers: {
+              'Authorization': `token ${localStorage.getItem('token')}`
+            }})
+            .then(response => {
+                console.log(response);
+                setManager(1);
+            })
+            .catch(error => {
+                setManager(0);
+            });
+        axios.get("/access/operator",{
+           headers: {
+            'Authorization': `token ${localStorage.getItem('token')}`
+            }})
+            .then(response => {
+            console.log(response);
+                setOperator(1);
+            })
+            .catch(error => {
+                setOperator(0);
+            });
+        axios.get("/access/shipper",{
+           headers: {
+            'Authorization': `token ${localStorage.getItem('token')}`
+            }})
+            .then(response => {
+            console.log(response);
+                setShipper(1);
+            })
+            .catch(error => {
+                setShipper(0);
+            });
+        axios.get("/access/warehouse",{
+           headers: {
+            'Authorization': `token ${localStorage.getItem('token')}`
+            }})
+            .then(response => {
+            console.log(response);
+                setWarehouse(1);
+            })
+            .catch(error => {
+                setWarehouse(0);
+            });
+
+    },[user,manager,operator,shipper,warehouse]);
     const handleMenu = (event) => {
       setAnchorEl(event.currentTarget);
     };
@@ -49,6 +114,10 @@ function Dynamic_Header() {
     const handleChange = (event) => {
       setUserType(event.target.value);
     };
+
+    const handleLogout = () => {
+      localStorage.removeItem('token');
+    }
   
     return (
       <div className={classes.root}>
@@ -78,47 +147,59 @@ function Dynamic_Header() {
               </FormControl>
             </section>
 
-
+            {/*
             {(userType=== "default") && (
             <div>
             <Button component={ Link } to="/" variant="contained" color="primary">Login</Button>
             </div>
             )}
+            */}
+            <Button component={ Link } to="/profile" variant="contained" color="primary">Profile</Button>
 
-            {(userType==="customer") && (
+            {user && (
             <div>
             <Button component={ Link } to="/search" variant="contained" color="primary">Search</Button>
             <Button component={ Link } to="/cart" variant="contained" color="primary">Cart</Button>
+            <Button component={ Link } to="/" onClick={handleLogout} variant="contained" color="primary">Logout</Button>
+
             </div>
             )}
 
-            {(userType==="admin") && (
-            <div>
-            <Button component={ Link } to="/search" variant="contained" color="primary">Search</Button>
-            <Button component={ Link } to="/" variant="contained" color="primary">AdminThings</Button>
-            </div>
-            )}
-
-            {(userType==="manager") && (
+            {manager && (
             <div>
             <Button component={ Link } to="/search" variant="contained" color="primary">Search</Button>
             <Button component={ Link } to="/manager" variant="contained" color="primary">ManagerThings</Button>
+            <Button component={ Link } to="/" onClick={handleLogout} variant="contained" color="primary">Logout</Button>
+
             </div>
             )}
 
-            {(userType==="operator") && (
+            {operator && (
             <div>
             <Button component={ Link } to="/search" variant="contained" color="primary">Search</Button>
             <Button component={ Link } to="/" variant="contained" color="primary">OperatorThings</Button>
+            <Button component={ Link } to="/" onClick={handleLogout} variant="contained" color="primary">Logout</Button>
+
             </div>
             )}
 
-            {(userType==="warehouse") && (
+            {warehouse && (
             <div>
             <Button component={ Link } to="/warehouseActiveOrders" variant="contained" color="primary">Active Orders</Button>
             <Button component={ Link } to="/warehouseInventory" variant="contained" color="primary">Inventory</Button>
+            <Button component={ Link } to="/" onClick={handleLogout} variant="contained" color="primary">Logout</Button>
+
             </div>
             )}
+            {shipper && (
+            <div>
+            <Button component={ Link } to="/warehouseActiveOrders" variant="contained" color="primary">Shipper Stuff </Button>
+            <Button component={ Link } to="/" onClick={handleLogout} variant="contained" color="primary">Logout</Button>
+
+            </div>
+            )}
+                        
+
 
               
                 <IconButton

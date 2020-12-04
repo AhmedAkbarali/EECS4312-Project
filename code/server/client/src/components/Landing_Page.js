@@ -7,6 +7,7 @@ function Landing_Page() {
     const [manager, setManager] = useState(0);
     const [operator, setOperator] = useState(0);
     const [shipper, setShipper] = useState(0);
+    const [warehouse, setWarehouse] = useState(0);
 
     useEffect(()=>{
         axios.get("/access/customer",{
@@ -31,17 +32,40 @@ function Landing_Page() {
             .catch(error => {
                 setManager(0);
             });
-            axios.get("/access/operator",{
-                headers: {
-                  'Authorization': `token ${localStorage.getItem('token')}`
-                }})
-                .then(response => {
-                    console.log(response);
-                    setOperator(1);
-                })
-                .catch(error => {
-                    setOperator(0);
-                });
+        axios.get("/access/operator",{
+           headers: {
+            'Authorization': `token ${localStorage.getItem('token')}`
+            }})
+            .then(response => {
+            console.log(response);
+                setOperator(1);
+            })
+            .catch(error => {
+                setOperator(0);
+            });
+        axios.get("/access/shipper",{
+           headers: {
+            'Authorization': `token ${localStorage.getItem('token')}`
+            }})
+            .then(response => {
+            console.log(response);
+                setShipper(1);
+            })
+            .catch(error => {
+                setShipper(0);
+            });
+        axios.get("/access/warehouse",{
+           headers: {
+            'Authorization': `token ${localStorage.getItem('token')}`
+            }})
+            .then(response => {
+            console.log(response);
+                setWarehouse(1);
+            })
+            .catch(error => {
+                setWarehouse(0);
+            });
+
     },[]);
 
     if (user)
@@ -50,13 +74,16 @@ function Landing_Page() {
     }
     else if (manager)
     {
+        return <h1>Manager</h1>
     }
     else if (operator)
     {
+        return <h1>Operator</h1>
 
     }
     else if (shipper)
     {
+        return <h1>Shipper</h1>
 
     }
     else

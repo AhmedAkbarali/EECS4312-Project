@@ -13,7 +13,7 @@ verifyToken = (req,res,next) => {
   
     jwt.verify(token,secret, (err, decoded) => {
         if (err) {
-          return res.send("token not matched");//res.status(401).send({ message: "Unauthorized!" });
+          return res.status(401).send("token not matched");//res.status(401).send({ message: "Unauthorized!" });
         }
         req.userId = decoded.id;
         next();
@@ -29,10 +29,10 @@ router.get('/customer',[verifyToken],(req,res) => {
         }
         if (user.role == "customer")
         {
-            res.send("customer");
+            res.status(200).send("customer");
         }
         else {
-            res.send("Not auth");
+            res.status(401).send("Not auth");
         }
 
     })
@@ -49,7 +49,7 @@ router.get('/manager',verifyToken,(req,res) => {
             res.send("manager");
         }
         else {
-            res.send("Not auth");
+            res.status(401).send("Not auth");
         }
 
     })
@@ -66,7 +66,7 @@ router.get('/operator',verifyToken,(req,res) => {
             res.send("operator");
         }
         else {
-            res.send("Not auth");
+            res.status(401).send("Not auth");
         }
 
     })
@@ -83,7 +83,24 @@ router.get('/warehouse',verifyToken,(req,res) => {
             res.send("warehouse");
         }
         else {
-            res.send("Not auth");
+            res.status(401).send("Not auth");
+        }
+
+    })
+});
+
+router.get('/shipper',verifyToken,(req,res) => {
+    User.findById(req.userId).exec((err, user) => {
+        if (err) {
+          res.send({ message: err });
+          return;
+        }
+        if (user.role == "shipper")
+        {
+            res.send("shipper");
+        }
+        else {
+            res.status(401).send("Not auth");
         }
 
     })

@@ -63,7 +63,8 @@ function Login() {
         <Button variant="contained" color="primary" onClick={handleLogin} style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'} }>Login</Button>
         </div>
         </form>
-        <Link to="/register">Register?</Link>
+        <Link to="/register">Register?</Link><br></br>
+        <Link to="/eregister">Employee Register</Link>
         </div>
     )
 }
