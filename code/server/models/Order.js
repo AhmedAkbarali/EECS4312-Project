@@ -9,7 +9,7 @@ const orderSchema =  new Schema ({
     },
     videos: [
         {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Types.ObjectId,
             ref: 'Video',
         }
     ],
@@ -18,7 +18,7 @@ const orderSchema =  new Schema ({
     {
         type: String,
         default: "preparing",
-        enum: ["preparing", "gathering", "shipped", "received"],
+        enum: ["preparing", "gathering", "shipped", "received", "canceled"],
     },
 });
 

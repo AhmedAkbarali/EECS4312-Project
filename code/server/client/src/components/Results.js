@@ -71,38 +71,50 @@ function Results(props) {
 
     const classes = useStyles();
 
-    const [value, setValue] = React.useState('None')
-
-    // const data = [
-    //     {"id": 1, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 10.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    //     {"id": 2, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 5.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    //     {"id": 3, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 4.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    //     {"id": 4, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 15.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    //     {"id": 5, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 20.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    //     {"id": 6, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 4.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    //     {"id": 7, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 3.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    //     {"id": 8, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 9.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    //     {"id": 9, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 29.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    //     {"id": 10, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 11.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    //     {"id": 11, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 12.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17},
-    //     {"id": 12, "title":"Leader Of Our Future","director":"Girard Nicolette","description": "Description 1. Description 2. Description 3","price": 6.25,"genre":"science fiction","availability":"yes","tier":3,"dayRent":35,"Copy":17}
-    // ];
+    const [value, setValue] = React.useState('None');
+    const [priceFilter, setPriceFilter] = React.useState("all");
+    const [availFilter, setAvailFilter] = React.useState("yes");
+    const [tierFilter, setTierFilter] = React.useState("all");
 
     const [searchData, setSearchData] = React.useState([]);
     const [filterData, setFilterData] = React.useState(searchData);
 
     setSearchData(props.searchData);
 
-    const handleChange = (event) => {
-        var currentValue = event.target.value
 
-        if (currentValue === 'None')
-            setFilterData(searchData)
-        else {
-            setFilterData(searchData.filter(data => data.price >= currentValue))
-        }
-        setValue(currentValue)
+    // const handleChange = (event) => {
+    //     var currentValue = event.target.value
+
+    //     if (currentValue === 'None')
+    //         setFilterData(searchData)
+    //     else {
+    //         setFilterData(searchData.filter(data => data.price >= currentValue))
+    //     }
+    //     setValue(currentValue)
+    // }
+
+    const handleFilter = (event) => {
+        let nameFilter = event.target.name;
+        let valueF = event.target.value;
+        if (nameFilter === "priceFilter")
+            setPriceFilter(valueF);
+        else if (nameFilter === "tierFilter")
+            setTierFilter(valueF);
+        else if (nameFilter === "availFilter")
+            setAvailFilter(valueF);
     }
+
+    if (priceFilter !== "all"){
+        var p = Number(priceFilter);
+        setFilterData(filterData.filter(data => data.price >= p));
+    }
+
+    if(tierFilter !== "all"){
+        var t = Number(tierFilter);
+         setFilterData(filterData.filter(data => data.tier === t));
+    }
+
+    setFilterData(filterData.filter(data => data.availability === availFilter));
 
     return (
         // <div className={classes.splitScreen}>
@@ -112,17 +124,47 @@ function Results(props) {
                     <FormLabel coponent="legend">Filter</FormLabel>
                     <Box>
                         <label>Price Filter:</label>
-                        <RadioGroup aria-label="priceFilter" name="riceFilter" value={value} onChange={handleChange}>
-                            <FormControlLabel value="None" control={<Radio />} label="None" />
+                        <RadioGroup aria-label="Price" 
+                            name="priceFilter" 
+                            value={priceFilter} 
+                            onChange={handleFilter}
+                        >
+                            <FormControlLabel value="all" control={<Radio />} label="All" />
                             <FormControlLabel value="5" control={<Radio />} label=">5" />
                             <FormControlLabel value="10" control={<Radio />} label=">10" />
+                        </RadioGroup>
+                    </Box>
+
+                    <Box>
+                        <label>Tier Filter:</label>
+                        <RadioGroup aria-label="Tier" 
+                            name="tierFilter" 
+                            value={tierFilter} 
+                            onChange={handleFilter}
+                        >
+                            <FormControlLabel value="all" control={<Radio />} label="All" />
+                            <FormControlLabel value="1" control={<Radio />} label="1" />
+                            <FormControlLabel value="2" control={<Radio />} label="2" />
+                            <FormControlLabel value="3" control={<Radio />} label="3" />
+                        </RadioGroup>
+                    </Box>
+
+                    <Box>
+                        <label>Availability Filter:</label>
+                        <RadioGroup aria-label="Availability" 
+                            name="availFilter" 
+                            value={availFilter} 
+                            onChange={handleFilter}
+                        >
+                            <FormControlLabel value="yes" control={<Radio />} label="yes" />
+                            <FormControlLabel value="no" control={<Radio />} label="no" />
                         </RadioGroup>
                     </Box>
                 </FormControl>
             </form>
             <List className={classes.videoList}>
                 {filterData && filterData.map((d) => (
-                    <ListItem className={classes.videoItem}>
+                    <ListItem id={d.id} key={d.id} className={classes.videoItem}>
                         <Card className={classes.videoCard}>
                             <div>
                                 <img src={'https://reactnative.dev/img/tiny_logo.png'} />
@@ -134,6 +176,12 @@ function Results(props) {
                                     </Typography>
                                     <Typography variant="h5" component="h2">
                                         Director: {d.director}
+                                    </Typography>
+                                    <Typography variant="h5" component="h2">
+                                        Tier: {d.tier}
+                                    </Typography>
+                                    <Typography variant="h5" component="h2">
+                                        Genre: {d.genre}
                                     </Typography>
                                     <Typography variant="h5" component="h2">
                                         Price: {d.price}

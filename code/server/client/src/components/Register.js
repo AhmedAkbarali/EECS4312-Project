@@ -172,7 +172,6 @@ function Register() {
           label="6-digit mobile pin"
           name="upin"
           onChange={handleChange}
-
         />
         <div className="reg_button_div">
         <Button onClick={handleSubmit} variant="contained" color="primary" style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'}}>Register</Button>
