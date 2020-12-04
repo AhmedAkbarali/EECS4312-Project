@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
 
 const Order = mongoose.model('order');
-const User = mongoose.model('User')
+const User = mongoose.model('User');
+const verifyToken = require('../middlewares/verifyToken');
 
 module.exports = app => {
 
@@ -22,7 +23,7 @@ module.exports = app => {
            videos,
            subtotal,
            shippingStatus,
-           user
+           user: req.userId
         });
         try{
             await order.save();
@@ -32,9 +33,8 @@ module.exports = app => {
     });
 
     //Get users orders
-    app.get('/api/orders/user/:uid', async (req, res) => {
-        const orders = await Order.find({ user : req.params.uid });
-
+    app.get('/api/orders/user', verifyToken, async (req, res) => {
+        const orders = await Order.find({ user : req.userId });
         res.send(orders);
     });
 
@@ -46,7 +46,7 @@ module.exports = app => {
     });
 
     //Get specific order by id
-    app.put('/api/orders/update/:orderId', async (req, res) => {
+    app.put('/api/orders/update/:orderId', verifyToken, async (req, res) => {
         const order = await Order.findById(req.params.orderId);
         const { shippingStatus } = req.body;
         order.shippingStatus = shippingStatus;
