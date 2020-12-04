@@ -30,8 +30,9 @@ const UserSchema = new mongoose.Schema({
     accessToken: {
       type: String
     },
-    orders: [orderSchema],
-    warehouseLocation: String,
+//     Not needed for now
+//     orders: [orderSchema],
+//     warehouseLocation: String,
 
   });
 
