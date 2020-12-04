@@ -64,6 +64,16 @@ class Cart extends Component{
                                     >
                                         Remove
                                     </Button>
+
+                                    <Button  
+                                        color="primary"
+                                        size="small"
+                                        style={{ marginLeft: 16 }}
+                                        disable={!this.props.isLoyaltyPoinrUsed || value.useLP} 
+                                        onClick={() => this.props.selectForLP(value)}
+                                    >
+                                        {!this.props.LP_selected ? "Use LP" : "Don\'t LP"}
+                                    </Button>
                                 </div>
                             ))}
                             {cardList.map((value) => (

@@ -106,6 +106,8 @@ class Operator extends Component {
         customerId:"",
         customerOrders: [],
         customerName:"",
+        isLoyaltyPointUsed: false,
+
     };
 
     columns = [
@@ -134,6 +136,19 @@ class Operator extends Component {
         },
     ];
 
+   
+
+    videoCoverted = (data) => {
+        let tempData = []
+        let currentData = data;
+        currentData.map((data) => {
+            tempData.push({"id": data._id, "title": data.Title, "director": data.Director, "price": data.Price, "availability": data.Availability, "useLP": false});
+        })
+        return tempData;
+    }
+
+    // Cart function
+
     addVideoToCart = (data) => {
         if (!(this.state.videos.some(video=> video.id === data.id))){
             let temp = this.state.videos;
@@ -145,21 +160,19 @@ class Operator extends Component {
         }
     };
 
-    videoCoverted = (data) => {
-        let tempData = []
-        let currentData = data;
-        currentData.map((data) => {
-            tempData.push({"id": data._id, "title": data.Title, "director": data.Director, "price": data.Price, "availability": data.Availability});
-        })
-        return tempData;
-    }
-
     deleteVideoFromCart = (data) => {
         let videos = this.state.videos;
         videos.splice(data, 1);
         this.setState({videos, counter: this.state.counter - 1})
     };
 
+    selectForLP = (data) => {
+        data.useLP = !data.useLP;
+        this.setState({isLoyaltyPointUsed: !this.state.isLoyaltyPointUsed});
+    };
+    // End of Cart function
+
+    // Operator Functions
     handleCustomerChange = (event) =>{
         this.setState({[event.target.name]: event.target.value});
     }
@@ -205,9 +218,20 @@ class Operator extends Component {
                 })
             })
         });
-
-        
     };
+
+    customerPayment = (event) => {
+        // var type = event.target.name;
+        // if (type === "paymentCreditCard"){
+        //     axios
+        // } else if (type === "paymentLoyaltyPoint"){
+
+        // } else {
+        //     alert("Cannot process payment");
+        // }
+    }
+
+    // Operator Functions
 
     componentDidMount() {
         // console.log("Component Did Mount");
@@ -221,10 +245,6 @@ class Operator extends Component {
     }
 
     componentDidUpdate(prevProps, prevState){
-        // console.log(prevState.counter);
-        // console.log(this.state.counter);
-        // console.log(prevState.counter !== this.state.counter);
-
         if(prevState.counter !== this.state.counter){
             let ids = this.state.videos.map(video => video.id);
             if (this.state.customerId){
@@ -336,10 +356,24 @@ class Operator extends Component {
                     </div>
                     <div>
                         <label>Order</label>
+                        <Box>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                size="small"
+                                name="paymentCreditCard"
+                                style={{ marginLeft: 16 }}
+                                onClick={this.customerPayment}
+                            >
+                                Pay By Credit Card
+                            </Button>
+                        </Box>
                         <Cart 
                             orderId="Order ID here" 
                             videos={this.state.videos}
+                            isLoyaltyPointUsed={this.state.isLoyaltyPointUsed}
                             deleteVideoFromCart={this.deleteVideoFromCart}
+                            selectForLP={this.selectForLP}
                         >                          
                         </Cart>
                     </div>
