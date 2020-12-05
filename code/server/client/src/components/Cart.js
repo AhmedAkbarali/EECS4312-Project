@@ -25,10 +25,14 @@ class Cart extends Component{
         videos: [],
     }
 
-    componentDidUpdate(prevProps){
-        if(prevProps.videos !== this.props.videos)
-            this.setState({videos: this.props.videos});
-    }
+    // componentDidUpdate(prevProps, prevState){
+    //     if(prevProps.videos.length !== this.props.videos.length){
+    //         this.setState({videos: this.props.videos});
+    //     }
+    //     console.log(this.state.videos);
+    //     console.log(prevProps.videos);
+    //     console.log(this.props.videos);
+    // }
     
 
     render () {
@@ -36,7 +40,7 @@ class Cart extends Component{
         var cardList = this.props.videos;
         let subtotal = 0;
 
-        console.log(cardList);
+        // console.log(cardList);
         cardList.forEach(video => subtotal += video.price);
         
         return (
@@ -46,7 +50,7 @@ class Cart extends Component{
                     <div className="shopping-list">
                         <div >
                             {cardList.map((value) => (
-                                <div key={value} className="order-item">
+                                <div key={value.id} className="order-item">
                                     <img className="order-icon" alt="icon of movie" />
                                     <div className="item-info">Title: {(value.title.length > 9) ? value.title.substring(0,10) + "..." : value.name}</div>
                                     <div className="item-info">Price: {value.price}</div>

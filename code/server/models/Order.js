@@ -9,7 +9,7 @@ const orderSchema =  new Schema ({
     },
     videos: [
         {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Types.ObjectId,
             ref: 'Video',
         }
     ],
