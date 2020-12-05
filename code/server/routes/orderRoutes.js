@@ -15,18 +15,20 @@ module.exports = app => {
         res.send(orders);
     });
 
-    app.post('/api/orders', async (req, res) => {
-        res.send('received');
-        const { videos, subtotal, shippingStatus, user } = req.body;
-
-        const order = new Order({
+    // Create orders in Customer View ?
+    app.post('/api/orders', verifyToken, async (req, res) => {
+        const { videos, subtotal } = req.body;
+        // const status = "preparing"
+      
+        const order = await new Order({
+           user: req.userId,
            videos,
            subtotal,
-           shippingStatus,
-           user: req.userId
+           status
         });
         try{
             await order.save();
+            res.send("order");
         } catch(err) {
             res.status(422).send(err);
         }
@@ -34,8 +36,44 @@ module.exports = app => {
 
     //Get users orders
     app.get('/api/orders/user', verifyToken, async (req, res) => {
-        const orders = await Order.find({ user : req.userId });
+        const orders = await Order.find({ user : req.userId, status: {$nin: ["cart"]}});
         res.send(orders);
+    });
+
+    //get active orders
+//   Comment for now since haven't figured how to use verifyToken in Operator view
+//     app.get('/api/orders/user/active', verifyToken, async (req, res) => {
+//         const orders = await Order.find({ user : req.userId, status: {$nin: ["cart", "cancelled", "returned"]}});
+
+//         res.send(orders);
+//     });
+
+    
+
+    //grt active orders
+    // app.get('/api/orders/user/active', verifyToken, async (req, res) => {
+    //     const orders = await Order.find({ user : req.userId, status: {$in: ["preparing", "gathering"]}});
+
+    //     res.send(orders);
+    // });
+
+    app.post('/api/orders/user/active', async (req, res) => {
+        const { userId } = req.body;
+
+        const orders = await Order.find({ user : userId, status: {$in: ["preparing", "gathering"]}}).populate('videos');
+
+        res.send(orders);
+    });
+
+    // Create orders in the Operator View (don't know how to use verifyToken)
+    app.post('/api/orders/create', async (req, res) => {
+        const { userId, cart, subtotal} = req.body;
+
+        const order = Order.create({
+            user: userId,
+            videos: cart,
+            subtotal: subtotal,
+        });
     });
 
     //Get specific order by id
@@ -45,11 +83,11 @@ module.exports = app => {
         res.send(order);
     });
 
-    //Get specific order by id
-    app.put('/api/orders/update/:orderId', verifyToken, async (req, res) => {
+    //Update specific order by id
+    app.post('/api/orders/update/:orderId', async (req, res) => {
         const order = await Order.findById(req.params.orderId);
-        const { shippingStatus } = req.body;
-        order.shippingStatus = shippingStatus;
+        const { status } = req.body;
+        order.status = status;
         try{
             await order.save();
             res.send(order);

@@ -1,8 +1,11 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useLayoutEffect, useState} from 'react'
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid, Avatar, Container, Card, Button, DialogTitle, DialogContent,DialogContentText,TextField,DialogActions,Dialog, } from '@material-ui/core';
 import axios from 'axios';
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
 
 const useStyles =   makeStyles((theme) => ({
   large:{
@@ -12,6 +15,14 @@ const useStyles =   makeStyles((theme) => ({
 }))
 
 function Profile() {
+
+    const [info, setInfo] = useState(0);
+    const [active, setActive] = useState([]);
+    const [history, setHistory] = useState([]);
+    useEffect(() => {
+        setActive(rentalInfo(1));
+        setHistory((rentalInfo(2)));
+    }, [] );
     const classes = useStyles();
     const [userData, setData] = useState({
       urole:"",
@@ -41,6 +52,8 @@ function Profile() {
     }));
     console.log(editData);
     }
+
+
 
     const [edit_open, setOpen] = useState(false);
     const [userType, setType] = useState(0);
@@ -182,7 +195,6 @@ function Profile() {
       ephone_no:"",
       ecc_info:"",});
     }
-    
 
     return (
         <div>
@@ -223,10 +235,59 @@ function Profile() {
                
               </Grid>
               { userType && (<div>
-                <Button variant="contained" color="primary"  style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'} }>Active Rentals</Button>
-                <Button variant="contained" color="primary"  style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'} }>Rental History</Button>
+                <Button variant="contained" color="primary"  style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'}} onClick={() => setInfo(1)}>Active Rentals</Button>
+                <Button variant="contained" color="primary"  style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'}} onClick={() => setInfo(2)}>Rental History</Button>
               </div>)}
             </Container>
+
+          <div className="rental-list">
+            <h2>Rental Information</h2>
+            <List style={{display: 'grid', justifyContent: 'center', alignContent: 'center'}}>
+                {info !== 0 ?
+                    <ListItem
+                        style={{
+                            width: '50vw',
+                            borderStyle: 'outset',
+                        }}
+                        key={0}
+                    >
+                        <ListItemText>Order ID</ListItemText>
+                        <ListItemText>Subtotal</ListItemText>
+                        <ListItemText>Status</ListItemText>
+                    </ListItem> : ''}
+              {info === 1 ? active.map((order) => {
+                  return (
+                      <ListItem style={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignContent: 'space-between',
+                          width: '50vw',
+                          borderStyle: 'outset'
+                      }} key={order._id}>
+                          <ListItemText>{order._id}</ListItemText>
+                          <ListItemText>{order.subtotal}</ListItemText>
+                          <ListItemText>{order.status}</ListItemText>
+                      </ListItem>)
+              }) : ''}
+              {info === 2 ? history.map((order) => {
+                  return (
+                      <ListItem style={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignContent: 'space-between',
+                          width: '50vw',
+                          borderStyle: 'outset'
+                      }} key={order._id}>
+                          <ListItemText>{order._id}</ListItemText>
+                          <ListItemText>{order.subtotal}</ListItemText>
+                          <ListItemText>{order.status}</ListItemText>
+                      </ListItem>)
+              }) : ''}
+            </List>
+          </div>
+
             <Dialog open={edit_open} onClose={handleClose} aria-labelledby="form-dialog-title">
               <DialogTitle id="form-dialog-title">Edit Information</DialogTitle>
               <DialogContent>
@@ -304,6 +365,30 @@ function Profile() {
             </Dialog>
         </div>
     )
+}
+
+ function rentalInfo(props) {
+    let orders = [];
+    let route = '';
+    if(props === 1) route = '/api/orders/user';
+    else if (props === 2) route = '/api/orders/user/active';
+    else return null;
+
+    axios.get(route, {
+      headers: {
+        'authorization': `token ${localStorage.getItem('token')}`
+      }})
+    .then(
+        res => {
+          return (res.data).map(order => {
+            return (
+                orders.push(order)
+            );
+          })
+    }).catch((error) => {
+      console.log(error)
+    });
+    return orders;
 }
 
 export default Profile

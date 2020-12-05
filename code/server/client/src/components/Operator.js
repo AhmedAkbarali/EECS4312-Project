@@ -20,7 +20,6 @@ import axios from 'axios';
 import Register from './Register';
 import Cart from './Cart';
 
-
 const API_URL = "http://localhost:5000/";
 
 const styles = theme => ({
@@ -106,6 +105,10 @@ class Operator extends Component {
         customerId:"",
         customerOrders: [],
         customerName:"",
+        customerSubtotal: 0,
+        customerLP: 0,
+        LPspent: 0,
+        isLoyaltyPointUsed: false,
     };
 
     columns = [
@@ -134,32 +137,177 @@ class Operator extends Component {
         },
     ];
 
+   
+
+    videoCoverted = (data) => {
+        let tempData = []
+        let currentData = data;
+        currentData.map((data) => {
+            tempData.push({"id": data._id, "title": data.Title, "director": data.Director, "price": data.Price, "availability": data.Availability, "useLP": false});
+        })
+        return tempData;
+    }
+
+    // Cart function
+
     addVideoToCart = (data) => {
         if (!(this.state.videos.some(video=> video.id === data.id))){
             let temp = this.state.videos;
             temp.push(data);
-            this.setState({videos: temp, counter: this.state.counter + 1});
+            this.setState({
+                videos: temp, 
+                counter: this.state.counter + 1,
+                customerSubtotal: this.state.customerSubtotal + data.price,
+            });
         }
         else {
             alert("Video already exists in the Cart.")
         }
     };
 
-    videoCoverted = (data) => {
-        let tempData = []
-        let currentData = data;
-        currentData.map((data) => {
-            tempData.push({"id": data._id, "title": data.Title, "director": data.Director, "price": data.Price, "availability": data.Availability});
-        })
-        return tempData;
-    }
-
     deleteVideoFromCart = (data) => {
         let videos = this.state.videos;
-        videos.splice(data, 1);
-        this.setState({videos, counter: this.state.counter - 1})
+        videos.splice(videos.indexOf(data), 1);
+        this.setState({
+            videos, 
+            counter: this.state.counter - 1,
+            customerSubtotal: this.state.customerSubtotal - data.price,
+        })
     };
 
+    selectForLP = (data) => {
+        if (data.useLP || this.state.customerLP >= data.price){
+            this.setState({
+                isLoyaltyPointUsed: !this.state.isLoyaltyPointUsed,
+                // customerLP: !data.useLP ? this.state.customerLP - data.price : this.state.customerLP + data.price,
+                LPspent: !data.useLP ? data.price : 0,
+            });
+            data.useLP = !data.useLP;
+        } else {
+            alert("Not enough LP");
+        }
+    };
+    // End of Cart function
+
+    // Operator Functions
+   
+    exitCurrentCustomer= () => {
+        this.setState({
+            customerPIN: "",
+            customerPhoneNum: "",
+            customerId: "", 
+            customerName: "", 
+            customerOrders: [],
+            customerLP: 0,
+            customerSubtotal: 0,
+            videos: [],
+            counter: 0,
+            LPspent: 0,
+        });
+    }
+
+    getCustomerInfo = (event) => {
+
+        // Validation 
+        var numbers = /^[0-9]+$/;
+        if (!this.state.customerPhoneNum.match(numbers)){
+            alert("Invalid Phone Number");
+        } else if (!this.state.customerPIN.match(numbers)){
+            alert("Invalid PIN");
+        } else if (this.state.customerPIN.trim().length !== 6) {
+            alert("Invalid length of PIN.\nPlease enter a 6-digit PIN.");
+        } else {
+            axios.post(API_URL + 'user/get_customer', {
+                phone_no: this.state.customerPhoneNum.trim(),
+                pin: this.state.customerPIN.trim(),
+            }).then(async (res) => {
+                // console.log(res);
+                this.setState({
+                    customerId: res.data._id,
+                    customerName: res.data.first_name + " " + res.data.last_name,
+                    videoIds: res.data.cart,
+                    customerLP: res.data.loyalty_points,
+                });
+    
+                await axios.post(API_URL + 'video/get_videos_with_ids', {
+                    list_of_ids: res.data.cart,
+                }).then((res1) => {
+                    // console.log(res1);
+                    let tempData = this.videoCoverted(res1.data);
+                    let c = tempData.length;
+                    let t = 0;
+                    tempData.forEach(data => t += data.price)
+                    this.setState({
+                        videos: tempData,
+                        counter: c,
+                        customerSubtotal: t,
+                    })
+                });
+    
+                await axios.post('api/orders/user/active', {
+                    userId: res.data._id,
+                }).then((res2) => {
+                    console.log(res2);
+                    this.setState({
+                        customerOrders: res2.data,
+                    });
+                })
+            });
+        }
+    };
+
+    customerPay = () => {
+        var subtotal = this.state.customerSubtotal;
+        var LP_earned = 0;
+        var LP_spent = 0;
+        var isLP = this.state.isLoyaltyPointUsed === true;
+
+        if(this.state.isLoyaltyPointUsed){
+            LP_spent = this.state.LPspent;
+        } else {
+            LP_earned = Math.trunc(subtotal);
+        }
+
+        var videoIDs = this.state.videos.map(videos => videos.id);
+
+        axios.post("/user/pay_through_operator", {
+            userId: this.state.customerId,
+            LP_earned: LP_earned,
+            LP_spent: LP_spent,
+        }).then((res) => {
+            // console.log(res);
+            // Reset the cart
+            this.setState({
+                videos: [],
+                customerSubtotal: 0,
+                counter: 0,
+                isLoyaltyPointUsed: false,
+                customerLP: isLP ? this.state.customerLP - LP_spent : this.state.customerLP + LP_earned,
+            });
+        })
+
+        axios.post("/api/orders/create", {
+            userId: this.state.customerId,
+            cart: videoIDs,
+            subtotal: this.state.customerSubtotal - this.state.LPspent,
+        });
+    }
+
+    
+    handleOrderRefresh = () => {
+        axios.post('api/orders/user/active', {
+            userId: this.state.customerId,
+        }).then((res2) => {
+            // console.log(res2);
+            this.setState({
+                customerOrders: res2.data,
+            });
+        })
+    };
+
+    // End of Operator Functions
+
+    // Class Function
     handleCustomerChange = (event) =>{
         this.setState({[event.target.name]: event.target.value});
     }
@@ -171,42 +319,6 @@ class Operator extends Component {
   
     handleSectionChange = (event, newValue) => {
         this.setState({sectionIndex: newValue});
-    };
-
-    exitCurrentCustomer= () => {
-        this.setState({
-            customerId: "", 
-            customerName: "", 
-            customerOrders: [],
-            videos: [],
-            counter: 0,
-        });
-    }
-
-    getCustomerInfo = (event) => {
-        axios.post(API_URL + 'user/get_customer', {
-            phone_no: this.state.customerPhoneNum.trim(),
-            pin: this.state.customerPIN.trim(),
-        }).then((res) => {
-            console.log(res);
-            this.setState({
-                customerId: res.data._id,
-                customerName: res.data.first_name + " " + res.data.last_name,
-                videoIds: res.data.cart,
-            });
-
-            axios.post(API_URL + 'video/get_videos_with_ids', {
-                list_of_ids: res.data.cart,
-            }).then((res1) => {
-                console.log(res1);
-                let tempData = this.videoCoverted(res1.data);
-                this.setState({
-                    videos: tempData,
-                })
-            })
-        });
-
-        
     };
 
     componentDidMount() {
@@ -221,12 +333,10 @@ class Operator extends Component {
     }
 
     componentDidUpdate(prevProps, prevState){
-        // console.log(prevState.counter);
-        // console.log(this.state.counter);
-        // console.log(prevState.counter !== this.state.counter);
-
         if(prevState.counter !== this.state.counter){
-            let ids = this.state.videos.map(video => video.id);
+            let ids = []
+            if (this.state.videos.length > 0)
+                ids = this.state.videos.map(video => video.id);
             if (this.state.customerId){
                 axios.post("user/update_user_cart", {
                     userId: this.state.customerId,
@@ -235,19 +345,20 @@ class Operator extends Component {
                     console.log(res);
                 });
             };
-        }
+        } 
     }
+    // End of Class Function
 
     render() {
         const { classes } = this.props;
         var filterData = this.state.data;
 
-        var customerButton;
+        var customerButton, cart, orders, updateInfo;
 
         if (this.state.text)
             filterData = filterData.filter(d => d.title.toLowerCase().indexOf(this.state.text.toLowerCase().trim()) >= 0);
 
-        if (this.state.customerId)
+        if (this.state.customerId){
             customerButton = (
                 <Button 
                     color="secondary"
@@ -256,6 +367,35 @@ class Operator extends Component {
                     Exit Customer: {this.state.customerName} 
                 </Button>
             );
+
+            cart = (
+                <Cart 
+                    // userId={this.state.customerId}
+                    loyalty_points={this.state.customerLP} 
+                    videos={this.state.videos}
+                    subtotal={this.state.customerSubtotal}
+                    isLoyaltyPointUsed={this.state.isLoyaltyPointUsed}
+                    LPspent={this.state.LPspent}
+                    deleteVideoFromCart={this.deleteVideoFromCart}
+                    selectForLP={this.selectForLP}
+                >                          
+                </Cart>
+            );
+
+            orders = this.state.customerOrders && this.state.customerOrders.map(order => (
+                <tr>
+                    <td>{order._id}</td>
+                    <td>{order.subtotal}</td>
+                    <td>{order.status}</td>
+                    <td><Button color="primary" 
+                            disabled={!(order.status === "preparing" || order.status === "gathering")}
+                            >Confirm</Button>
+                    </td>
+                </tr>
+            ));
+
+            // updateInfo = ();
+        }
 
         return (
             <div>
@@ -284,6 +424,8 @@ class Operator extends Component {
                             <Box>
                                 <label>
                                     Phone Number: <Input 
+                                        // error={this.state.customerPhoneNum.match( /^[0-9]+$/)}
+                                        helperText="Please enter the phone number (numbers only)"
                                         required
                                         name="customerPhoneNum"
                                         value={this.state.customerPhoneNum}
@@ -296,6 +438,8 @@ class Operator extends Component {
                             <Box>
                                 <label>
                                     PIN: <Input 
+                                        // error={this.state.customerPIN.match( /^[0-9]+$/) && this.state.customerPIN.length === 6}
+                                        helperText="Please enter the 6-digit PIN"
                                         required
                                         name="customerPIN"
                                         value={this.state.customerPIN}
@@ -313,6 +457,7 @@ class Operator extends Component {
                         >
                             Access
                         </Button>
+                        
                     </form>
                 </TabPanel>
                 <TabPanel value={this.state.sectionIndex} index={3}>
@@ -335,17 +480,43 @@ class Operator extends Component {
                         />
                     </div>
                     <div>
-                        <label>Order</label>
-                        <Cart 
-                            orderId="Order ID here" 
-                            videos={this.state.videos}
-                            deleteVideoFromCart={this.deleteVideoFromCart}
-                        >                          
-                        </Cart>
+                        <label>Order:</label>
+                        <Box>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                size="small"
+                                name="paymentCreditCard"
+                                style={{ marginLeft: 16 }}
+                                onClick={this.customerPay}
+                            >
+                                Pay By Credit Card
+                            </Button>
+                        </Box>
+                        {cart}
                     </div>
                 </TabPanel>
                 <TabPanel value={this.state.sectionIndex} index={4}>
                     <label>Remove Order(s)</label>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        name="paymentCreditCard"
+                        style={{ marginLeft: 16 }}
+                        onClick={this.handleOrderRefresh}
+                    >
+                        Refresh
+                    </Button> 
+                    <table width="100%">
+                        <tr>
+                            <th width="">OrderID</th>
+                            <th>Subtotal</th>
+                            <th>Status</th>
+                            <th>Cancel Order</th>
+                        </tr>
+                        {orders}
+                    </table>
                 </TabPanel>
         
             </div>
