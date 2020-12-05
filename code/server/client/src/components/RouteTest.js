@@ -17,16 +17,15 @@ class RouteTest extends Component {
     handleClick = async (e) => {
         e.preventDefault()
         let payload = {
-            videos: 'movie 1',
-            subtotal: '',
-            shippingStatus: ''
+            videos: ["5fbecf1c3833a22dac4355a5"],
+            subtotal: ''
         };
 
         //Add Order
-        await axios.post("/api/orders",[{
-        headers: {
-        'Authorization': `token ${localStorage.getItem('token')}`
-      }}, payload]).then(
+        await axios.post("/api/orders", payload, {
+            headers: {
+                'authorization': `token ${localStorage.getItem('token')}`
+            }}).then(
             res => {
                 console.log('added')
             }
@@ -51,17 +50,17 @@ class RouteTest extends Component {
         //Get all of a users orders
         await axios.get('/api/orders/user/', {
             headers: {
-                'Authorization': `token ${localStorage.getItem('token')}`
-            }})
-        .then(
+                'authorization': `token ${localStorage.getItem('token')}`
+            }}
+        ).then(
             res => {console.log(res.data)}
         ).catch((error) => {
             console.log(error)
         });
 
         //Update Order shipping status
-        await axios.post("/api/orders/update/" + this.state.orderId, {shippingStatus: ''}).then(
-            () =>  console.log('Order Cancelled')
+        await axios.post("/api/orders/update/" + this.state.orderId, {status: 'cancelled'}).then(
+            (res) =>  console.log(res.data)
         ).catch((error) => {
             console.log(error)
         });
