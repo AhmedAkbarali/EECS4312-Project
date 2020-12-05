@@ -206,43 +206,54 @@ class Operator extends Component {
         });
     }
 
-    getCustomerInfo = () => {
-        axios.post(API_URL + 'user/get_customer', {
-            phone_no: this.state.customerPhoneNum.trim(),
-            pin: this.state.customerPIN.trim(),
-        }).then(async (res) => {
-            // console.log(res);
-            this.setState({
-                customerId: res.data._id,
-                customerName: res.data.first_name + " " + res.data.last_name,
-                videoIds: res.data.cart,
-                customerLP: res.data.loyalty_points,
-            });
+    getCustomerInfo = (event) => {
 
-            await axios.post(API_URL + 'video/get_videos_with_ids', {
-                list_of_ids: res.data.cart,
-            }).then((res1) => {
-                // console.log(res1);
-                let tempData = this.videoCoverted(res1.data);
-                let c = tempData.length;
-                let t = 0;
-                tempData.forEach(data => t += data.price)
+        // Validation 
+        var numbers = /^[0-9]+$/;
+        if (!this.state.customerPhoneNum.match(numbers)){
+            alert("Invalid Phone Number");
+        } else if (!this.state.customerPIN.match(numbers)){
+            alert("Invalid PIN");
+        } else if (this.state.customerPIN.trim().length !== 6) {
+            alert("Invalid length of PIN.\nPlease enter a 6-digit PIN.");
+        } else {
+            axios.post(API_URL + 'user/get_customer', {
+                phone_no: this.state.customerPhoneNum.trim(),
+                pin: this.state.customerPIN.trim(),
+            }).then(async (res) => {
+                // console.log(res);
                 this.setState({
-                    videos: tempData,
-                    counter: c,
-                    customerSubtotal: t,
+                    customerId: res.data._id,
+                    customerName: res.data.first_name + " " + res.data.last_name,
+                    videoIds: res.data.cart,
+                    customerLP: res.data.loyalty_points,
+                });
+    
+                await axios.post(API_URL + 'video/get_videos_with_ids', {
+                    list_of_ids: res.data.cart,
+                }).then((res1) => {
+                    // console.log(res1);
+                    let tempData = this.videoCoverted(res1.data);
+                    let c = tempData.length;
+                    let t = 0;
+                    tempData.forEach(data => t += data.price)
+                    this.setState({
+                        videos: tempData,
+                        counter: c,
+                        customerSubtotal: t,
+                    })
+                });
+    
+                await axios.post('api/orders/user/active', {
+                    userId: res.data._id,
+                }).then((res2) => {
+                    console.log(res2);
+                    this.setState({
+                        customerOrders: res2.data,
+                    });
                 })
             });
-
-            await axios.post('api/orders/user/active', {
-                userId: res.data._id,
-            }).then((res2) => {
-                console.log(res2);
-                this.setState({
-                    customerOrders: res2.data,
-                });
-            })
-        });
+        }
     };
 
     customerPay = () => {
@@ -342,7 +353,7 @@ class Operator extends Component {
         const { classes } = this.props;
         var filterData = this.state.data;
 
-        var customerButton, cart, orders;
+        var customerButton, cart, orders, updateInfo;
 
         if (this.state.text)
             filterData = filterData.filter(d => d.title.toLowerCase().indexOf(this.state.text.toLowerCase().trim()) >= 0);
@@ -382,6 +393,8 @@ class Operator extends Component {
                     </td>
                 </tr>
             ));
+
+            // updateInfo = ();
         }
 
         return (
@@ -411,6 +424,8 @@ class Operator extends Component {
                             <Box>
                                 <label>
                                     Phone Number: <Input 
+                                        // error={this.state.customerPhoneNum.match( /^[0-9]+$/)}
+                                        helperText="Please enter the phone number (numbers only)"
                                         required
                                         name="customerPhoneNum"
                                         value={this.state.customerPhoneNum}
@@ -423,6 +438,8 @@ class Operator extends Component {
                             <Box>
                                 <label>
                                     PIN: <Input 
+                                        // error={this.state.customerPIN.match( /^[0-9]+$/) && this.state.customerPIN.length === 6}
+                                        helperText="Please enter the 6-digit PIN"
                                         required
                                         name="customerPIN"
                                         value={this.state.customerPIN}
