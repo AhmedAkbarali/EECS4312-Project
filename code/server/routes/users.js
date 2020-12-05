@@ -4,6 +4,7 @@ const User = require('../models/User.js');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const Video = require('../models/Video.js');
 
 
 const secret = 'xxxxxxxxxxxx';
@@ -167,6 +168,25 @@ router.put('/change_phone',[verifyToken],(req,res) => {
 
 });
 
+router.post('/pay_through_operator', (req, res) => {
+    const { userId, LP_earned, LP_spent} = req.body;
+
+    // Third party payment service
+    // Here
+
+    User.findByIdAndUpdate(userId, 
+        {"$inc": {"loyalty_points": LP_earned - LP_spent}, "$set": {"cart": []}},
+            function(err, result){
+                if (err){
+                    res.status(200).send("Cannot proceed payment");
+                }
+                else {
+                    res.send(result);
+                }
+            }
+        );
+ });
+
 router.put('/pay_fees',[verifyToken],(req,res) => {
     User.findByIdAndUpdate(req.userId, {"$set": { "outstandingFees": 0}}).exec(function(err,result) 
     {   
@@ -177,9 +197,7 @@ router.put('/pay_fees',[verifyToken],(req,res) => {
         {
             res.status(200).json(result);
         }
-      
     });
-
 });
 
 router.post('/get_customer', (req, res) => {
@@ -198,11 +216,7 @@ router.post('/get_customer', (req, res) => {
  router.post('/update_user_cart', (req, res) => {
      const { userId, cartIds } = req.body;
 
-    //  var ids = cartIds.map(id => mongoose.Types.ObjectId(id));
-    //  console.log(ids);
-    //  console.log(userId);
-
-     User.findByIdAndUpdate(userId, {"$set": {"cart": ids}}, function(err, result){
+     User.findByIdAndUpdate(userId, {"$set": {"cart": cartIds}}, function(err, result){
         if(err){
             res.status(200).send("Cannot update the user's cart");
         } else {
