@@ -18,7 +18,7 @@ const orderSchema =  new Schema ({
     {
         type: String,
         default: "preparing",
-        enum: ["preparing", "gathering", "shipped", "received", "canceled"],
+        enum: ["preparing", "gathering", "shipped", "received", "returned", "cancelled"],
     },
 });
 
