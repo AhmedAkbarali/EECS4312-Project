@@ -12,7 +12,7 @@ Tier 3:     25.25   -     40
 const VideoSchema = new mongoose.Schema({
     Title: { type: String, required: true,},
     Director: { type: String, required: true },
-    Desription : { type: String, required: true },
+    Description : { type: String, required: true },
     Price : { type: Number, required: true },
     Genre : { type: String, required: true },
     Availability : { type: String, required: true },
