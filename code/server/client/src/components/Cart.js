@@ -63,7 +63,7 @@ class Cart extends Component{
                         <div style={{paddingBottom: '15px'}}>
                             {total}
                         </div>
-                        <Button component={ Link } to="/checkout" variant="contained" color="primary">Checkout</Button>
+                        <Button disabled={this.props.isOperator} component={ Link } to="/checkout" variant="contained" color="primary">Checkout</Button>
                     </div>
                 </div>
             </div>

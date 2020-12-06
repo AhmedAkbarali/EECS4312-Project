@@ -40,6 +40,7 @@ router.post('/register', (req, res) => {
         
   });
 
+
   router.post('/login', (req, res) => {
     const {email, password} = req.body;
     User.findOne({email: email}).then(user => {
@@ -149,7 +150,6 @@ router.put('/change_address',[verifyToken],(req,res) => {
         }
 
     });
-
 });
 
 router.put('/change_phone',[verifyToken],(req,res) => {
@@ -167,6 +167,30 @@ router.put('/change_phone',[verifyToken],(req,res) => {
     });
 
 });
+
+
+router.post('/update/through_operator', async (req, res) => {
+    const { customerId, email, first_name, last_name, address, phone_no } = req.body
+
+    const user = await User.findById(customerId);
+
+    if (email)
+        user.email = email;
+    if (first_name)
+        user.first_name = first_name;
+    if (last_name)
+        user.last_name = last_name;
+    if (address)
+        user.address = address;
+    if (phone_no)
+        user.phone_no = phone_no;
+    
+    try{
+        user.save();
+    } catch(err){
+        res.status(404).send("Falied to update")
+    }
+})
 
 router.post('/pay_through_operator', (req, res) => {
     const { userId, LP_earned, LP_spent} = req.body;
@@ -213,17 +237,39 @@ router.post('/get_customer', (req, res) => {
     })
  });
 
- router.post('/update_user_cart', (req, res) => {
-     const { userId, cartIds } = req.body;
+router.post('/get_customer/info', (req, res) => {
+    const {customerId} = req.body;
 
-     User.findByIdAndUpdate(userId, {"$set": {"cart": cartIds}}, function(err, result){
-        if(err){
-            res.status(200).send("Cannot update the user's cart");
-        } else {
-            res.send("Update completes.");
-        }
-     });
- })
+    User.findById(customerId, (err, user) => {
+    if (err)
+        res.status(404).send(err);
+    else
+        res.json(user);
+    })
+})
+
+router.post('/update_user_cart', (req, res) => {
+    const { userId, cartIds } = req.body;
+
+    User.findByIdAndUpdate(userId, {"$set": {"cart": cartIds}}, function(err, result){
+    if(err){
+        res.status(200).send("Cannot update the user's cart");
+    } else {
+        res.send("Update completes.");
+    }
+    });
+})
+
+router.post('/delete_customer_account', (req, res) => {
+    const { userId } = req.body;
+
+    User.findByIdAndRemove(userId, function(err, message) {
+    if (err)
+        res.status(200).send("Cannot delete the user's account");
+    else
+        res.send("Remove account succescfully.");
+    });
+})
 
 
 module.exports = router;

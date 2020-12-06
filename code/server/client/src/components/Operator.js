@@ -14,10 +14,8 @@ import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel'
 
 import axios from 'axios';
-import Register from './Register';
 import Cart from './Cart';
 
 const API_URL = "http://localhost:5000/";
@@ -51,8 +49,25 @@ const styles = theme => ({
         padding: "8 8 8 8",
     },
 
+    register_form: {
+        display: 'flex',
+        flexDirection: 'column',
+        width: "80%",
+    },
+
+    name_div: {
+        display: 'flex',
+        flexDirection: 'row',
+    },
+    
     form: {
-        
+
+    },
+
+    updateBox: {
+        display: 'flex',
+        flexDirection: 'column',
+        width: "85%",
     }
 });
 
@@ -92,23 +107,52 @@ function a11yProps(index) {
 class Operator extends Component {
 
     state = {
+        // text: Search by title for filtering the videos
         text: "",
+        sectionIndex: 0,
         expanded: false,
+        // data: collect all videos in all warehouses
         data: [],
+
         videos: [],
         counter: 0,
         videoIds: [],
-        tempVideos: [],
-        sectionIndex: 0,
         customerPIN: "",
         customerPhoneNum: "",
-        customerId:"",
+        customerId: "",
+        customerName: "",
+
+        // Update Customer Information
+        // Based on SRS, the Operator can update these information for Customer: (Section 4.3 Requirement 3)
+        /**
+         * First Name
+         * Last Name
+         * Phone Number
+         * Email
+         * Home Address (address)
+         */
+        customerEmail: "",
+        customerFName: "",
+        customerLName: "",
+        customerPN: "",
+        customerAddress: "",
+        
+        
+        // Cart and Payment related 
         customerOrders: [],
-        customerName:"",
         customerSubtotal: 0,
         customerLP: 0,
         LPspent: 0,
         isLoyaltyPointUsed: false,
+
+        uemail:"",
+        upassword:"",
+        ufname:"",
+        ulname:"",
+        uaddress:"",
+        uphone_no:"",
+        upin:"",
+        notification:"",
     };
 
     columns = [
@@ -190,13 +234,30 @@ class Operator extends Component {
     // End of Cart function
 
     // Operator Functions
+
+
+    deleteCustomerAccount = () => {
+        axios.post('user/delete_customer_account', {
+            userId: this.state.customerId,
+        }).then((res) => {
+            console.log(res)
+            // alert(res.data);
+        });
+        this.exitCurrentCustomer();
+    }
    
     exitCurrentCustomer= () => {
         this.setState({
             customerPIN: "",
             customerPhoneNum: "",
             customerId: "", 
-            customerName: "", 
+           
+            customerEmail: "",
+            customerFName: "",
+            customerLName: "",
+            customerPN: "",
+            customerAddress: "",
+
             customerOrders: [],
             customerLP: 0,
             customerSubtotal: 0,
@@ -222,36 +283,41 @@ class Operator extends Component {
                 pin: this.state.customerPIN.trim(),
             }).then(async (res) => {
                 // console.log(res);
-                this.setState({
-                    customerId: res.data._id,
-                    customerName: res.data.first_name + " " + res.data.last_name,
-                    videoIds: res.data.cart,
-                    customerLP: res.data.loyalty_points,
-                });
-    
-                await axios.post(API_URL + 'video/get_videos_with_ids', {
-                    list_of_ids: res.data.cart,
-                }).then((res1) => {
-                    // console.log(res1);
-                    let tempData = this.videoCoverted(res1.data);
-                    let c = tempData.length;
-                    let t = 0;
-                    tempData.forEach(data => t += data.price)
+                if (res.data){
                     this.setState({
-                        videos: tempData,
-                        counter: c,
-                        customerSubtotal: t,
-                    })
-                });
-    
-                await axios.post('api/orders/user/active', {
-                    userId: res.data._id,
-                }).then((res2) => {
-                    console.log(res2);
-                    this.setState({
-                        customerOrders: res2.data,
+                        customerId: res.data._id,
+                        customerName: res.data.first_name  + " " + res.data.last_name,
+                        videoIds: res.data.cart,
+                        customerLP: res.data.loyalty_points,
                     });
-                })
+        
+                    await axios.post(API_URL + 'video/get_videos_with_ids', {
+                        list_of_ids: res.data.cart,
+                    }).then((res1) => {
+                        // console.log(res1);
+                        let tempData = this.videoCoverted(res1.data);
+                        let c = tempData.length;
+                        let t = 0;
+                        tempData.forEach(data => t += data.price)
+                        this.setState({
+                            videos: tempData,
+                            counter: c,
+                            customerSubtotal: t,
+                        })
+                    });
+        
+                    await axios.post('api/orders/active', {
+                        userId: res.data._id,
+                    }).then((res2) => {
+                        console.log(res2);
+                        this.setState({
+                            customerOrders: res2.data,
+                        });
+                    })
+                } else {
+                    alert("There's no customer account with that Phone Number and PIN");
+                }
+                
             });
         }
     };
@@ -288,14 +354,20 @@ class Operator extends Component {
 
         axios.post("/api/orders/create", {
             userId: this.state.customerId,
+            loyalty_points_used: this.state.LPspent,
             cart: videoIDs,
             subtotal: this.state.customerSubtotal - this.state.LPspent,
+        }).then(async (res) => {
+           
         });
+
+        this.handleOrderRefresh();
     }
 
     
     handleOrderRefresh = () => {
-        axios.post('api/orders/user/active', {
+        // console.log("Order Refreshing !!");
+        axios.post('api/orders/active', {
             userId: this.state.customerId,
         }).then((res2) => {
             // console.log(res2);
@@ -305,11 +377,108 @@ class Operator extends Component {
         })
     };
 
+    cancelOrder = (orderId, orderLPused) =>{
+        axios.post("api/orders/cancel", {
+            orderId: orderId,
+        }).then((res) => {
+            console.log(res);
+        })
+        this.handleOrderRefresh();
+        this.setState({
+            customerLP: this.state.customerLP + orderLPused, 
+        });
+    }
+
+    handleSubmit = () => {
+        if (this.state.uemail === "")
+            this.setState({notification: "Invalid/Empty email."});
+        else if (this.state.ufname === "")
+            this.setState({notification: "Invalid/Empty first name."});
+        else if (this.state.ulname === "")
+            this.setState({notification: "Invalid/Empty last name."});
+        else if (this.state.uaddress === "")
+            this.setState({notification: "Invalid/Empty address."});
+        else if (this.state.uphone_no === "" || (!this.state.uphone_no.match( /^[0-9]+$/)))
+            this.setState({notification: "Invalid/Empty phone number."});
+        else if (this.state.upin === "" || (!this.state.upin.match(/^[0-9]+$/)) || this.state.upin.trim().length !== 6)
+            this.setState({notification: "Invalid/Empty 6-digit pin."});
+        else 
+        {
+            axios.post('/user/register', {
+                email : this.state.uemail,
+                password: this.state.upassword,
+                first_name: this.state.ufname,
+                last_name: this.state.ulname,
+                address: this.state.uaddress,
+                phone_no: this.state.uphone_no,
+                six_digit_pin: this.state.upin,
+            }).then((res) => {
+                this.setState({
+                    uemail:"",
+                    upassword:"",
+                    ufname:"",
+                    ulname:"",
+                    uaddress:"",
+                    uphone_no:"",
+                    upin:"",
+                    errorRe:"",
+                    notification: "Account created",
+                });
+            });
+        }
+    }
+
+    updateInfo = async (event) => {
+        if (this.state.customerPN && (!(this.state.customerPN.match(/^[0-9]+$/) && this.state.customerPN.trim().length === 6)))
+        {
+            alert("Invalid phone number to update");
+        } else {
+            await axios.post('user/update/through_operator', {
+                customerId: this.state.customerId,
+                email: this.state.customerEmail,
+                first_name: this.state.customerFName,
+                last_name: this.state.customerLName,
+                address: this.state.customerAddress,
+                phone_no: this.state.customerPN,
+            }).then((res) => {
+                // Retrieve some infomation or other actions here.
+                this.setState({
+                    customerEmail: "",
+                    customerFName: "",
+                    customerLName: "",
+                    customerPN: "",
+                    customerAddress: "",        
+                })
+            });
+
+            await axios.post('user/get_customer/info', {
+                customerId: this.state.customerId,
+            }).then((res1) => {
+                if(res1.data){
+                    this.setState({
+                        customerName: res1.data.first_name + " " + res1.data.last_name,
+                    });
+                }
+                else {
+                    console.log(res1);
+                }
+            });
+        }
+    }
+
     // End of Operator Functions
 
     // Class Function
+    resetField = (stateName) => {
+        console.log("Reset");
+        console.log(stateName);
+        // this.setState({[stateName]: ""});
+        if (stateName === "customerEmail")
+            this.setState({customerEmail: ""});
+    }
+
     handleCustomerChange = (event) =>{
-        this.setState({[event.target.name]: event.target.value});
+        this.setState({[event.target.name]: event.target.value, notification: ""});
     }
 
     handleTextChange = (event) => {
@@ -318,7 +487,7 @@ class Operator extends Component {
     };
   
     handleSectionChange = (event, newValue) => {
-        this.setState({sectionIndex: newValue});
+        this.setState({sectionIndex: newValue, notification: ""});
     };
 
     componentDidMount() {
@@ -342,7 +511,7 @@ class Operator extends Component {
                     userId: this.state.customerId,
                     cartIds: ids,
                 }).then((res) => {
-                    console.log(res);
+                    // console.log(res);
                 });
             };
         } 
@@ -353,10 +522,15 @@ class Operator extends Component {
         const { classes } = this.props;
         var filterData = this.state.data;
 
-        var customerButton, cart, orders, updateInfo;
+        var customerButton, cart, orders, access, notif;
 
         if (this.state.text)
             filterData = filterData.filter(d => d.title.toLowerCase().indexOf(this.state.text.toLowerCase().trim()) >= 0);
+
+        if (this.state.notification)
+            notif = (
+                <label>{this.state.notification}</label>
+            );
 
         if (this.state.customerId){
             customerButton = (
@@ -378,6 +552,7 @@ class Operator extends Component {
                     LPspent={this.state.LPspent}
                     deleteVideoFromCart={this.deleteVideoFromCart}
                     selectForLP={this.selectForLP}
+                    isOperator={true}
                 >                          
                 </Cart>
             );
@@ -389,12 +564,64 @@ class Operator extends Component {
                     <td>{order.status}</td>
                     <td><Button color="primary" 
                             disabled={!(order.status === "preparing" || order.status === "gathering")}
+                            onClick={() => this.cancelOrder(order._id, order.loyalty_points_used)}
                             >Confirm</Button>
                     </td>
                 </tr>
             ));
 
-            // updateInfo = ();
+            access = (
+                <div className={classes.updateBox}>
+                    <label>If the customer does not want to change/update a field, press the Reset button.</label>
+                    <Box>
+                        <TextField
+                            label="Enter the email to update"
+                            name="customerEmail"
+                            value={this.state.customerEmail}
+                            onChange={this.handleCustomerChange}
+                        />
+                        {/* <Button color="primary" onClick={this.resetField("customerEmail")}>Reset</Button> */}
+                    </Box>
+                    <Box>
+                        <TextField
+                            label="Enter the first name to update"
+                            name="customerFName"
+                            value={this.state.customerFName}
+                            onChange={this.handleCustomerChange}
+                        />
+                        {/* <Button name="customerFname" color="primary" onClick={this.resetField}>Reset</Button> */}
+                    </Box>
+                    <Box>
+                        <TextField
+                            label="Enter the last name to update"
+                            name="customerLName"
+                            value={this.state.customerLName}
+                            onChange={this.handleCustomerChange}
+                        />
+                        {/* <Button name="customerLname" color="primary" onClick={this.resetField}>Reset</Button> */}
+                    </Box>
+                    <Box>
+                        <TextField
+                            label="Enter the address to update"
+                            name="customerAddress"
+                            value={this.state.customerAddress}
+                            onChange={this.handleCustomerChange}
+                        />
+                        {/* <Button name="customerAddress" color="primary" onClick={this.resetField}>Reset</Button> */}
+                    </Box>
+                    <Box>
+                        <TextField
+                            label="Enter the phone number to update"
+                            name="customerPN"
+                            value={this.state.customerPN}
+                            onChange={this.handleCustomerChange}
+                        />
+                        {/* <Button name="customerPN" color="primary" onClick={this.resetField}>Reset</Button> */}
+                    </Box>
+                    <Button color="primary" onClick={this.updateInfo}>Update</Button>
+                    <Button color="primary" onClick={this.deleteCustomerAccount}>Delete Account</Button>
+                </div>    
+            );
         }
 
         return (
@@ -414,7 +641,69 @@ class Operator extends Component {
                     <label>Call Logs</label>
                 </TabPanel>
                 <TabPanel value={this.state.sectionIndex} index={1}>
-                    <Register></Register>
+                    <Typography variant='h4' >Customer Register</Typography>
+                    <form className={classes.register_form} autoComplete="off">
+                        {notif}
+                        <TextField
+                            required
+                        id="standard-error-helper-text"
+                        label="Email Address"
+                        name="uemail"
+                        onChange={this.handleCustomerChange}
+                        />
+
+                        <TextField
+                            required
+                        id="standard-error-helper-text"
+                        label="Password"
+                        helperText="Enter password"
+                        name="upassword"
+                        onChange={this.handleCustomerChange}
+                        />
+
+                        <div className={classes.name_div}>
+                        <TextField
+                            required
+                        id="standard-error-helper-text"
+                        label="First Name"
+                        name="ufname"
+                        onChange={this.handleCustomerChange}
+                        />
+
+                        <TextField
+                            required
+                        id="standard-error-helper-text"
+                        label="Last Name"
+                        name="ulname"
+                        onChange={this.handleCustomerChange}
+                        />
+                        </div>
+
+                        <TextField
+                            required
+                        id="standard-error-helper-text"
+                        label="Address"
+                        name="uaddress"
+                        onChange={this.handleCustomerChange}
+                        />
+
+                        <TextField
+                            required
+                        id="standard-error-helper-text"
+                        label="Phone Number"
+                        name="uphone_no"
+                        onChange={this.handleCustomerChange}
+                        />
+
+                        <TextField
+                            required
+                        id="standard-error-helper-text"
+                        label="6-digit mobile pin"
+                        name="upin"
+                        onChange={this.handleCustomerChange}
+                        />
+                        <Button onClick={this.handleSubmit} variant="contained" color="primary" style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'}}>Register</Button>
+                    </form>
                 </TabPanel>
                 <TabPanel value={this.state.sectionIndex} index={2}>
                     <label>Customer Access can access the account of the Customer and delete the account if the Customer requests</label>
@@ -429,6 +718,7 @@ class Operator extends Component {
                                         required
                                         name="customerPhoneNum"
                                         value={this.state.customerPhoneNum}
+                                        disabled={this.state.customerId}
                                         onChange={this.handleCustomerChange}
                                     ></Input>
                                 </label>
@@ -443,6 +733,7 @@ class Operator extends Component {
                                         required
                                         name="customerPIN"
                                         value={this.state.customerPIN}
+                                        disabled={this.state.customerId}
                                         onChange={this.handleCustomerChange}
                                     ></Input>
                                 </label>
@@ -453,11 +744,14 @@ class Operator extends Component {
                             color="primary"
                             size="small"
                             style={{ marginLeft: 16 }}
+                            disabled={this.state.customerId}
                             onClick={this.getCustomerInfo}
                         >
                             Access
                         </Button>
-                        
+                        <div>
+                            {access}
+                        </div>
                     </form>
                 </TabPanel>
                 <TabPanel value={this.state.sectionIndex} index={3}>
