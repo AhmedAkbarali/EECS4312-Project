@@ -1,9 +1,9 @@
 import React from 'react'
-
+import Search from './Search.js';
 function Customer_Page() {
     return (
         <div>
-            <h1>Customer Page</h1>
+            <Search></Search>
         </div>
     )
 }
