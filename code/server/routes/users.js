@@ -283,15 +283,6 @@ router.post('/get_customer/info', (req, res) => {
     })
 })
 
-    User.findByIdAndUpdate(userId, {"$set": {"cart": cartIds}}, function(err, result){
-        if(err){
-            res.status(200).send("Cannot update the user's cart");
-        } else {
-            res.send("Update completes.");
-        }
-     });
- })
- 
 router.post('/update_user_cart', (req, res) => {
     const { userId, cartIds } = req.body;
 

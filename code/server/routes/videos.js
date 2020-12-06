@@ -105,16 +105,6 @@ router.route('/update').post((req, res) => {
     })
 })
 
-router.route('/get_videos_with_ids').post((req, res) => {
-    const { list_of_ids } = req.body;
-    /*
-    let ids = list_of_ids.map(id => {
-        mongoose.Types.ObjectId(id)
-    });
-     */
-
-    Video.find({
-        '_id': {$in: list_of_ids}
 router.route("/update/video_returned").post((req, res) => {
     const { videoId } = req.body;
 
