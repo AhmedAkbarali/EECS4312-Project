@@ -47,7 +47,8 @@
 .order-summary {
 
     border-style: outset;
-    min-width: 20vw;
+    max-width: 25vw;
+    max-height: 25vh;
     padding: 50px;
     margin: 50px;
 }
