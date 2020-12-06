@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
-const requireLogin = require('../middlewares/requireLogin');
-
 const Order = mongoose.model('order');
-const User = mongoose.model('User');
 const verifyToken = require('../middlewares/verifyToken');
 
 module.exports = app => {
@@ -18,11 +15,16 @@ module.exports = app => {
     // Create orders in Customer View ?
     app.post('/api/orders', verifyToken, async (req, res) => {
         const { videos, subtotal } = req.body;
-        // const status = "preparing"
+      
+        const status = "preparing";
+        let obVideo = [];
+        videos.map((video) => {
+            obVideo.push(mongoose.Types.ObjectId(video))
+        });
       
         const order = await new Order({
-           user: req.userId,
-           videos,
+           user: mongoose.Types.ObjectId(req.userId),
+           obVideo,
            subtotal,
            status
         });
@@ -36,14 +38,14 @@ module.exports = app => {
 
     //Get users orders
     app.get('/api/orders/user', verifyToken, async (req, res) => {
-        const orders = await Order.find({ user : req.userId, status: {$nin: ["cart"]}});
+        const orders = await Order.find({ user : mongoose.Types.ObjectId(req.userId)});
         res.send(orders);
     });
 
     //get active orders
 //   Comment for now since haven't figured how to use verifyToken in Operator view
     app.get('/api/orders/user/active', verifyToken, async (req, res) => {
-        const orders = await Order.find({ user : req.userId, status: {$nin: ["cart", "cancelled", "returned"]}});
+        const orders = await Order.find({ user : mongoose.Types.ObjectId(req.userId), status: {$nin: ["cancelled", "returned"]}});
 
         res.send(orders);
     });
@@ -77,7 +79,7 @@ module.exports = app => {
         res.send(order);
     });
 
-    //Update specific order by id
+    //Update status specific order by id
     app.post('/api/orders/update/:orderId', async (req, res) => {
         const order = await Order.findById(req.params.orderId);
         const { status } = req.body;

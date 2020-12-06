@@ -22,7 +22,6 @@ app.use(
 
 require('./routes/orderRoutes')(app);
 
-
 const uri = "mongodb+srv://user123:UwHUrc1iI87dMAIN@cluster0.rerpk.mongodb.net/videoco?retryWrites=true&w=majority";
 
 

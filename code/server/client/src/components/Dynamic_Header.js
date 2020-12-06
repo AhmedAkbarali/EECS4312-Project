@@ -10,7 +10,7 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import TheatersIcon from '@material-ui/icons/Theaters';
-import { Link } from "react-router-dom";
+import { Link,useHistory } from "react-router-dom";
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
@@ -39,11 +39,13 @@ function Dynamic_Header() {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
   
-    const [user, setUser] = useState(0);
-    const [manager, setManager] = useState(0);
-    const [operator, setOperator] = useState(0);
-    const [shipper, setShipper] = useState(0);
-    const [warehouse, setWarehouse] = useState(0);
+    const [user, setUser] = useState(false);
+    const [manager, setManager] = useState(false);
+    const [operator, setOperator] = useState(false);
+    const [shipper, setShipper] = useState(false);
+    const [warehouse, setWarehouse] = useState(false);
+    const [loggedIn, setLoggedIn] = useState(false);
+    let history = useHistory();
 
     useEffect(()=>{
         axios.get("/access/customer",{
@@ -52,10 +54,10 @@ function Dynamic_Header() {
         }})
         .then(response => {
             console.log(response);
-            setUser(1);
+            setUser(true);
         })
         .catch(error => {
-            setUser(0);
+            setUser(false);
         });
         axios.get("/access/manager",{
             headers: {
@@ -63,10 +65,10 @@ function Dynamic_Header() {
             }})
             .then(response => {
                 console.log(response);
-                setManager(1);
+                setManager(true);
             })
             .catch(error => {
-                setManager(0);
+                setManager(false);
             });
         axios.get("/access/operator",{
            headers: {
@@ -74,10 +76,10 @@ function Dynamic_Header() {
             }})
             .then(response => {
             console.log(response);
-                setOperator(1);
+                setOperator(true);
             })
             .catch(error => {
-                setOperator(0);
+                setOperator(false);
             });
         axios.get("/access/shipper",{
            headers: {
@@ -85,10 +87,10 @@ function Dynamic_Header() {
             }})
             .then(response => {
             console.log(response);
-                setShipper(1);
+                setShipper(true);
             })
             .catch(error => {
-                setShipper(0);
+                setShipper(false);
             });
         axios.get("/access/warehouse",{
            headers: {
@@ -96,11 +98,20 @@ function Dynamic_Header() {
             }})
             .then(response => {
             console.log(response);
-                setWarehouse(1);
+                setWarehouse(true);
             })
             .catch(error => {
-                setWarehouse(0);
+                setWarehouse(false);
             });
+
+          if (!user && !manager && !operator && !shipper && !warehouse)
+          {
+            setLoggedIn(false);
+          } 
+          else
+          {
+            setLoggedIn(true);
+          }
 
     },[user,manager,operator,shipper,warehouse]);
     const handleMenu = (event) => {
@@ -117,6 +128,9 @@ function Dynamic_Header() {
 
     const handleLogout = () => {
       localStorage.removeItem('token');
+      history.push("/");
+      window.location.reload();
+
     }
   
     return (
@@ -127,8 +141,7 @@ function Dynamic_Header() {
             <Typography variant="h6" className={classes.title}>
               VideoCo
             </Typography>
-
-            <section className = {classes.setUserButtons}>
+            {/*<section className = {classes.setUserButtons}>
               <FormControl className={classes.formControl}>
               <InputLabel id="select-user">ChangeUser</InputLabel>
               <Select
@@ -145,22 +158,13 @@ function Dynamic_Header() {
                 <MenuItem value={"warehouse"}>WarehouseTeam</MenuItem>
               </Select>
               </FormControl>
-            </section>
-
-            {/*
-            {(userType=== "default") && (
-            <div>
-            <Button component={ Link } to="/" variant="contained" color="primary">Login</Button>
-            </div>
-            )}
-            */}
-            <Button component={ Link } to="/profile" variant="contained" color="primary">Profile</Button>
-
+            </section> */}
+            
+           
             {user && (
             <div>
             <Button component={ Link } to="/search" variant="contained" color="primary">Search</Button>
             <Button component={ Link } to="/cart" variant="contained" color="primary">Cart</Button>
-            <Button component={ Link } to="/" onClick={handleLogout} variant="contained" color="primary">Logout</Button>
 
             </div>
             )}
@@ -169,8 +173,6 @@ function Dynamic_Header() {
             <div>
             <Button component={ Link } to="/search" variant="contained" color="primary">Search</Button>
             <Button component={ Link } to="/manager" variant="contained" color="primary">ManagerThings</Button>
-            <Button component={ Link } to="/" onClick={handleLogout} variant="contained" color="primary">Logout</Button>
-
             </div>
             )}
 
@@ -178,8 +180,6 @@ function Dynamic_Header() {
             <div>
             <Button component={ Link } to="/search" variant="contained" color="primary">Search</Button>
             <Button component={ Link } to="/" variant="contained" color="primary">OperatorThings</Button>
-            <Button component={ Link } to="/" onClick={handleLogout} variant="contained" color="primary">Logout</Button>
-
             </div>
             )}
 
@@ -187,21 +187,21 @@ function Dynamic_Header() {
             <div>
             <Button component={ Link } to="/warehouseActiveOrders" variant="contained" color="primary">Active Orders</Button>
             <Button component={ Link } to="/warehouseInventory" variant="contained" color="primary">Inventory</Button>
-            <Button component={ Link } to="/" onClick={handleLogout} variant="contained" color="primary">Logout</Button>
-
             </div>
             )}
             {shipper && (
             <div>
             <Button component={ Link } to="/warehouseActiveOrders" variant="contained" color="primary">Shipper Stuff </Button>
-            <Button component={ Link } to="/" onClick={handleLogout} variant="contained" color="primary">Logout</Button>
-
             </div>
             )}
-                        
 
+             {/*loggedIn && (<div>
+              <Button component={ Link } to="/profile" variant="contained" color="primary">Profile</Button>
+              <Button component={ Link } to="/" onClick={handleLogout} variant="contained" color="primary">Logout</Button>
+            </div>
+             )*/}
 
-              
+                      
                 <IconButton
                   aria-label="account of current user."
                   aria-controls="menu-appbar"
@@ -226,10 +226,11 @@ function Dynamic_Header() {
                   open={open}
                   onClose={handleClose}
                 >
-                  <MenuItem onClick={handleClose}>View Profile</MenuItem>
-                  <MenuItem onClick={handleClose}>View History</MenuItem>
+                  <div><MenuItem component={ Link } to="/profile">View Profile</MenuItem>
                   <br></br>
-                  <MenuItem onClick={handleClose}>Logout</MenuItem>
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  </div>
+                  
                 </Menu>
 
               
