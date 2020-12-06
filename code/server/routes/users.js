@@ -318,11 +318,15 @@ router.post('/cart/remove', [verifyToken], (req,res) => {
     ).catch((err) => res.status(422).send(err))
 });
 
-router.post('/cart/clear', [verifyToken], async (req, res) => {
-    console.log('hello');
-    await User.findByIdAndUpdate(req.userId, {"$set": { "cart": [] }}).then(
-        res.send("Successfully removed")
+router.post('/cart/paid', [verifyToken], (req, res) => {
+    User.findByIdAndUpdate(req.userId, {"$set": { "cart": [] } }).then(
+
     ).catch((err) => res.status(422).send(err))
+    User.findByIdAndUpdate(req.userId, {"$set": {"loyalty_points": req.body.loyalty_gained} }).then(
+        res.send("Operation Successful")
+    ).catch((err) => res.status(422).send(err))
+
+
 });
 
 

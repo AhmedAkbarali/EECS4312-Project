@@ -9,7 +9,8 @@ class CustomerCart extends Component{
     state = {
         videos: [],
         outstandingFees: false,
-        subtotal: 0
+        subtotal: 0,
+        loyalty: 0
 
     }
 
@@ -30,7 +31,7 @@ class CustomerCart extends Component{
                 res.data.cart.map((video) => {
                     list.push(video.toString())
                 })
-
+                this.setState({loyalty: res.data.loyalty_points})
                 axios.post('/video/get_videos_with_ids', {list_of_ids: list})
                     .then(response => {
                         this.setState({videos: response.data})
@@ -38,6 +39,7 @@ class CustomerCart extends Component{
                         this.state.videos.map((video) => {
                             this.setState({subtotal: this.state.subtotal + video.Price})
                         })
+                        console.log(response.data);
                     })
             })
             .catch(err => {
@@ -96,6 +98,18 @@ class CustomerCart extends Component{
                         </div>
                         <div style={{paddingBottom: '15px'}}>
                             {this.state.subtotal}
+                        </div>
+                        <div style={{fontWeight: '700'}}>
+                            Loyalty Points:
+                        </div>
+                        <div style={{paddingBottom: '15px'}}>
+                            {this.state.loyalty}
+                        </div>
+                        <div style={{fontWeight: '700'}}>
+                            Loyalty Points From This Order:
+                        </div>
+                        <div style={{paddingBottom: '15px'}}>
+                            {Math.floor(this.state.subtotal)}
                         </div>
                         <Button disabled={this.state.outstandingFees} component={ Link } to="/checkout" variant="contained" color="primary">Checkout</Button>
                     </div>
