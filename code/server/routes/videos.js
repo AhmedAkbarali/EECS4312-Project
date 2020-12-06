@@ -28,7 +28,7 @@ router.route('/all_preparing_videos').get((req, res) => {
   })
 });
 
-router.router('/update/quantity').post((req, res) => {
+router.route('/update/quantity').post((req, res) => {
   const { videoId, new_quantity } = req.body;
 
   Video.findByIdAndUpdate(videoId, {"Copy": new_quantity}, (error, result) => {
