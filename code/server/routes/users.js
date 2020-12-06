@@ -4,6 +4,7 @@ const User = require('../models/User.js');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const verifyToken = require('../middlewares/verifyToken');
 
 
 const secret = 'xxxxxxxxxxxx';
@@ -78,7 +79,7 @@ router.post('/register', (req, res) => {
   })});
   
 
-  verifyToken = (req,res,next) => {
+/*  verifyToken = (req,res,next) => {
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
     if (token == null) return res.send({message:"No token!"}); // if there isn't any token
@@ -90,7 +91,7 @@ router.post('/register', (req, res) => {
         req.userId = decoded.id;
         next();
       });
-};
+}; */
 
 router.get('/',[verifyToken],(req,res) => {
     User.findById(req.userId).exec((err, user) => {
@@ -202,7 +203,7 @@ router.post('/get_customer', (req, res) => {
     //  console.log(ids);
     //  console.log(userId);
 
-     User.findByIdAndUpdate(userId, {"$set": {"cart": ids}}, function(err, result){
+     User.findByIdAndUpdate(userId, {"$set": {"cart": cartIds}}, function(err, result){
         if(err){
             res.status(200).send("Cannot update the user's cart");
         } else {
@@ -210,6 +211,18 @@ router.post('/get_customer', (req, res) => {
         }
      });
  })
+
+router.post('/cart/add', [verifyToken], async (req,res) => {
+    await User.findByIdAndUpdate(req.userId, {"$push": {"cart": (req.body.videoId)}}).then(
+        res.send("Successfully added")
+    ).catch((err) => res.status(422).send(err))
+});
+
+router.post('/cart/remove', [verifyToken], (req,res) => {
+    User.findByIdAndUpdate(req.userId, {"$pull": {cart: (req.body.videoId)}}).then(
+        res.send("Successfully removed")
+    ).catch((err) => res.status(422).send(err))
+});
 
 
 module.exports = router;

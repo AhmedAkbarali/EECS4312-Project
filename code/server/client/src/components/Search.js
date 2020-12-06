@@ -140,6 +140,20 @@ class Search extends Component {
             console.log(err);
         })
     };
+
+    addToCart(videoId, e) {
+        e.preventDefault();
+        console.log(videoId,localStorage.getItem('token'));
+        axios.post("/user/cart/add", {videoId: videoId}, {
+            headers: {
+                'authorization': `token ${localStorage.getItem('token')}`
+        }}).then( res => {
+            console.log(res.data)
+            console.log(videoId)
+        }).catch((error) => {
+            console.log(error)
+        });
+    }
    
 
     render() {
@@ -244,7 +258,7 @@ class Search extends Component {
                                 </CardContent>
                             </CardActionArea>
                             <CardActions>
-                                <IconButton>
+                                <IconButton onClick={(e) => {this.addToCart(d.id, e)}}>
                                     <AddShoppingCartIcon></AddShoppingCartIcon>
                                 </IconButton>
                             </CardActions>
@@ -271,7 +285,7 @@ class Search extends Component {
                         >    
                         </TextField>
                         <Button variant="contained" color="primary" className={classes.button} onClick={this.handleSearch}>
-                            Seacrh
+                            Search
                         </Button>
                         <RadioGroup aria-label="criteria" name="criteria" value={this.state.value} onChange={this.handleChange}>
                             <FormControlLabel value="title" control={<Radio />} label="Title" />

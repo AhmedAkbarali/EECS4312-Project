@@ -83,12 +83,14 @@ router.route('/delete').post((req, res) => {
 
 router.route('/get_videos_with_ids').post((req, res) => {
     const { list_of_ids } = req.body;
-
-    // console.log(list_of_ids);
-    var ids = list_of_ids.map(id => mongoose.Types.ObjectId(id));
+    /*
+    let ids = list_of_ids.map(id => {
+        mongoose.Types.ObjectId(id)
+    });
+     */
 
     Video.find({
-        '_id': {$in: ids}
+        '_id': {$in: list_of_ids}
     }, function(err, videos){
         if (err)
             res.status(404).send("Can't not retrieve the user's cart");

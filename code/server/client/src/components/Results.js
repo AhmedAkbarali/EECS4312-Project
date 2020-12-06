@@ -192,7 +192,7 @@ function Results(props) {
                                 </CardContent>
                             </CardActionArea>
                             <CardActions>
-                                <IconButton>
+                                <IconButton >
                                     <AddShoppingCartIcon></AddShoppingCartIcon>
                                 </IconButton>
                             </CardActions>
