@@ -69,19 +69,18 @@ class CustomerCart extends Component{
         return (
             <div >
                 <h1 className="your-cart">Cart</h1>
-                <div className="cart">
+                <div className="cart" style={{marginLeft: '100px'}}>
                     <div className="shopping-list">
                         <div >
                             { this.state.videos ? this.state.videos.map((value) => (
                                 <div key={value._id} className="order-item">
-                                    <img className="order-icon" alt="icon of movie" />
-                                    <div className="item-info">Title: {value.Title}</div>
+                                    <h5 className="item-info">Title: {value.Title}</h5>
                                     <div className="item-info">Price: {value.Price}</div>
                                     <div className="item-info">Return date</div>
                                     <Button   variant="contained"
                                               color="primary"
                                               size="small"
-                                              style={{ marginLeft: 16 }}
+                                              style={{ width: '50%', alignSelf: 'center', marginTop: '15px' }}
                                               onClick={(e) => {
                                                   this.handleRemove(value, e)
                                               }}
