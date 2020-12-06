@@ -25,7 +25,8 @@ class Checkout extends Component {
         cc: false,
         token: '',
         ccnum: '',
-        newcc: false
+        newcc: false,
+        outstandingFees: false
     }
 
     componentDidMount() {
@@ -38,6 +39,7 @@ class Checkout extends Component {
             .then( (res) => {
                 this.setState({loyalty: res.data.loyalty_points})
                 this.setState({oglp: res.data.loyalty_points})
+                this.setState({outstandingFees: (res.data.outstandingFees > 0)})
                 res.data.cart.map(video => {
                     list.push(video.toString())
                 })
@@ -107,12 +109,12 @@ class Checkout extends Component {
                 'authorization': `token ${this.state.token}`
             }}).then(
             res => {
-               /* axios.post("/user/cart/clear", {
+                axios.post("/user/cart/paid", {loyalty_gained: Math.floor(this.state.subtotal) + this.state.loyalty}, {
                     headers: {
                         'authorization': `token ${this.state.token}`
                     }}).then(res =>{console.log("cleared" + res.data)}).catch((error) => {
                     console.log(error)
-                }) */
+                })
             }
         ).catch((error) => {
             console.log(error)
@@ -137,61 +139,73 @@ class Checkout extends Component {
                             )) : ''}
                         </div>
                     </div>
-                    <div style={{display: 'flex', flexDirection: 'column'}}>
-                        <FormControl component="fieldset">
-                            <FormLabel component="legend">Use Loyalty Points: </FormLabel>
-                            <RadioGroup aria-label="loyalty" name="loyalty1" value={this.state.value} onChange={""}>
-                                <FormControlLabel
-                                    disabled={(this.state.loyalty < TIER_LOYALTY_COST[0]) || (this.state.tiers.indexOf(TIERS[0]) === -1)}
-                                    value="tier1" control={ <Radio />}
-                                    onChange={ (e) => this.handleLoyaltyToggle(0, e)}
-                                    label="Loyalty Points for Tier 1 (100)"
-                                />
-                                <FormControlLabel
-                                    disabled={(this.state.loyalty < TIER_LOYALTY_COST[1]) || (this.state.tiers.indexOf(TIERS[1]) === -1)}
-                                    value="tier2" control={ <Radio />}
-                                    onChange={ (e) => this.handleLoyaltyToggle(1, e)}
-                                    label="Loyalty Points for Tier 2 (150)"
-                                />
-                                <FormControlLabel
-                                    disabled={(this.state.loyalty < TIER_LOYALTY_COST[2]) || (this.state.tiers.indexOf(TIERS[2]) === -1)}
-                                    value="tier3" control={ <Radio />}
-                                    onChange={ (e) => this.handleLoyaltyToggle(2, e)}
-                                    label="Loyalty Points for Tier 3 (200)"
-                                />
-                            </RadioGroup>
-                        </FormControl>
-
-                        <FormControl component="fieldset">
-                            <FormLabel component="payment">Payment Method:  </FormLabel>
-                            <RadioGroup aria-label="pay" name="pay1" value={this.state.valueC} onChange={""}>
-                                <FormControlLabel
-                                    disabled={!this.state.cc}
-                                    value="existcc"
-                                    control={ <Radio />}
-                                    onChange={ (e) => this.handlePaymentToggle(e)}
-                                    label="Use existing Credit Card"
-                                />
-                                <FormControlLabel
-                                    value="newcc"
-                                    control={ <Radio />}
-                                    onChange={e => this.handlePaymentToggle(e)}
-                                    label="Use new Credit Card"
-                                />
-                                {this.state.newcc ? <input onChange={e => this.setState({ccnum: e.target.value})}></input> : ''}
-                            </RadioGroup>
-                        </FormControl>
-                    </div>
-
-                    <div className="" style={{display: 'flex', flexDirection: 'column', justifySelf: 'flex-end'}}>
+                    <div className="order-summary">
                         <div style={{fontWeight: '700'}}>
-                            Total:
+                            Subtotal:
                         </div>
-                        <div style={{paddingBottom: '5px'}}>
+                        <div style={{paddingBottom: '15px'}}>
                             {this.state.subtotal}
                         </div>
-                        <Button component={ Link } to="/home" variant="contained" color="primary" onClick={() => this.handlePayment()}>Pay Now</Button>
+                        <div style={{fontWeight: '700'}}>
+                            Loyalty Points:
+                        </div>
+                        <div style={{paddingBottom: '15px'}}>
+                            {this.state.loyalty}
+                        </div>
+                        <div style={{fontWeight: '700'}}>
+                            Loyalty Points From This Order:
+                        </div>
+                        <div style={{paddingBottom: '15px'}}>
+                            {Math.floor(this.state.subtotal)}
+                        </div>
+                        <Button disabled={this.state.outstandingFees || (this.state.ccnum == '' && this.state.newcc) || (!this.state.newcc && !this.state.cc)}  component={ Link } to="/home" variant="contained" color="primary" onClick={() => this.handlePayment()}>Pay Now</Button>
                     </div>
+                </div>
+                <div style={{display: 'grid', justifyContent: 'center'}}>
+                    <FormControl component="fieldset">
+                        <FormLabel component="legend">Use Loyalty Points: </FormLabel>
+                        <RadioGroup aria-label="loyalty" name="loyalty1" value={this.state.value} onChange={""}>
+                            <FormControlLabel
+                                disabled={(this.state.loyalty < TIER_LOYALTY_COST[0]) || (this.state.tiers.indexOf(TIERS[0]) === -1) || this.state.videos.length < 2}
+                                value="tier1" control={ <Radio />}
+                                onChange={ (e) => this.handleLoyaltyToggle(0, e)}
+                                label="Loyalty Points for Tier 1 (75pts)"
+                            />
+                            <FormControlLabel
+                                disabled={(this.state.loyalty < TIER_LOYALTY_COST[1]) || (this.state.tiers.indexOf(TIERS[1]) === -1) || this.state.videos.length < 2}
+                                value="tier2" control={ <Radio />}
+                                onChange={ (e) => this.handleLoyaltyToggle(1, e)}
+                                label="Loyalty Points for Tier 2 (50pts)"
+                            />
+                            <FormControlLabel
+                                disabled={(this.state.loyalty < TIER_LOYALTY_COST[2]) || (this.state.tiers.indexOf(TIERS[2]) === -1) || this.state.videos.length < 2}
+                                value="tier3" control={ <Radio />}
+                                onChange={ (e) => this.handleLoyaltyToggle(2, e)}
+                                label="Loyalty Points for Tier 3 (25pts)"
+                            />
+                        </RadioGroup>
+                    </FormControl>
+
+                    <FormControl component="fieldset">
+                        <FormLabel component="payment">Payment Method:  </FormLabel>
+                        <RadioGroup aria-label="pay" name="pay1" value={this.state.valueC} onChange={""}>
+                            <FormControlLabel
+                                disabled={!this.state.cc}
+                                value="existcc"
+                                checked={!this.state.newcc && this.state.cc}
+                                control={ <Radio />}
+                                onChange={ (e) => this.handlePaymentToggle(e)}
+                                label="Use existing Credit Card"
+                            />
+                            <FormControlLabel
+                                value="newcc"
+                                control={ <Radio />}
+                                onChange={e => this.handlePaymentToggle(e)}
+                                label="Use new Credit Card"
+                            />
+                            {this.state.newcc ? <input onChange={e => this.setState({ccnum: e.target.value})}></input> : ''}
+                        </RadioGroup>
+                    </FormControl>
                 </div>
             </div>
         )
