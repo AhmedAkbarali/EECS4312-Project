@@ -31,7 +31,7 @@ function App() {
           <Route path="/checkout" component={Checkout} />
           <Route path="/manager" component={Manager_Page}/>
           <Route path="/search" component={Search} />
-          <Route path="/operator" component={Operator} />
+          {/* <Route path="/operator" component={Operator} /> */}
           <Route path="/shipper" component={Shipper} />
           {/* <Route path="/warehouseActiveOrders" component={Warehouse_Active_Orders} />
           <Route path="/warehouseInventory" component={Warehouse_Inventory} /> */}

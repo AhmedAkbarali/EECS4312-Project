@@ -257,7 +257,7 @@ class Search extends Component {
                                   </CardContent>
                               </CardActionArea>
                               <CardActions>
-                                  <IconButton onClick={(e) => {this.addToCart(d.id, e)}}>
+                                  <IconButton disabled={d.availability === "no"} onClick={(e) => {this.addToCart(d.id, e)}}>
                                       <AddShoppingCartIcon></AddShoppingCartIcon>
                                   </IconButton>
                               </CardActions>
