@@ -14,20 +14,20 @@ module.exports = app => {
 
     // Create orders in Customer View ?
     app.post('/api/orders', verifyToken, async (req, res) => {
-        const { videos, subtotal } = req.body;
-      
+        const { videos, subtotal, loyalty_points_used } = req.body;
         const status = "preparing";
         let obVideo = [];
         videos.map((video) => {
             obVideo.push(mongoose.Types.ObjectId(video))
         });
-      
         const order = await new Order({
            user: mongoose.Types.ObjectId(req.userId),
-           obVideo,
-           subtotal,
-           status
+           videos: obVideo,
+           subtotal: subtotal,
+           status: status,
+            loyalty_points_used: loyalty_points_used
         });
+
         try{
             await order.save();
             res.send("order");

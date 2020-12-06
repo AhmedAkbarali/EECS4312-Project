@@ -313,7 +313,14 @@ router.post('/cart/add', [verifyToken], async (req,res) => {
 });
 
 router.post('/cart/remove', [verifyToken], (req,res) => {
-    User.findByIdAndUpdate(req.userId, {"$pull": {cart: (req.body.videoId)}}).then(
+    User.findByIdAndUpdate(req.userId, {"$pull": { "cart": (req.body.videoId) }}).then(
+        res.send("Successfully removed")
+    ).catch((err) => res.status(422).send(err))
+});
+
+router.post('/cart/clear', [verifyToken], async (req, res) => {
+    console.log('hello');
+    await User.findByIdAndUpdate(req.userId, {"$set": { "cart": [] }}).then(
         res.send("Successfully removed")
     ).catch((err) => res.status(422).send(err))
 });

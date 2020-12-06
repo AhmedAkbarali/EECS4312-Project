@@ -8,50 +8,115 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import RouteTest from "./RouteTest";
+import axios from "axios";
 
-const CART_LIST = [
-    {name: '0',price: '10'},
-    {name: '1',price: '10'},
-    {name: '2',price: '10'},
-    {name: 'Superlongtestname for testing purposes and also testing',price: '10'},
-    {name: '1',price: '10'},
-    {name: '2',price: '10'},
-    {name: '0',price: '10'},
-    {name: '1',price: '10'}
-];
-
-let subtotal = 0;
+const TIER_LOYALTY_COST = [0,0,0];
+const TIERS = [1,2,3];
 
 class Checkout extends Component {
     state = {
-        value: 'credit'
+        oglp: 0,
+        loyalty: 0,
+        toggled: -1,
+        subtotal: 0,
+        videos: [],
+        lowest: -1,
+        tiers: [],
+        cc: false,
+        token: '',
+        ccnum: '',
+        newcc: false
     }
 
-    handlePaymentToggle = e => {
-      this.setState({value: e.target.value})
+    componentDidMount() {
+        let list = []
+        this.setState({token: localStorage.getItem('token')})
+        axios.get("user",{
+            headers: {
+                'Authorization': `token ${localStorage.getItem('token')}`
+            }})
+            .then( (res) => {
+                this.setState({loyalty: res.data.loyalty_points})
+                this.setState({oglp: res.data.loyalty_points})
+                res.data.cart.map(video => {
+                    list.push(video.toString())
+                })
+                if(res.data.cc_info !== "Not added card to account.") {
+                    this.setState({cc: true})
+                }
+                axios.post('/video/get_videos_with_ids', {list_of_ids: list})
+                    .then(response => {
+                        this.setState({videos: response.data})
+                        list = []
+                        this.state.videos.map((video) => {
+                            this.setState({subtotal: this.state.subtotal + video.Price})
+                            list.push(video.Tier)
+                        })
+                        this.setState({tiers: [...new Set(list)]})
+                    })
+            })
+            .catch(err => {
+                alert(err.response.data);
+            });
+    }
+
+    handleLoyaltyToggle = async (i, e) => {
+      e.preventDefault()
+      if(this.state.lowest > -1) {
+          await this.setState({subtotal: this.state.lowest + this.state.subtotal});
+          await this.setState({loyalty: this.state.loyalty + TIER_LOYALTY_COST[this.state.toggled]});
+          await this.setState({lowest: -1});
+      }
+
+      await this.setState({toggled: i});
+      let temp = -1;
+      await this.setState({loyalty: this.state.loyalty - TIER_LOYALTY_COST[this.state.toggled]});
+
+      this.state.videos.map(video => {
+          if((video.Tier === (i + 1)) && ((video.Price < temp) || (temp === -1))) {
+              temp = video.Price
+          }
+      })
+      await this.setState({lowest: temp});
+      if(temp > -1) {
+          await this.setState({subtotal: this.state.subtotal - this.state.lowest});
+      }
     };
 
-    renderPayment () {
-        {
-            switch (this.state.value) {
-                case null:
-                    return;
-                case 'credit':
-                    return (
-                        <div>
-                            <input></input>
-                        </div>
-                    );
-                case 'loyalty':
-                    return (
-                        <div>Loyalty</div>
-                    );
-                default:
-                    return [
-                        <div>Credit</div>
-                    ];
-            }
+    handlePaymentToggle(e) {
+        e.preventDefault();
+        if(e.target.value == "newcc") {
+            this.setState({newcc: true})
+        } else {
+            this.setState({newcc: false})
         }
+    }
+
+    handlePayment = async () => {
+        let payload = {
+            videos: [],
+            subtotal: this.state.subtotal,
+            loyalty_points_used: this.state.oglp - this.state.loyalty
+        }
+        this.state.videos.map((video) => {
+          payload.videos.push(video._id.toString())
+        })
+        //Add Order
+        await axios.post("/api/orders", payload, {
+            headers: {
+                'authorization': `token ${this.state.token}`
+            }}).then(
+            res => {
+               /* axios.post("/user/cart/clear", {
+                    headers: {
+                        'authorization': `token ${this.state.token}`
+                    }}).then(res =>{console.log("cleared" + res.data)}).catch((error) => {
+                    console.log(error)
+                }) */
+            }
+        ).catch((error) => {
+            console.log(error)
+        });
     }
 
     render (){
@@ -61,35 +126,73 @@ class Checkout extends Component {
                 <div className="cart">
                     <div className="shopping-list">
                         <div >
-                            {CART_LIST.map((value) => (
-                                <div key={value} className="order-item">
+                            { this.state.videos ? this.state.videos.map((value) => (
+                                <div key={value._id} className="order-item">
                                     <img className="order-icon" alt="icon of movie" />
-                                    <div className="item-info">Title: {(value.name.length > 9) ? value.name.substring(0,10) + "..." : value.name}</div>
-                                    <div className="item-info">Price: {value.price}</div>
-                                    <div>Return date</div>
+                                    <div className="item-info">Title: {value.Title}</div>
+                                    <div className="item-info">Price: {value.Price}</div>
+                                    <div className="item-info">Tier: {value.Tier}</div>
+                                    <div className="item-info">Return date</div>
                                 </div>
-                            ))}
-                        </div>
-                        <FormControl component="fieldset">
-                            <FormLabel component="legend">Pay with:</FormLabel>
-                            <RadioGroup aria-label="pay" name="pay1" value={this.state.value} onChange={""}>
-                                <FormControlLabel value="credit" control={<Radio />} onClick={ e => this.handlePaymentToggle(e)} label="Credit Card" />
-                                <FormControlLabel value="loyalty" control={<Radio />} onClick={ e => this.handlePaymentToggle(e)} label="Loyalty Points" />
-                            </RadioGroup>
-                        </FormControl>
-                        {this.renderPayment()}
-                        <div className="" style={{display: 'flex', flexDirection: 'column', justifySelf: 'flex-end'}}>
-                            <div style={{fontWeight: '700'}}>
-                                Total:
-                            </div>
-                            <div style={{paddingBottom: '5px'}}>
-                                #######
-                            </div>
-                            <Button component={ Link } to="/" variant="contained" color="primary">Pay Now</Button>
+                            )) : ''}
                         </div>
                     </div>
+                    <div style={{display: 'flex', flexDirection: 'column'}}>
+                        <FormControl component="fieldset">
+                            <FormLabel component="legend">Use Loyalty Points: </FormLabel>
+                            <RadioGroup aria-label="loyalty" name="loyalty1" value={this.state.value} onChange={""}>
+                                <FormControlLabel
+                                    disabled={(this.state.loyalty < TIER_LOYALTY_COST[0]) || (this.state.tiers.indexOf(TIERS[0]) === -1)}
+                                    value="tier1" control={ <Radio />}
+                                    onChange={ (e) => this.handleLoyaltyToggle(0, e)}
+                                    label="Loyalty Points for Tier 1 (100)"
+                                />
+                                <FormControlLabel
+                                    disabled={(this.state.loyalty < TIER_LOYALTY_COST[1]) || (this.state.tiers.indexOf(TIERS[1]) === -1)}
+                                    value="tier2" control={ <Radio />}
+                                    onChange={ (e) => this.handleLoyaltyToggle(1, e)}
+                                    label="Loyalty Points for Tier 2 (150)"
+                                />
+                                <FormControlLabel
+                                    disabled={(this.state.loyalty < TIER_LOYALTY_COST[2]) || (this.state.tiers.indexOf(TIERS[2]) === -1)}
+                                    value="tier3" control={ <Radio />}
+                                    onChange={ (e) => this.handleLoyaltyToggle(2, e)}
+                                    label="Loyalty Points for Tier 3 (200)"
+                                />
+                            </RadioGroup>
+                        </FormControl>
+
+                        <FormControl component="fieldset">
+                            <FormLabel component="payment">Payment Method:  </FormLabel>
+                            <RadioGroup aria-label="pay" name="pay1" value={this.state.valueC} onChange={""}>
+                                <FormControlLabel
+                                    disabled={!this.state.cc}
+                                    value="existcc"
+                                    control={ <Radio />}
+                                    onChange={ (e) => this.handlePaymentToggle(e)}
+                                    label="Use existing Credit Card"
+                                />
+                                <FormControlLabel
+                                    value="newcc"
+                                    control={ <Radio />}
+                                    onChange={e => this.handlePaymentToggle(e)}
+                                    label="Use new Credit Card"
+                                />
+                                {this.state.newcc ? <input onChange={e => this.setState({ccnum: e.target.value})}></input> : ''}
+                            </RadioGroup>
+                        </FormControl>
+                    </div>
+
+                    <div className="" style={{display: 'flex', flexDirection: 'column', justifySelf: 'flex-end'}}>
+                        <div style={{fontWeight: '700'}}>
+                            Total:
+                        </div>
+                        <div style={{paddingBottom: '5px'}}>
+                            {this.state.subtotal}
+                        </div>
+                        <Button component={ Link } to="/home" variant="contained" color="primary" onClick={() => this.handlePayment()}>Pay Now</Button>
+                    </div>
                 </div>
-                <RouteTest></RouteTest>
             </div>
         )
     }
