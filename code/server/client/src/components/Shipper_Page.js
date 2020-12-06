@@ -3,6 +3,8 @@ import { withStyles, theme } from "@material-ui/core/styles"
 import { DataGrid } from '@material-ui/data-grid';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
+import {  DialogTitle, DialogContent,DialogContentText,DialogActions,Dialog} from '@material-ui/core';
+ 
 
 import axios from 'axios';
 
@@ -27,6 +29,8 @@ class Shipper_Page extends Component {
     state = {
         data: [],
         selectedOrderId: [],
+        open: false,
+        fullData: []
     };
 
     columns = [
@@ -54,7 +58,35 @@ class Shipper_Page extends Component {
             </strong>
           ),
         },
+        {
+            field: 'viewOrder',
+            headerName: 'View Order',
+            type: 'string',
+            headerAlign: 'center',
+            width: 400,
+            renderCell: (params) => (
+                <strong>
+                    {params.value}
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        style={{ marginLeft: 16 }}
+                        onClick={() => this.handleClickOpen()}
+                    >
+                        View Order
+                    </Button>
+                </strong>)
+        }
     ];
+
+     handleClickOpen = () => {
+        this.setState({ open: true });
+      };
+    
+     handleClose = () => {
+        this.setState({ open: false });
+      };
 
     handleChange = (event) => {
         // setValue(event.target.value);
@@ -71,6 +103,14 @@ class Shipper_Page extends Component {
         let currentData = data;
         currentData.map((data) => {
             tempData.push({"id": data._id, "videos": data.videos, "status": data.status, });
+        })
+        return tempData;
+    }
+    ordersConvertedfull = (data) => {
+        let tempData = []
+        let currentData = data;
+        currentData.map((data) => {
+            tempData.push({"id": data._id, "videos": data.videos, "status": data.status, "subtotal":data.subtotal, "user":data.user,});
         })
         return tempData;
     }
@@ -100,9 +140,14 @@ class Shipper_Page extends Component {
             .then(response => {
                 //console.log(response);
                 let tempData = this.ordersConverted(response.data);
-                tempData = tempData.filter(d => d.status.includes("cancelled"));
+                tempData = tempData.filter(d => d.status.includes("preparing"));
                 this.setState({data: tempData});
-                console.log(tempData);
+                let tempData2 = this.ordersConverted(response.data);
+                tempData2 = tempData2.filter(d => d.status.includes("preparing"));
+
+                this.setState({fullData: tempData2});
+
+                console.log(this.state.fullData);
             }).catch((error) => {
                 console.log(error);
             })
@@ -123,6 +168,14 @@ class Shipper_Page extends Component {
                         //console.log(e);
                         this.setState({selectedOrderId: e.rowIds});
                         console.log(this.state.selectedOrderId);
+
+                        axios.post('/video/get_videos_with_ids', {list_of_ids: ["5fbecf1c3833a22dac4355af"]})
+                        .then(response => {
+                        console.log(response)
+                        
+                    });
+
+
                     }}
                 />
                 </div>
@@ -135,7 +188,22 @@ class Shipper_Page extends Component {
                     {this.state.selectedOrderId}
                 </Paper>
                 </div>
-
+            <Dialog open={this.state.open}  onClose={() => this.handleClose()} aria-labelledby="form-dialog-title">
+              <DialogTitle id="form-dialog-title">Edit Information</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  To subscribe to this website, please enter your email address here. We will send updates
+                  occasionally.
+                </DialogContentText>
+                <h1>hello</h1>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => this.handleClose()} color="primary">
+                  Cancel
+                </Button>
+               
+              </DialogActions>
+            </Dialog>
             </div>
         )
     }

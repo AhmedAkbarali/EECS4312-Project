@@ -3,6 +3,11 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const Warehouse = require('../models/Warehouse.js');
 
+router.get('/', async (req, res) => {
+    const ws = await Warehouse.find({});
+    res.send(ws);
+});
+
 router.post('/create', (req, res) => {
 const {location, inventory} = req.body;
 const warehouse = new Warehouse({ location,inventory});

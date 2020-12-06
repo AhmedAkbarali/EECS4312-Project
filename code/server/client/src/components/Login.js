@@ -50,12 +50,13 @@ function Login() {
             <TextField
             required
           id="standard-error-helper-text"
-          label="Username"
-          helperText="Enter username"
+          label="Email"
+          helperText="Enter email"
           onChange={handleEmailChange}
         /> 
         <TextField
             required
+          type="password"
           id="standard-error-helper-text"
           label="Password"
           helperText="Enter password"
