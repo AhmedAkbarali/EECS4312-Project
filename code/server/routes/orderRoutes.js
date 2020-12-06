@@ -12,14 +12,16 @@ module.exports = app => {
         res.send(orders);
     });
 
+    // Create orders in Customer View ?
     app.post('/api/orders', verifyToken, async (req, res) => {
         const { videos, subtotal } = req.body;
+      
         const status = "preparing";
         let obVideo = [];
         videos.map((video) => {
             obVideo.push(mongoose.Types.ObjectId(video))
         });
-
+      
         const order = await new Order({
            user: mongoose.Types.ObjectId(req.userId),
            obVideo,
@@ -40,11 +42,34 @@ module.exports = app => {
         res.send(orders);
     });
 
-    //grt active orders
+    //get active orders
+//   Comment for now since haven't figured how to use verifyToken in Operator view
     app.get('/api/orders/user/active', verifyToken, async (req, res) => {
         const orders = await Order.find({ user : mongoose.Types.ObjectId(req.userId), status: {$nin: ["cancelled", "returned"]}});
 
         res.send(orders);
+    });
+
+    
+
+    app.post('/api/orders/active', async (req, res) => {
+        const { userId } = req.body;
+
+        const orders = await Order.find({ user : userId, status: {$nin: ["cancelled", "returned"]}}).populate('videos');
+
+        res.send(orders);
+    });
+
+    // Create orders in the Operator View (don't know how to use verifyToken)
+    app.post('/api/orders/create', async (req, res) => {
+        const { userId, cart, subtotal, loyalty_points_used } = req.body;
+
+        const order = Order.create({
+            user: userId,
+            videos: cart,
+            subtotal: subtotal,
+            loyalty_points_used: loyalty_points_used
+        });
     });
 
     //Get specific order by id
@@ -67,4 +92,19 @@ module.exports = app => {
         }
     });
 
+    app.post('/api/orders/cancel', async (req, res) => {
+       const { orderId } = req.body;
+
+       var errorMessage;
+       Order.findByIdAndUpdate(orderId, {"status": "cancelled"}, function(err, result){
+            if (err)
+                errorMessage += err;
+            User.findByIdAndUpdate(result.user, {"$inc": {"loyalty_points": result.loyalty_points_used}}, function(err1){
+                if (err1)
+                    res.status(404).send(errorMessage + " " + err1);
+                else
+                    res.send("Order Cancelation Completes");
+            });
+       });
+    });
 };

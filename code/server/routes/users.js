@@ -4,7 +4,10 @@ const User = require('../models/User.js');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+
 const verifyToken = require('../middlewares/verifyToken');
+
+const Video = require('../models/Video.js');
 
 
 const secret = 'xxxxxxxxxxxx';
@@ -39,6 +42,7 @@ router.post('/register', (req, res) => {
     }); 
         
   });
+
 
   router.post('/login', (req, res) => {
     const {email, password} = req.body;
@@ -82,7 +86,7 @@ router.post('/register', (req, res) => {
 /*  verifyToken = (req,res,next) => {
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
-    if (token == null) return res.send({message:"No token!"}); // if there isn't any token
+    if (token == null) return res.send({token:authHeader}); // if there isn't any token
   
     jwt.verify(token,secret, (err, decoded) => {
         if (err) {
@@ -149,7 +153,6 @@ router.put('/change_address',[verifyToken],(req,res) => {
         }
 
     });
-
 });
 
 router.put('/change_phone',[verifyToken],(req,res) => {
@@ -168,7 +171,80 @@ router.put('/change_phone',[verifyToken],(req,res) => {
 
 });
 
-router.put('/pay_fees',[verifyToken],(req,res) => {
+
+router.post('/update/through_operator', async (req, res) => {
+    const { customerId, email, first_name, last_name, address, phone_no } = req.body
+
+    const user = await User.findById(customerId);
+
+    if (email)
+        user.email = email;
+    if (first_name)
+        user.first_name = first_name;
+    if (last_name)
+        user.last_name = last_name;
+    if (address)
+        user.address = address;
+    if (phone_no)
+        user.phone_no = phone_no;
+    
+    try{
+        user.save();
+    } catch(err){
+        res.status(404).send("Falied to update")
+    }
+})
+router.put('/change_pin',[verifyToken],(req,res) => {
+    const {six_digit_pin} = req.body;
+    User.findByIdAndUpdate(req.userId, {"$set": { "six_digit_pin": six_digit_pin}}).exec(function(err,result) 
+    {   
+        if (err){
+            res.status(200).send("user not found");
+        }
+        else
+        {
+            res.status(200).json(result);
+        }
+
+    });
+
+});
+
+router.post('/pay_through_operator', (req, res) => {
+    const { userId, LP_earned, LP_spent} = req.body;
+
+    // Third party payment service
+    // Here
+
+    User.findByIdAndUpdate(userId, 
+        {"$inc": {"loyalty_points": LP_earned - LP_spent}, "$set": {"cart": []}},
+            function(err, result){
+                if (err){
+                    res.status(200).send("Cannot proceed payment");
+                }
+                else {
+                    res.send(result);
+                }
+            }
+        );
+ });
+
+ router.put('/add_charges',(req,res) => {
+    const {userId, outstandingFees} = req.body;
+
+    User.findByIdAndUpdate(userId, {"$set": { "outstandingFees": outstandingFees}}).exec(function(err,result) 
+    {   
+        if (err){
+            res.status(401).send("user not found");
+        }
+        else
+        {
+            res.status(200).json(result);
+        }
+    });
+});
+
+router.put('/pay',[verifyToken],(req,res) => {
     User.findByIdAndUpdate(req.userId, {"$set": { "outstandingFees": 0}}).exec(function(err,result) 
     {   
         if (err){
@@ -178,7 +254,7 @@ router.put('/pay_fees',[verifyToken],(req,res) => {
         {
             res.status(200).json(result);
         }
-      
+
     });
 
 });
@@ -196,14 +272,18 @@ router.post('/get_customer', (req, res) => {
     })
  });
 
- router.post('/update_user_cart', (req, res) => {
-     const { userId, cartIds } = req.body;
+router.post('/get_customer/info', (req, res) => {
+    const {customerId} = req.body;
 
-    //  var ids = cartIds.map(id => mongoose.Types.ObjectId(id));
-    //  console.log(ids);
-    //  console.log(userId);
+    User.findById(customerId, (err, user) => {
+    if (err)
+        res.status(404).send(err);
+    else
+        res.json(user);
+    })
+})
 
-     User.findByIdAndUpdate(userId, {"$set": {"cart": cartIds}}, function(err, result){
+    User.findByIdAndUpdate(userId, {"$set": {"cart": cartIds}}, function(err, result){
         if(err){
             res.status(200).send("Cannot update the user's cart");
         } else {
@@ -211,6 +291,29 @@ router.post('/get_customer', (req, res) => {
         }
      });
  })
+ 
+router.post('/update_user_cart', (req, res) => {
+    const { userId, cartIds } = req.body;
+
+    User.findByIdAndUpdate(userId, {"$set": {"cart": cartIds}}, function(err, result){
+    if(err){
+        res.status(200).send("Cannot update the user's cart");
+    } else {
+        res.send("Update completes.");
+    }
+    });
+})
+
+router.post('/delete_customer_account', (req, res) => {
+    const { userId } = req.body;
+
+    User.findByIdAndRemove(userId, function(err, message) {
+    if (err)
+        res.status(200).send("Cannot delete the user's account");
+    else
+        res.send("Remove account succescfully.");
+    });
+})
 
 router.post('/cart/add', [verifyToken], async (req,res) => {
     await User.findByIdAndUpdate(req.userId, {"$push": {"cart": (req.body.videoId)}}).then(

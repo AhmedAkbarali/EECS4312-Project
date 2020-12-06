@@ -13,8 +13,6 @@ the customer’s first name, last name, email address, home address, phone numbe
 
 */
 
-
-
 function Register() {
   let history = useHistory();
   const [userData, setData] = useState({

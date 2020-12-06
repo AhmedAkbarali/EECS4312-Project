@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const orderSchema = require('./Order');
+// const orderSchema = require('./Order');
 /*
 A customer account shall contain the following information: 
 the customer’s first name, last name, email address, home address, phone number, credit card information,6 digit mobile pin ,and loyalty point information
@@ -18,7 +18,7 @@ const UserSchema = new mongoose.Schema({
     six_digit_pin: {type: Number},
     cart : [
         {
-          type: mongoose.Types.ObjectId,
+          type: mongoose.Schema.Types.ObjectId,
           ref: 'Video',
         }
     ],
@@ -32,7 +32,7 @@ const UserSchema = new mongoose.Schema({
     },
 //     Not needed for now
 //     orders: [orderSchema],
-    warehouseLocation: String,
+     warehouseLocation: String,
   });
 
 module.exports = mongoose.model('User', UserSchema);

@@ -14,11 +14,12 @@ const orderSchema =  new Schema ({
         }
     ],
     subtotal: Number,
+    loyalty_points_used: Number,
     status: 
     {
         type: String,
         default: "preparing",
-        enum: ["preparing", "gathering", "shipped", "received", "returned", "cancelled"],
+        enum: ["preparing", "to-be-shipped", "shipping", "delivered", "returned", "cancelled"],
     },
 });
 
