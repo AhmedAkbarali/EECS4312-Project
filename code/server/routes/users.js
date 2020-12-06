@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt');
 const verifyToken = require('../middlewares/verifyToken');
 
 const Video = require('../models/Video.js');
+const Call = require('../models/Call.js');
 
 
 const secret = 'xxxxxxxxxxxx';
@@ -83,7 +84,7 @@ router.post('/register', (req, res) => {
   })});
   
 
-/*  verifyToken = (req,res,next) => {
+/* verifyToken = (req,res,next) => {
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
     if (token == null) return res.send({token:authHeader}); // if there isn't any token
@@ -272,16 +273,16 @@ router.post('/get_customer', (req, res) => {
     })
  });
 
-router.post('/get_customer/info', (req, res) => {
-    const {customerId} = req.body;
+// router.post('/get_customer/info', (req, res) => {
+//     const {customerId} = req.body;
 
-    User.findById(customerId, (err, user) => {
-    if (err)
-        res.status(404).send(err);
-    else
-        res.json(user);
-    })
-})
+//     User.findById(customerId, (err, user) => {
+//     if (err)
+//         res.status(404).send(err);
+//     else
+//         res.json(user);
+//     })
+// })
 
 router.post('/update_user_cart', (req, res) => {
     const { userId, cartIds } = req.body;
@@ -318,5 +319,40 @@ router.post('/cart/remove', [verifyToken], (req,res) => {
     ).catch((err) => res.status(422).send(err))
 });
 
+
+router.post('/create_call_log', (req) => {
+    const { staffId } = req.body;
+
+    Call.create({staff: staffId});
+})
+
+
+// Call log
+router.post('/update_call_log', (req, res) => {
+    const { staffId, reason, customer, log} = req.body;
+
+    Call.findByIdAndUpdate(staffId, 
+        {
+            "$set": {
+                "reason": reason,
+                "customer": customer,
+                "log" : log,
+            }    
+        }, (err, result) => {
+            if (err)
+                res.status(422).send(err);
+            else
+                res.send(result);
+        });
+})
+
+// router.put('/get_staff', [verifyToken], (req, res) => {
+//     User.findById(req.userId, (err, user) => {
+//         if (err)
+//             res.status(422).send(err);
+//         else 
+//             res.send(user._id);
+//     })
+// });
 
 module.exports = router;

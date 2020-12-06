@@ -17,6 +17,7 @@ import Input from '@material-ui/core/Input';
 
 import axios from 'axios';
 import Cart from './Cart';
+import { InputLabel } from '@material-ui/core';
 
 const API_URL = "http://localhost:5000/";
 
@@ -61,14 +62,22 @@ const styles = theme => ({
     },
     
     form: {
-
+        display: 'flex',
+        flexDirection: 'column',
+        width: "100%",
     },
 
     updateBox: {
         display: 'flex',
         flexDirection: 'column',
-        width: "85%",
-    }
+        width: "100%",
+    },
+
+    boxContained: {
+        margin: '10 10 5, 5',
+        padding: '2 2 2 2',
+        width: "100%",
+    },
 });
 
 function TabPanel(props) {
@@ -108,9 +117,18 @@ class Operator extends Component {
 
     state = {
         // text: Search by title for filtering the videos
-        text: "",
+        searchText: "",
         sectionIndex: 0,
         expanded: false,
+        
+        // For Call logs
+        sid: "",
+        isCalling: false,
+        reason: "",
+        customer: "",
+        log: "",
+
+
         // data: collect all videos in all warehouses
         data: [],
 
@@ -466,6 +484,30 @@ class Operator extends Component {
         }
     }
 
+    startRecord = () => {
+        this.setState({isCalling: true});
+        axios.post('/user/create_call_log', {staffId: this.state.sid});
+    }
+
+    sendCallLog = () => {
+        console.log(this.state.reason);
+
+        axios.post('/user/update_call_log', {
+          staffId: this.state.sid,
+          reason: this.state.reason,
+          customer: this.state.customer,
+          log: this.state.log, 
+        }).then((res) => {
+            console.log(res);
+            this.setState({
+                isCalling: false,
+                reason: "",
+                customer: "",
+                log: "",
+            });
+        })
+    }
+
     // End of Operator Functions
 
     // Class Function
@@ -483,7 +525,7 @@ class Operator extends Component {
 
     handleTextChange = (event) => {
         // event.stopPropagation();
-        this.setState({text: event.target.value});
+        this.setState({[event.target.name]: event.target.value});
     };
   
     handleSectionChange = (event, newValue) => {
@@ -492,13 +534,28 @@ class Operator extends Component {
 
     componentDidMount() {
         // console.log("Component Did Mount");
+        axios.get("/user",{
+            headers: {
+              'Authorization': `token ${localStorage.getItem('token')}`
+            }})
+            .then(response => {
+                // console.log(response);
+                if (response.data)
+                    this.setState({sid: response.data._id});
+                else
+                    alert("Cannot retrieve the staff ID");
+            })
+            .catch(error => {
+                console.log(error);
+            });
+
         axios.get(API_URL + "video/all")
             .then(response => {
                 let tempData = this.videoCoverted(response.data);
                 this.setState({data: tempData});
             }).catch((error) => {
                 console.log(error);
-            })
+            });
     }
 
     componentDidUpdate(prevProps, prevState){
@@ -522,14 +579,30 @@ class Operator extends Component {
         const { classes } = this.props;
         var filterData = this.state.data;
 
-        var customerButton, cart, orders, access, notif;
+        var customerButton, cart, orders, access, notif, logForm;
 
-        if (this.state.text)
-            filterData = filterData.filter(d => d.title.toLowerCase().indexOf(this.state.text.toLowerCase().trim()) >= 0);
+        if (this.state.searchText)
+            filterData = filterData.filter(d => d.title.toLowerCase().indexOf(this.state.searchText.toLowerCase().trim()) >= 0);
 
         if (this.state.notification)
             notif = (
                 <label>{this.state.notification}</label>
+            );
+
+        if(this.state.isCalling)
+            logForm = (
+                <form className={classes.form}>
+                    <InputLabel padding="2 2 2 2" color="primary">Customer</InputLabel>
+                    <Input padding="2 2 2 2" variant="contained" name="customer" value={this.state.customer} onChange={this.handleTextChange}/>
+
+                    <InputLabel padding="2 2 2 2" color="primary">Reason</InputLabel>
+                    <Input padding="2 2 2 2" variant="contained" name="reason" value={this.state.reason} onChange={this.handleTextChange}/>
+
+                    <InputLabel padding="2 2 2 2" color="primary">Log</InputLabel>
+                    <Input padding="2 2 2 2" variant="contained" name="log" value={this.state.log} onChange={this.handleTextChange} />
+        
+                    <Button padding="2 2 2 2" variant="contained" color="secondary" onClick={this.sendCallLog}>End Call</Button>
+                </form>
             );
 
         if (this.state.customerId){
@@ -573,45 +646,45 @@ class Operator extends Component {
             access = (
                 <div className={classes.updateBox}>
                     <label>If the customer does not want to change/update a field, press the Reset button.</label>
-                    <Box>
+                    <Box className={classes.boxContained}>
                         <TextField
-                            label="Enter the email to update"
+                            label="Update Email"
                             name="customerEmail"
                             value={this.state.customerEmail}
                             onChange={this.handleCustomerChange}
                         />
                         {/* <Button color="primary" onClick={this.resetField("customerEmail")}>Reset</Button> */}
                     </Box>
-                    <Box>
+                    <Box className={classes.boxContained}>
                         <TextField
-                            label="Enter the first name to update"
+                            label="Update First Name"
                             name="customerFName"
                             value={this.state.customerFName}
                             onChange={this.handleCustomerChange}
                         />
                         {/* <Button name="customerFname" color="primary" onClick={this.resetField}>Reset</Button> */}
                     </Box>
-                    <Box>
+                    <Box className={classes.boxContained}>
                         <TextField
-                            label="Enter the last name to update"
+                            label="Update Last Name"
                             name="customerLName"
                             value={this.state.customerLName}
                             onChange={this.handleCustomerChange}
                         />
                         {/* <Button name="customerLname" color="primary" onClick={this.resetField}>Reset</Button> */}
                     </Box>
-                    <Box>
+                    <Box className={classes.boxContained}>
                         <TextField
-                            label="Enter the address to update"
+                            label="Update Address"
                             name="customerAddress"
                             value={this.state.customerAddress}
                             onChange={this.handleCustomerChange}
                         />
                         {/* <Button name="customerAddress" color="primary" onClick={this.resetField}>Reset</Button> */}
                     </Box>
-                    <Box>
+                    <Box className={classes.boxContained}>
                         <TextField
-                            label="Enter the phone number to update"
+                            label="Update Phone Number"
                             name="customerPN"
                             value={this.state.customerPN}
                             onChange={this.handleCustomerChange}
@@ -638,8 +711,19 @@ class Operator extends Component {
                 </AppBar>
 
                 <TabPanel value={this.state.sectionIndex} index={0}>
-                    <label>Call Logs</label>
+                    <Button 
+                        disabled={this.state.isCalling}
+                        variant="contained" 
+                        color="primary" 
+                        style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'}}
+                        onClick={this.startRecord}
+                    >
+                        Record the Call
+                    </Button>
+
+                    {logForm}
                 </TabPanel>
+
                 <TabPanel value={this.state.sectionIndex} index={1}>
                     <Typography variant='h4' >Customer Register</Typography>
                     <form className={classes.register_form} autoComplete="off">
@@ -705,6 +789,7 @@ class Operator extends Component {
                         <Button onClick={this.handleSubmit} variant="contained" color="primary" style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'}}>Register</Button>
                     </form>
                 </TabPanel>
+                
                 <TabPanel value={this.state.sectionIndex} index={2}>
                     <label>Customer Access can access the account of the Customer and delete the account if the Customer requests</label>
                     <form className={classes.form}>
@@ -754,12 +839,14 @@ class Operator extends Component {
                         </div>
                     </form>
                 </TabPanel>
+                
                 <TabPanel value={this.state.sectionIndex} index={3}>
                     <TextField
                         className={classes.textField}
                         id="outlined-textarea"
                         placeholder="Enter the text to sort the title of the videos"
-                        value={this.state.text} 
+                        value={this.state.searchText}
+                        name="searchText" 
                         multiline
                         variant="outlined"
                         label="Video Title"
@@ -778,6 +865,7 @@ class Operator extends Component {
                         <Box>
                             <Button
                                 variant="contained"
+                                disabled={this.state.isCalling}
                                 color="primary"
                                 size="small"
                                 name="paymentCreditCard"
@@ -790,6 +878,7 @@ class Operator extends Component {
                         {cart}
                     </div>
                 </TabPanel>
+                
                 <TabPanel value={this.state.sectionIndex} index={4}>
                     <label>Remove Order(s)</label>
                     <Button
