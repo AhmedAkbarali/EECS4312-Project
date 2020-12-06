@@ -314,9 +314,20 @@ router.post('/cart/add', [verifyToken], async (req,res) => {
 });
 
 router.post('/cart/remove', [verifyToken], (req,res) => {
-    User.findByIdAndUpdate(req.userId, {"$pull": {cart: (req.body.videoId)}}).then(
+    User.findByIdAndUpdate(req.userId, {"$pull": { "cart": (req.body.videoId) }}).then(
         res.send("Successfully removed")
     ).catch((err) => res.status(422).send(err))
+});
+
+router.post('/cart/paid', [verifyToken], (req, res) => {
+    User.findByIdAndUpdate(req.userId, {"$set": { "cart": [] } }).then(
+
+    ).catch((err) => res.status(422).send(err))
+    User.findByIdAndUpdate(req.userId, {"$set": {"loyalty_points": req.body.loyalty_gained} }).then(
+        res.send("Operation Successful")
+    ).catch((err) => res.status(422).send(err))
+
+
 });
 
 
