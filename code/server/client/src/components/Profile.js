@@ -43,6 +43,7 @@ function Profile() {
       eaddress:"",
       ephone_no:"",
       ecc_info:"",
+      epin:""
     });
 
     const handleProfileChange = e => {
@@ -108,6 +109,19 @@ function Profile() {
     const handleClose = () => {
       setOpen(false);
     };
+
+    const payCharges = () => {
+      axios.put("user/pay",{},{
+        headers: {
+        'Authorization': `token ${localStorage.getItem('token')}`
+      }})
+      .then(function (response) {
+        console.log(response); 
+      })
+      .catch(function (error) {
+        alert(error.response.data);
+      });
+    }
 
     const handleSubmit = () => {
       handleClose();
@@ -188,6 +202,21 @@ function Profile() {
           });
           console.log("email changed");
       }
+      if (editData.epin !== "") {
+        axios.put("user/change_pin",{
+          six_digit_pin: editData.epin
+        },{headers: {
+          'Authorization': `token ${localStorage.getItem('token')}`
+        }})
+        .then(function (response) {
+          console.log(response); 
+        })
+        .catch(function (error) {
+          alert(error.response.data);
+        });
+        console.log("pin changed");
+    }
+
       window.location.reload(false);
 
       setEditData({eemail:"",
@@ -195,7 +224,9 @@ function Profile() {
       elname:"",
       eaddress:"",
       ephone_no:"",
-      ecc_info:"",});
+      ecc_info:"",
+      epin:"",  
+    });
     }
 
     return (
@@ -227,7 +258,10 @@ function Profile() {
                       { userType && (<div><p>Credit Card Number: {userData.ucc_info}</p>
                       <p>Pin: {userData.upin}</p>
                       <p>Loyalty Points: {userData.uloyaltypoints}</p>
-                      <p>Outstanding Overdue Charges: {userData.uoutstandingFee}</p>
+                      <div><p>Outstanding Overdue Charges: {userData.uoutstandingFee}</p>
+                      <Button variant="contained" color="primary" onClick={payCharges}>Pay Overdue Charges</Button>
+
+                      </div>
                       </div>)
                       }
                     </div>
@@ -235,7 +269,7 @@ function Profile() {
                   </Card>
                 </Grid>
                 <Button variant="contained" color="primary" onClick={handleClickOpen}  style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'} }>Edit Profile</Button>
-               
+
               </Grid>
               { userType && (<div>
                 <Button variant="contained" color="primary"  style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'}} onClick={() => setInfo(1)}>Active Rentals</Button>
@@ -346,7 +380,8 @@ function Profile() {
                   onChange={handleProfileChange}
 
                 />
-                { userType && (<TextField
+                { userType && (<div>
+                  <TextField
                   autoFocus
                   margin="dense"
                   name="ecc_info"
@@ -354,8 +389,19 @@ function Profile() {
                   type="text"
                   fullWidth
                   onChange={handleProfileChange}
+                />
 
-                />)}
+                  <TextField
+                  autoFocus
+                  margin="dense"
+                  name="epin"
+                  label="6-digit Pin"
+                  type="text"
+                  fullWidth
+                  onChange={handleProfileChange}
+                />
+
+                </div>)}
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleClose} color="primary">

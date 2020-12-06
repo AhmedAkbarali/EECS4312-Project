@@ -82,7 +82,7 @@ router.post('/register', (req, res) => {
   verifyToken = (req,res,next) => {
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
-    if (token == null) return res.send({message:"No token!"}); // if there isn't any token
+    if (token == null) return res.send({token:authHeader}); // if there isn't any token
   
     jwt.verify(token,secret, (err, decoded) => {
         if (err) {
@@ -168,6 +168,22 @@ router.put('/change_phone',[verifyToken],(req,res) => {
 
 });
 
+router.put('/change_pin',[verifyToken],(req,res) => {
+    const {six_digit_pin} = req.body;
+    User.findByIdAndUpdate(req.userId, {"$set": { "six_digit_pin": six_digit_pin}}).exec(function(err,result) 
+    {   
+        if (err){
+            res.status(200).send("user not found");
+        }
+        else
+        {
+            res.status(200).json(result);
+        }
+
+    });
+
+});
+
 router.post('/pay_through_operator', (req, res) => {
     const { userId, LP_earned, LP_spent} = req.body;
 
@@ -187,7 +203,22 @@ router.post('/pay_through_operator', (req, res) => {
         );
  });
 
-router.put('/pay_fees',[verifyToken],(req,res) => {
+ router.put('/add_charges',(req,res) => {
+    const {userId, outstandingFees} = req.body;
+
+    User.findByIdAndUpdate(userId, {"$set": { "outstandingFees": outstandingFees}}).exec(function(err,result) 
+    {   
+        if (err){
+            res.status(401).send("user not found");
+        }
+        else
+        {
+            res.status(200).json(result);
+        }
+    });
+});
+
+router.put('/pay',[verifyToken],(req,res) => {
     User.findByIdAndUpdate(req.userId, {"$set": { "outstandingFees": 0}}).exec(function(err,result) 
     {   
         if (err){
@@ -197,7 +228,9 @@ router.put('/pay_fees',[verifyToken],(req,res) => {
         {
             res.status(200).json(result);
         }
+
     });
+
 });
 
 router.post('/get_customer', (req, res) => {

@@ -32,7 +32,7 @@ const UserSchema = new mongoose.Schema({
     },
 //     Not needed for now
 //     orders: [orderSchema],
-    // warehouseLocation: String,
+     warehouseLocation: String,
   });
 
 module.exports = mongoose.model('User', UserSchema);
