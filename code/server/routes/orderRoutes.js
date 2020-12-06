@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Order = mongoose.model('order');
+const User = mongoose.model('User');
 const verifyToken = require('../middlewares/verifyToken');
 
 module.exports = app => {

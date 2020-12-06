@@ -17,8 +17,31 @@ router.route('/all').get((req, res) => {
   });
 })
 
+router.route('/all_preparing_videos').get((req, res) => {
+  Video.find({"Status": "preparing"}, (error, videos) => {
+    if (error){
+      return next(error);
+    }
+    else {
+      res.json(videos);
+    }
+  })
+});
 
-router.route('/search/').post((req, res) => {
+router.router('/update/quantity').post((req, res) => {
+  const { videoId, new_quantity } = req.body;
+
+  Video.findByIdAndUpdate(videoId, {"Copy": new_quantity}, (error, result) => {
+    if(error){
+      return next(error);
+    }
+    else {
+      res.send(result);
+    }
+  })
+})
+
+router.route('/search').post((req, res) => {
   const { query, value } = req.body;
 
   // console.log(query);
@@ -129,6 +152,5 @@ router.route('/get_videos_with_ids').post((req, res) => {
     });
 })
 
-// router.route('/udpate_videos/copy').post()
 
 module.exports = router;
