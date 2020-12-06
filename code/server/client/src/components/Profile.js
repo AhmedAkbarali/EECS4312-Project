@@ -123,6 +123,13 @@ function Profile() {
       });
     }
 
+    const handleCancelOrder = (value) => {
+        axios.post('/api/orders/cancel', {orderId: value._id}).then(
+           res => {console.log(res.data)
+           }
+        )
+    };
+
     const handleSubmit = () => {
       handleClose();
 
@@ -283,28 +290,38 @@ function Profile() {
                 {info !== 0 ?
                     <ListItem
                         style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'space-evenly',
                             width: '50vw',
-                            borderStyle: 'outset',
+                            borderStyle: 'outset'
                         }}
                         key={0}
                     >
-                        <ListItemText>Order ID</ListItemText>
-                        <ListItemText>Subtotal</ListItemText>
-                        <ListItemText>Status</ListItemText>
+                        <ListItemText style={{width: '50px'}}>Order ID</ListItemText>
+                        <ListItemText style={{width: '50px'}}>Subtotal</ListItemText>
+                        <ListItemText style={{width: '50px'}}>Status</ListItemText>
+                        <ListItemText style={{width: '50px'}}>Cancel</ListItemText>
                     </ListItem> : ''}
               {info === 1 ? active.map((order) => {
                   return (
                       <ListItem style={{
                           display: 'flex',
                           flexDirection: 'row',
-                          justifyContent: 'space-between',
+                          justifyContent: 'space-evenly',
                           alignContent: 'space-between',
                           width: '50vw',
                           borderStyle: 'outset'
                       }} key={order._id}>
-                          <ListItemText>{order._id}</ListItemText>
-                          <ListItemText>{order.subtotal}</ListItemText>
-                          <ListItemText>{order.status}</ListItemText>
+                          <ListItemText style={{width: '50px'}}>{order._id}</ListItemText>
+                          <ListItemText style={{width: '50px'}}>{order.subtotal}</ListItemText>
+                          <ListItemText style={{width: '50px'}}>{order.status}</ListItemText>
+                          <ListItemText style={{width: '50px'}}>
+                              {order.status == "preparing"  || order.status == "to-be-shipped" ? <Button onClick={() => {
+                                  handleCancelOrder(order)
+                              }}>Cancel</Button> : ''}
+                          </ListItemText>
+
                       </ListItem>)
               }) : ''}
               {info === 2 ? history.map((order) => {
@@ -317,9 +334,12 @@ function Profile() {
                           width: '50vw',
                           borderStyle: 'outset'
                       }} key={order._id}>
-                          <ListItemText>{order._id}</ListItemText>
-                          <ListItemText>{order.subtotal}</ListItemText>
-                          <ListItemText>{order.status}</ListItemText>
+                          <ListItemText style={{width: '50px'}}>{order._id}</ListItemText>
+                          <ListItemText style={{width: '50px'}}>{order.subtotal}</ListItemText>
+                          <ListItemText style={{width: '50px'}}>{order.status}</ListItemText>
+                          <ListItemText style={{width: '50px'}}>
+                            {order.status == "preparing"  || order.status == "to-be-shipped" ? <Button onClick={() => {handleCancelOrder(order)}}>Cancel</Button> : ''}
+                          </ListItemText>
                       </ListItem>)
               }) : ''}
             </List>
