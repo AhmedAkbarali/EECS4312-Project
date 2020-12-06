@@ -33,7 +33,8 @@ function Profile() {
       uphone_no:"",
       ucc_info:"",
       uoutstandingFee:0,
-      uloyaltypoints:0
+      uloyaltypoints:0,
+      upin:0
     });
     const [editData, setEditData] = useState({
       eemail:"",
@@ -90,7 +91,8 @@ function Profile() {
           uphone_no:response.data.phone_no,
           ucc_info:response.data.cc_info,
           uoutstandingFee:response.data.outstandingFees,
-          uloyaltypoints:response.data.loyalty_points
+          uloyaltypoints:response.data.loyalty_points,
+          upin:response.data.six_digit_pin
         });
       })
       .catch(function (error) {
@@ -223,6 +225,7 @@ function Profile() {
                       <p>Address: {userData.uaddress}</p>
                       <p>Phone Number: {userData.uphone_no}</p>
                       { userType && (<div><p>Credit Card Number: {userData.ucc_info}</p>
+                      <p>Pin: {userData.upin}</p>
                       <p>Loyalty Points: {userData.uloyaltypoints}</p>
                       <p>Outstanding Overdue Charges: {userData.uoutstandingFee}</p>
                       </div>)

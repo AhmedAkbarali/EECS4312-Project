@@ -1,6 +1,10 @@
 import React, {useEffect, useState} from 'react'
 import axios from 'axios';
 import Customer_Page from './Customer_Page.js';
+import Manager_Page from './Manager_Page.js';
+import Operator from './Operator.js';
+import Shipping_Page from './Shipper_Page.js';
+import Warehouse_Page from './Warehouse_Page.js';
 function Landing_Page() {
 
     const [user, setUser] = useState(0);
@@ -74,21 +78,25 @@ function Landing_Page() {
     }
     else if (manager)
     {
-        return <h1>Manager</h1>
+        return <Manager_Page></Manager_Page>;
     }
     else if (operator)
     {
-        return <h1>Operator</h1>
+        return <Operator></Operator>;
 
     }
     else if (shipper)
     {
-        return <h1>Shipper</h1>
+        return <Shipping_Page></Shipping_Page>;
 
+    }
+    else if (warehouse)
+    {
+        return <Warehouse_Page></Warehouse_Page>;
     }
     else
     {
-        return <h1>Restricted</h1>;
+        return <h1> </h1>;
     }
    
 }

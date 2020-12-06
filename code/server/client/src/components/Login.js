@@ -12,6 +12,7 @@ function Login() {
     const [user_email, setEmail] = useState('');
     const [password, setPass] = useState('');
     let history = useHistory();
+
     
     const handleEmailChange = (e) => {
         setEmail(e.target.value)
@@ -34,6 +35,7 @@ function Login() {
             console.log(response);
             localStorage.setItem('token',response.data.data.token);
             history.push("/home");
+            window.location.reload();
           })
           .catch(function (error) { // invalid login
             alert(error.response.data);

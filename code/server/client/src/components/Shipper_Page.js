@@ -83,6 +83,7 @@ class Shipper_Page extends Component {
               .then((response) => {
                 console.log("Order '" + data.id + "' has been shipped!");
                 // THIS IS A GHETTO REFRESH! please have a look at this.
+                // window.location.reload();
                 this.componentDidMount();
               }, (error) => {
                 console.log(error);
@@ -99,8 +100,9 @@ class Shipper_Page extends Component {
             .then(response => {
                 //console.log(response);
                 let tempData = this.ordersConverted(response.data);
-                tempData = tempData.filter(d => d.status.includes("preparing"));
+                tempData = tempData.filter(d => d.status.includes("cancelled"));
                 this.setState({data: tempData});
+                console.log(tempData);
             }).catch((error) => {
                 console.log(error);
             })
