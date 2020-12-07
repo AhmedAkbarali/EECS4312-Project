@@ -20,6 +20,8 @@ import IconButton from '@material-ui/core/IconButton'
 import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart'
 import FormLabel from '@material-ui/core/FormLabel'
 import Box from '@material-ui/core/Box'
+import Snackbar from '@material-ui/core/Snackbar';
+import Alert from '@material-ui/lab/Alert';
 
 
 
@@ -93,6 +95,8 @@ class Search extends Component {
       priceFilter: "all",
       availFilter: "yes",
       tierFilter: "all",
+      openToast: false,
+      selectedTitle: "",
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -143,19 +147,34 @@ class Search extends Component {
     })
   };
 
-    addToCart(videoId, e) {
+    addToCart(d, e) {
         e.preventDefault();
-        console.log(videoId,localStorage.getItem('token'));
-        axios.post("/user/cart/add", {videoId: videoId}, {
+        console.log(d.id,localStorage.getItem('token'));
+        axios.post("/user/cart/add", {videoId: d.id}, {
             headers: {
                 'authorization': `token ${localStorage.getItem('token')}`
             }}).then( res => {
+            this.setState({selectedTitle: d.title});
+            this.handleToastOpen();
             console.log(res.data)
-            console.log(videoId)
+            console.log(d.id)
         }).catch((error) => {
             console.log(error)
         });
     }
+
+      // Payment toast functions
+      handleToastOpen = () => {
+        this.setState({openToast: true})
+      };
+    
+    handleToastClose = (event, reason) => {
+        if (reason === 'clickaway') {
+        return;
+        }
+
+        this.setState({openToast: false})
+    };
 
   render() {
     const { classes } = this.props;
@@ -257,7 +276,7 @@ class Search extends Component {
                                   </CardContent>
                               </CardActionArea>
                               <CardActions>
-                                  <IconButton disabled={d.availability === "no"} onClick={(e) => {this.addToCart(d.id, e)}}>
+                                  <IconButton disabled={d.availability === "no"} onClick={(e) => {this.addToCart(d, e)}}>
                                       <AddShoppingCartIcon></AddShoppingCartIcon>
                                   </IconButton>
                               </CardActions>
@@ -265,6 +284,13 @@ class Search extends Component {
                       </ListItem>
                   ))}
               </List>
+
+              <Snackbar open={this.state.openToast} autoHideDuration={6000} onClose={this.handleToastClose}>
+                <Alert onClose={this.handleToastClose} severity="success">
+                  {this.state.selectedTitle} added to cart.
+                </Alert>
+              </Snackbar>
+
           </div>)
       }
       else {

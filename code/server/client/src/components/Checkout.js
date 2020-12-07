@@ -9,11 +9,16 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import RouteTest from "./RouteTest";
 import axios from "axios";
+import Snackbar from '@material-ui/core/Snackbar';
+import Alert from '@material-ui/lab/Alert';
+
+
 
 const TIER_LOYALTY_COST = [75,50,25];
 const TIERS = [1,2,3];
 
 class Checkout extends Component {
+
     state = {
         oglp: 0,
         loyalty: 0,
@@ -26,7 +31,8 @@ class Checkout extends Component {
         token: '',
         ccnum: '',
         newcc: false,
-        outstandingFees: false
+        outstandingFees: false,
+        openToast: false
     }
 
     componentDidMount() {
@@ -87,6 +93,7 @@ class Checkout extends Component {
 
     handlePaymentToggle(e) {
         e.preventDefault();
+
         if(e.target.value == "newcc") {
             this.setState({newcc: true})
         } else {
@@ -114,12 +121,27 @@ class Checkout extends Component {
                         'authorization': `token ${this.state.token}`
                     }}).then(res =>{console.log("cleared" + res.data)}).catch((error) => {
                     console.log(error)
-                })
+                });
+                this.handleToastOpen();
             }
         ).catch((error) => {
             console.log(error)
         });
+        
     }
+
+    // Payment toast functions
+    handleToastOpen = () => {
+        this.setState({openToast: true})
+      };
+    
+    handleToastClose = (event, reason) => {
+        if (reason === 'clickaway') {
+        return;
+        }
+
+        this.setState({openToast: false})
+    };
 
     render (){
         return (
@@ -203,9 +225,23 @@ class Checkout extends Component {
                         <div style={{paddingBottom: '15px'}}>
                             {Math.floor(this.state.subtotal)}
                         </div>
-                        <Button disabled={this.state.outstandingFees || (this.state.ccnum == '' && this.state.newcc) || (!this.state.newcc && !this.state.cc)}  component={ Link } to="/home" variant="contained" color="primary" onClick={() => this.handlePayment()}>Pay Now</Button>
+                        <Button disabled={this.state.outstandingFees || (this.state.ccnum == '' && this.state.newcc) || (!this.state.newcc && !this.state.cc)} component={ Link } to="/home" variant="contained" color="primary" onClick={() => this.handlePayment()}>Pay Now</Button>
+                        <div>
+                        {this.state.outstandingFees && (
+                            <div>
+                                <p style={{color:'red'}}>You must pay your outstanding fees before proceeding!</p>
+                                <br></br>
+                            </div>
+                        )}
+                        </div>
                     </div>
                 </div>
+
+                <Snackbar open={this.state.openToast} autoHideDuration={6000} onClose={this.handleToastClose}>
+                <Alert onClose={this.handleToastClose} severity="success">
+                    Payment Successful!
+                </Alert>
+                </Snackbar>
 
             </div>
         )
