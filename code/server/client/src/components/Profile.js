@@ -120,7 +120,7 @@ function Profile() {
       }})
       .then(function (response) {
         console.log(response);
-        setData({uoutstandingFee: response.data})
+        setData({uoutstandingFee: response.data[0]})
       })
       .catch(function (error) {
         alert(error.response.data);
