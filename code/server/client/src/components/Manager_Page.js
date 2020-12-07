@@ -8,10 +8,7 @@ import { useHistory } from 'react-router-dom';
 function Manager_Page() {
   const API_URL = "http://localhost:5000/";
   let history = useHistory();
-
-  const [videoID, setID] = useState({
-    vvideoId: "",
-  });
+ 
   
   const [videoData, setData] = useState({
     vtitle: "",
@@ -24,6 +21,30 @@ function Manager_Page() {
     vdaysRent: 0,
     vcopy: 0
   });
+
+  const [videoID, setID] = useState({
+    vvideoId: "",
+  });
+
+  const [warehouseInfo, setWarehouse] = useState({
+    location: "",
+  });
+  const [warehouseId, setWarehouseID] = useState({
+    warehouseID: "",
+  });
+
+  const handlewarehouseID = e =>{
+    const {wId} = e.target;
+    setWarehouseID({
+      warehouseID: wId,
+    });
+  }
+  const handlewarehouseInfo = e => {
+    const { value } = e.target;
+    setWarehouse({
+      location: value
+    });
+  }
 
   const handleInformationChange = e => {
     const { name, value } = e.target;
@@ -41,7 +62,44 @@ function Manager_Page() {
   }
   const [edit_open, setOpen] = useState(false);
   const [deleteOpen, setOpened] = useState(false);
+  const [addWarehouseOpen, setwarehouseOpened] = useState(false);
+  const [deleteWarehouseOpen, setdeleteOpened] = useState(false);
+  
+  const clickdeleteWarehouse = () => {
+    setdeleteOpened(true);
+  }
+  const closedeleteWarehouse = () => {
+    setdeleteOpened(false);
+  }
+  const handleWarehousedeletion = () => {
+    closedeleteWarehouse();
+    axios.post("warehouse/delete", {
+      warehouseID : warehouseId.warehouseID
+    }).then(function (response) {
+      console.log("Warehouse location " + warehouseInfo.location + " deleted")
+    }).catch(function (error) {
+      console.log("Warehouse removal failed")
+    })
+  }
 
+  const addWarehouseOpened = () => {
+    setwarehouseOpened(true);
+  }
+  const closeaddWarehouse = () =>{
+    setwarehouseOpened(false);
+  }
+  const handleaddWarehouse = () =>{
+    closeaddWarehouse();
+    axios.post(API_URL + "warehouse/create", {
+      location: warehouseInfo.location
+    }).then(function(response) {
+      alert("New warehouse location added")
+      console.log("New warehouse location added at " + warehouseInfo.location)
+    }).catch(function (error) {
+      console.log(error)
+      alert(error)
+    })
+  }
   const handleClickDelete = () => {
     setOpened(true);
   }
@@ -227,8 +285,56 @@ function Manager_Page() {
           </Button>
         </DialogActions>
       </Dialog>
-      <Button>Add warehouse</Button>
-      <Button>Remove Warehouse</Button>
+      <Button onClick={addWarehouseOpened}>Add warehouse</Button>
+      <Dialog open={addWarehouseOpen} onClose={closeaddWarehouse} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Add Warehouse</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Enter location for new warehouse
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            name="location"
+            label="Warehouse Location"
+            type="text"
+            onChange={handlewarehouseInfo}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeaddWarehouse} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleaddWarehouse} color="primary">
+            Add warehouse
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Button OnClick={clickdeleteWarehouse}>Remove Warehouse</Button>
+      <Dialog open={deleteWarehouseOpen} onClose={closedeleteWarehouse} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Add Warehouse</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Enter ID warehouse to be deleted
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            name="warehouseID"
+            label="Warehouse ID to be deleted"
+            type="text"
+            onChange={handlewarehouseID}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closedeleteWarehouse} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleWarehousedeletion} color="primary">
+            Delete warehouse
+          </Button>
+        </DialogActions>
+      </Dialog>
       <br />
       <Grid container>
         <Grid item xs={10}>
