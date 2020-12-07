@@ -161,6 +161,7 @@ class Operator extends Component {
         customerOrders: [],
         customerSubtotal: 0,
         customerLP: 0,
+        customerSave: 0,
         LPspent: 0,
         isLoyaltyPointUsed: false,
 
@@ -206,7 +207,15 @@ class Operator extends Component {
         let tempData = []
         let currentData = data;
         currentData.map((data) => {
-            tempData.push({"id": data._id, "title": data.Title, "director": data.Director, "price": data.Price, "availability": data.Availability, "useLP": false});
+            tempData.push({
+                "id": data._id, 
+                "title": data.Title, 
+                "director": data.Director, 
+                "price": data.Price, 
+                "availability": data.Availability, 
+                "tier": data.Tier, 
+                "useLP": false,
+            });
         })
         return tempData;
     }
@@ -242,8 +251,8 @@ class Operator extends Component {
         if (data.useLP || this.state.customerLP >= data.price){
             this.setState({
                 isLoyaltyPointUsed: !this.state.isLoyaltyPointUsed,
-                // customerLP: !data.useLP ? this.state.customerLP - data.price : this.state.customerLP + data.price,
-                LPspent: !data.useLP ? data.price : 0,
+                customerSave: !data.useLP ? data.price : 0,
+                LPspent: !data.useLP ? (data.tier === 1 ? 75 : (data.tier === 2 ? 50 : 25)) : 0,
             });
             data.useLP = !data.useLP;
         } else {
@@ -286,6 +295,7 @@ class Operator extends Component {
 
             customerOrders: [],
             customerLP: 0,
+            customerSave: 0,
             customerSubtotal: 0,
             videos: [],
             counter: 0,
@@ -360,6 +370,7 @@ class Operator extends Component {
         } else {
             if(this.state.isLoyaltyPointUsed){
                 LP_spent = this.state.LPspent;
+                LP_earned = Math.trunc(subtotal - this.state.customerSave);
             } else {
                 LP_earned = Math.trunc(subtotal);
             }
@@ -378,7 +389,7 @@ class Operator extends Component {
                     customerSubtotal: 0,
                     counter: 0,
                     isLoyaltyPointUsed: false,
-                    customerLP: isLP ? this.state.customerLP - LP_spent : this.state.customerLP + LP_earned,
+                    customerLP: this.state.customerLP - LP_spent + LP_earned,
                 });
             })
     
@@ -386,8 +397,8 @@ class Operator extends Component {
                 userId: this.state.customerId,
                 loyalty_points_used: this.state.LPspent,
                 cart: videoIDs,
-                subtotal: this.state.customerSubtotal - this.state.LPspent,
-            }).then(async (res) => {
+                subtotal: this.state.customerSubtotal - this.state.customerSave,
+            }).then((res) => {
                
             });
     
@@ -408,15 +419,15 @@ class Operator extends Component {
         })
     };
 
-    cancelOrder = (orderId, orderLPused) =>{
-        axios.post("api/orders/cancel", {
+    cancelOrder = async (orderId, orderLPused, orderLPtake) =>{
+        await axios.post("api/orders/cancel", {
             orderId: orderId,
         }).then((res) => {
             console.log(res);
         })
-        this.handleOrderRefresh();
-        this.setState({
-            customerLP: this.state.customerLP + orderLPused, 
+        await this.handleOrderRefresh();
+        await this.setState({
+            customerLP: this.state.customerLP + orderLPused - orderLPtake, 
         });
     }
 
@@ -506,7 +517,6 @@ class Operator extends Component {
     }
 
     sendCallLog = () => {
-        console.log(this.state.reason);
 
         axios.post('/user/update_call_log', {
           staffId: this.state.sid,
@@ -514,7 +524,7 @@ class Operator extends Component {
           customer: this.state.customer,
           log: this.state.log, 
         }).then((res) => {
-            console.log(res);
+            // console.log(res);
             this.setState({
                 isCalling: false,
                 reason: "",
@@ -595,7 +605,8 @@ class Operator extends Component {
                     // console.log(res);
                 });
             };
-        } 
+            
+        }
     }
     // End of Class Function
 
@@ -625,7 +636,7 @@ class Operator extends Component {
                     <InputLabel padding="2 2 2 2" color="primary">Log</InputLabel>
                     <Input padding="2 2 2 2" variant="contained" name="log" value={this.state.log} onChange={this.handleTextChange} />
         
-                    <Button padding="2 2 2 2" variant="contained" color="secondary" onClick={this.sendCallLog}>End Call</Button>
+                    <Button padding="2 2 2 2" variant="contained" color="secondary" onClick={() => this.sendCallLog}>End Call</Button>
                 </form>
             );
 
@@ -646,7 +657,7 @@ class Operator extends Component {
                     videos={this.state.videos}
                     subtotal={this.state.customerSubtotal}
                     isLoyaltyPointUsed={this.state.isLoyaltyPointUsed}
-                    LPspent={this.state.LPspent}
+                    customerSave={this.state.customerSave}
                     deleteVideoFromCart={this.deleteVideoFromCart}
                     selectForLP={this.selectForLP}
                     isOperator={true}
@@ -661,7 +672,7 @@ class Operator extends Component {
                     <td>{order.status}</td>
                     <td><Button color="primary" 
                             disabled={!(order.status === "preparing" || order.status === "gathering")}
-                            onClick={() => this.cancelOrder(order._id, order.loyalty_points_used)}
+                            onClick={() => this.cancelOrder(order._id, order.loyalty_points_used, order.subtotal)}
                             >Confirm</Button>
                     </td>
                 </tr>
@@ -741,7 +752,7 @@ class Operator extends Component {
                         variant="contained" 
                         color="primary" 
                         style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'}}
-                        onClick={this.startRecord}
+                        onClick={() => this.startRecord}
                     >
                         Record the Call
                     </Button>
@@ -890,7 +901,7 @@ class Operator extends Component {
                         <Box>
                             <Button
                                 variant="contained"
-                                disabled={this.state.isCalling}
+                                disabled={!this.state.isCalling || !this.state.customerId}
                                 color="primary"
                                 size="small"
                                 name="paymentCreditCard"

@@ -22,7 +22,7 @@ class Cart extends Component{
         // cardList.forEach(video => subtotal += video.price);
 
         if (isLP)
-            total -= this.props.LPspent;
+            total -= this.props.customerSave;
         
         return (
             <div >
@@ -32,7 +32,9 @@ class Cart extends Component{
                         <div >
                             {cardList.map((value) => (
                                 <div key={value.id} className="order-item">
-                                    <div className="item-info">Title: {(value.title.length > 9) ? value.title.substring(0,10) + "..." : value.name}</div>
+                                    {/* {(value.title.length > 9) ? value.title.substring(0,10) + "..." :  */}
+                                    <div className="item-info">Title: {value.title}</div>
+                                    <div className="item-info">Tier: {value.tier}</div>
                                     <div className="item-info">Price: {value.price}</div>
                                     <Button   variant="contained"
                                         color="primary"
