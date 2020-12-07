@@ -119,7 +119,8 @@ function Profile() {
         'Authorization': `token ${localStorage.getItem('token')}`
       }})
       .then(function (response) {
-        console.log(response); 
+        console.log(response);
+        setData({uoutstandingFee: response.data})
       })
       .catch(function (error) {
         alert(error.response.data);

@@ -157,7 +157,7 @@ module.exports = app => {
                 : (Date.now() - order.returnDate.getTime()) / one_day;
             console.log(did)
             if(did > 0) {
-                order.status =  (order.status == "returned") ? "lateReturned" : "lateNotReturned"
+                order.status =  (order.status == "returned" || order.status == "lateReturned") ? "lateReturned" : "lateNotReturned"
                 await order.save();
                 lateFees += did < 10 ? order.subtotal * (0.1 * did) : order.subtotal
                 lateOrders.push(order)

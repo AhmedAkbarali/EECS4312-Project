@@ -183,7 +183,7 @@ class Checkout extends Component {
                                     <h5 className="item-info">Title: {value.Title}</h5>
                                     <div className="item-info">Price: {value.Price}</div>
                                     <div className="item-info">Tier: {value.Tier}</div>
-                                    <div className="item-info">Return date {value.DaysRent}</div>
+                                    <div className="item-info">Return in {value.DaysRent} days</div>
                                 </div>
                             )) : ''}
                         </div>
