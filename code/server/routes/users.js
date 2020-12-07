@@ -9,6 +9,7 @@ const verifyToken = require('../middlewares/verifyToken');
 
 const Video = require('../models/Video.js');
 const Call = require('../models/Call.js');
+const Order = mongoose.model('order');
 
 
 const secret = 'xxxxxxxxxxxx';
@@ -314,10 +315,17 @@ router.post('/delete_customer_account', (req, res) => {
     const { userId } = req.body;
 
     User.findByIdAndRemove(userId, function(err, message) {
-    if (err)
-        res.status(200).send("Cannot delete the user's account");
-    else
-        res.send("Remove account succescfully.");
+        if (err)
+            res.status(200).send("Cannot delete the user's account");
+        else
+        {
+            Order.deleteMany({"user": userId}, (error) => {
+                if (error)
+                    res.status(200).send("Cannot delete the ")
+                else 
+                res.send("Remove account succescfully.");
+            });
+        };
     });
 })
 
