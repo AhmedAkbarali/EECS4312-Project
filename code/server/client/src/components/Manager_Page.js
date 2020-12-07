@@ -30,13 +30,13 @@ function Manager_Page() {
     location: "",
   });
   const [warehouseId, setWarehouseID] = useState({
-    warehouseID: "",
+    whID: "",
   });
 
   const handlewarehouseID = e =>{
     const {wId} = e.target;
     setWarehouseID({
-      warehouseID: wId,
+      whID: wId,
     });
   }
   const handlewarehouseInfo = e => {
@@ -63,22 +63,27 @@ function Manager_Page() {
   const [edit_open, setOpen] = useState(false);
   const [deleteOpen, setOpened] = useState(false);
   const [addWarehouseOpen, setwarehouseOpened] = useState(false);
-  const [deleteWarehouseOpen, setdeleteOpened] = useState(false);
+  const [deleteWarehouseOpen, setremoveOpened] = useState(false);
   
   const clickdeleteWarehouse = () => {
-    setdeleteOpened(true);
+    setremoveOpened(true);
   }
   const closedeleteWarehouse = () => {
-    setdeleteOpened(false);
+    setremoveOpened(false);
   }
   const handleWarehousedeletion = () => {
     closedeleteWarehouse();
     axios.post("warehouse/delete", {
-      warehouseID : warehouseId.warehouseID
+      warehouseID : warehouseId.whID,
+      location: warehouseInfo.location
     }).then(function (response) {
       console.log("Warehouse location " + warehouseInfo.location + " deleted")
     }).catch(function (error) {
       console.log("Warehouse removal failed")
+    })
+    setWarehouseID({
+      whID: "",
+      location:""
     })
   }
 
@@ -91,13 +96,15 @@ function Manager_Page() {
   const handleaddWarehouse = () =>{
     closeaddWarehouse();
     axios.post(API_URL + "warehouse/create", {
-      location: warehouseInfo.location
+      "location": warehouseInfo.location
     }).then(function(response) {
       alert("New warehouse location added")
       console.log("New warehouse location added at " + warehouseInfo.location)
     }).catch(function (error) {
-      console.log(error)
       alert(error)
+    })
+    setWarehouse({
+      location: ""
     })
   }
   const handleClickDelete = () => {
@@ -310,12 +317,12 @@ function Manager_Page() {
           </Button>
         </DialogActions>
       </Dialog>
-      <Button OnClick={clickdeleteWarehouse}>Remove Warehouse</Button>
+      <Button onClick={clickdeleteWarehouse}>Remove Warehouse</Button>
       <Dialog open={deleteWarehouseOpen} onClose={closedeleteWarehouse} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">Add Warehouse</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Enter ID warehouse to be deleted
+            Enter ID or location of warehouse to be deleted
           </DialogContentText>
           <TextField
             autoFocus
@@ -324,7 +331,17 @@ function Manager_Page() {
             label="Warehouse ID to be deleted"
             type="text"
             onChange={handlewarehouseID}
+
           />
+          <TextField
+          autoFocus
+          margin="dense"
+          name="location"
+          label="Warehouse Location"
+          type="text"
+          onChange={handlewarehouseInfo}
+
+        />
         </DialogContent>
         <DialogActions>
           <Button onClick={closedeleteWarehouse} color="primary">
