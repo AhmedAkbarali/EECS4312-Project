@@ -273,6 +273,20 @@ router.post('/get_customer', (req, res) => {
     })
  });
 
+ router.post('/get_customer_by_id', async(req, res) => {
+    const {userId} = req.body;
+ 
+    await User.findById(userId).exec((err, user) => {
+        if (err) {
+          return res.status(404).send("User Not Found!");
+        }
+        else{
+            res.status(200).json(user);
+        }
+    });
+    
+ });
+
 // router.post('/get_customer/info', (req, res) => {
 //     const {customerId} = req.body;
 

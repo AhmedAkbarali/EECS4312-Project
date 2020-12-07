@@ -30,7 +30,9 @@ class Shipper_Page extends Component {
         data: [],
         selectedOrderId: [],
         open: false,
-        fullData: []
+        fullData: [],
+        videos:[],
+        userData: {}
     };
 
     columns = [
@@ -142,7 +144,7 @@ class Shipper_Page extends Component {
                 let tempData = this.ordersConverted(response.data);
                 tempData = tempData.filter(d => d.status.includes("preparing"));
                 this.setState({data: tempData});
-                let tempData2 = this.ordersConverted(response.data);
+                let tempData2 = this.ordersConvertedfull(response.data);
                 tempData2 = tempData2.filter(d => d.status.includes("preparing"));
 
                 this.setState({fullData: tempData2});
@@ -169,11 +171,30 @@ class Shipper_Page extends Component {
                         this.setState({selectedOrderId: e.rowIds});
                         console.log(this.state.selectedOrderId);
 
-                        axios.post('/video/get_videos_with_ids', {list_of_ids: ["5fbecf1c3833a22dac4355af"]})
-                        .then(response => {
-                        console.log(response)
+                       for (var i =0; i < this.state.data.length; i++)
+                       {
+                         if (this.state.fullData[i].id === this.state.selectedOrderId[0])
+                         {
+                           console.log(this.state.fullData[i]);
+
+                           axios.post('/video/get_videos_with_ids', {list_of_ids: this.state.fullData[i].videos})
+                           .then(response => {
+                            this.setState({videos: response.data})
+
+                            console.log(this.state.videos);
+                            console.log(this.state.fullData[i].user);});
+                  
+                            axios.post("/user/get_customer_by_id", {
+                              userId: this.state.fullData[i].user
+                            })
+                            .then(response => {
+                              this.setState({userData: response.data});
+                            });
+                           break;
+                         }
+                       }
+
                         
-                    });
 
 
                     }}
@@ -189,13 +210,23 @@ class Shipper_Page extends Component {
                 </Paper>
                 </div>
             <Dialog open={this.state.open}  onClose={() => this.handleClose()} aria-labelledby="form-dialog-title">
-              <DialogTitle id="form-dialog-title">Edit Information</DialogTitle>
+              <DialogTitle id="form-dialog-title">Order Information</DialogTitle>
               <DialogContent>
                 <DialogContentText>
-                  To subscribe to this website, please enter your email address here. We will send updates
-                  occasionally.
+                  <h3>User</h3>
+                  <p>First Name: {this.state.userData.first_name}</p>
+                  <p>Last Name:{this.state.userData.last_name}</p>
+                  <p>Address: {this.state.userData.address}</p>
+                  <p>Phone No: {this.state.userData.phone_no}</p>
+                  <p>Email: {this.state.userData.email}</p>
+
+                  <h3>Order:</h3>
+                {this.state.videos.map((vid, index) => (
+                    <p>{vid.Title} </p>
+                ))}
+
                 </DialogContentText>
-                <h1>hello</h1>
+                
               </DialogContent>
               <DialogActions>
                 <Button onClick={() => this.handleClose()} color="primary">
