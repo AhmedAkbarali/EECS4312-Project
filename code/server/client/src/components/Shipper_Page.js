@@ -145,11 +145,11 @@ class Shipper_Page extends Component {
         return (
             <div>
                 <h1>Shipping Team</h1>
-                <div style={{ height: 400, width: '100%' }}>
+                <div style={{ height: 650, width: '100%' }}>
                 <DataGrid 
                     rows={this.state.data} 
                     columns={this.columns} 
-                    pageSize={5} 
+                    pageSize={10} 
                     onSelectionChange={(e) => {
                         //console.log(e);
                         this.setState({selectedOrderId: e.rowIds});

@@ -172,14 +172,14 @@ function Dynamic_Header() {
             {manager && (
             <div>
             <Button component={ Link } to="/search" variant="contained" color="primary">Search</Button>
-            <Button component={ Link } to="/manager" variant="contained" color="primary">ManagerThings</Button>
+            <Button component={ Link } to="/manager" variant="contained" color="primary">Manager</Button>
             </div>
             )}
 
             {operator && (
             <div>
             <Button component={ Link } to="/search" variant="contained" color="primary">Search</Button>
-            <Button component={ Link } to="/" variant="contained" color="primary">OperatorThings</Button>
+            <Button component={ Link } to="/" variant="contained" color="primary">Operator</Button>
             </div>
             )}
 
@@ -191,7 +191,7 @@ function Dynamic_Header() {
             )}
             {shipper && (
             <div>
-            <Button component={ Link } to="/warehouseActiveOrders" variant="contained" color="primary">Shipper Stuff </Button>
+            <Button component={ Link } to="/shipper" variant="contained" color="primary">Shipping</Button>
             </div>
             )}
 
