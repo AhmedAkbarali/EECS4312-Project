@@ -66,6 +66,15 @@ class Checkout extends Component {
             .catch(err => {
                 alert(err.response.data);
             });
+        axios.post('/api/orders/late', {}, {
+            headers: {
+                'Authorization': `token ${localStorage.getItem('token')}`
+            }})
+            .then(
+                (res) => {
+                    console.log(res.data)
+                }
+            )
     }
 
     handleLoyaltyToggle = async (i, e) => {

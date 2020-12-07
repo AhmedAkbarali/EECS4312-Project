@@ -121,4 +121,29 @@ module.exports = app => {
             });
        });
     });
+
+    app.post('/api/orders/late', verifyToken, async (req,res) => {
+        let one_day = 1000 * 60 * 60 * 24;
+        let lateFees = 0;
+        let lateOrders = [];
+        const orders = await Order.find({ user : req.userId, status: {$nin: ["cancelled", "feePaid"]}});
+        Promise.all(orders.map(async (order) => {
+            let did = order.status == "returned" ?
+                (order.dateReturned.getTime() - order.returnDate.getTime()) / one_day
+                : (Date.now() - order.returnDate.getTime()) / one_day;
+            console.log(did)
+            if(did > 0) {
+                order.status =  (order.status == "returned") ? "lateReturned" : "lateNotReturned"
+                await order.save();
+                lateFees += did < 10 ? order.subtotal * (0.1 * did) : order.subtotal
+                lateOrders.push(order)
+            }
+        })).then(
+            async () => {
+                await User.findByIdAndUpdate(req.userId, {outstandingFees: lateFees});
+                console.log(lateFees)
+                console.log(lateOrders);
+                res.send(lateOrders);
+            })
+    });
 };
