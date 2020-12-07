@@ -133,6 +133,10 @@ class Checkout extends Component {
     // Payment toast functions
     handleToastOpen = () => {
         this.setState({openToast: true})
+        setTimeout(function() { //Start the timer
+            this.props.history.push("home");
+        }.bind(this), 2000)
+
       };
     
     handleToastClose = (event, reason) => {
@@ -225,7 +229,7 @@ class Checkout extends Component {
                         <div style={{paddingBottom: '15px'}}>
                             {Math.floor(this.state.subtotal)}
                         </div>
-                        <Button disabled={this.state.outstandingFees || (this.state.ccnum == '' && this.state.newcc) || (!this.state.newcc && !this.state.cc)} component={ Link } to="/home" variant="contained" color="primary" onClick={() => this.handlePayment()}>Pay Now</Button>
+                        <Button disabled={this.state.outstandingFees || (this.state.ccnum == '' && this.state.newcc) || (!this.state.newcc && !this.state.cc)} variant="contained" color="primary" onClick={() => this.handlePayment()}>Pay Now</Button>
                         <div>
                         {this.state.outstandingFees && (
                             <div>
@@ -237,7 +241,7 @@ class Checkout extends Component {
                     </div>
                 </div>
 
-                <Snackbar open={this.state.openToast} autoHideDuration={6000} onClose={this.handleToastClose}>
+                <Snackbar open={this.state.openToast} autoHideDuration={1500} onClose={this.handleToastClose}>
                 <Alert onClose={this.handleToastClose} severity="success">
                     Payment Successful!
                 </Alert>
