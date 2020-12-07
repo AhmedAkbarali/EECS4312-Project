@@ -30,7 +30,8 @@ class Shipper_Page extends Component {
         data: [],
         selectedOrderId: [],
         open: false,
-        fullData: []
+        videos:[],
+        userData: {}
     };
 
     columns = [
@@ -51,7 +52,7 @@ class Shipper_Page extends Component {
                     color="primary"
                     size="small"
                     style={{ marginLeft: 16 }}
-                    onClick={() => this.setStatusToShipped(params.data)}
+                    onClick={() => this.setStatusToShipping(params.data)}
                 >
                     Fulfilled and Shipped
                 </Button>
@@ -102,35 +103,25 @@ class Shipper_Page extends Component {
         let tempData = []
         let currentData = data;
         currentData.map((data) => {
-            tempData.push({"id": data._id, "videos": data.videos, "status": data.status, });
-        })
-        return tempData;
-    }
-    ordersConvertedfull = (data) => {
-        let tempData = []
-        let currentData = data;
-        currentData.map((data) => {
             tempData.push({"id": data._id, "videos": data.videos, "status": data.status, "subtotal":data.subtotal, "user":data.user,});
         })
         return tempData;
     }
 
-    setStatusToShipped = (data) => {
+    setStatusToShipping = (data) => {
         if (data.id){
             axios.post('/api/orders/update/' + data.id, {
-                status: 'shipped',
+                status: 'shipping',
               })
               .then((response) => {
                 console.log("Order '" + data.id + "' has been shipped!");
-                // THIS IS A GHETTO REFRESH! please have a look at this.
-                // window.location.reload();
                 this.componentDidMount();
               }, (error) => {
                 console.log(error);
               });
         }
         else {
-            alert("Could not change order status to shipped!")
+            alert("Could not change order status to shipping!")
         }
     };
 
@@ -140,14 +131,9 @@ class Shipper_Page extends Component {
             .then(response => {
                 //console.log(response);
                 let tempData = this.ordersConverted(response.data);
-                tempData = tempData.filter(d => d.status.includes("preparing"));
+                tempData = tempData.filter(d => d.status.includes("to-be-shipped"));
                 this.setState({data: tempData});
-                let tempData2 = this.ordersConverted(response.data);
-                tempData2 = tempData2.filter(d => d.status.includes("preparing"));
-
-                this.setState({fullData: tempData2});
-
-                console.log(this.state.fullData);
+                console.log(this.state.data);
             }).catch((error) => {
                 console.log(error);
             })
@@ -159,43 +145,64 @@ class Shipper_Page extends Component {
         return (
             <div>
                 <h1>Shipping Team</h1>
-                <div style={{ height: 400, width: '100%' }}>
+                <div style={{ height: 650, width: '100%' }}>
                 <DataGrid 
                     rows={this.state.data} 
                     columns={this.columns} 
-                    pageSize={5} 
+                    pageSize={10} 
                     onSelectionChange={(e) => {
                         //console.log(e);
                         this.setState({selectedOrderId: e.rowIds});
                         console.log(this.state.selectedOrderId);
 
-                        axios.post('/video/get_videos_with_ids', {list_of_ids: ["5fbecf1c3833a22dac4355af"]})
-                        .then(response => {
-                        console.log(response)
+                       for (var i =0; i < this.state.data.length; i++)
+                       {
+                         if (this.state.data[i].id === this.state.selectedOrderId[0])
+                         {
+                           console.log(this.state.data[i]);
+
+                           axios.post('/video/get_videos_with_ids', {list_of_ids: this.state.data[i].videos})
+                           .then(response => {
+                            this.setState({videos: response.data})
+
+                            console.log(this.state.videos);
+                            console.log(this.state.data[i].user);});
+                  
+                            axios.post("/user/get_customer_by_id", {
+                              userId: this.state.data[i].user
+                            })
+                            .then(response => {
+                              this.setState({userData: response.data});
+                            });
+                           break;
+                         }
+                       }
+
                         
-                    });
 
 
                     }}
                 />
                 </div>
 
-                <br></br>
-                Current Order Information:
-                <div className={classes.videos}>
-                <Paper variant="outlined" elevation={4}>
-                    Somehow show the videos and order details(Name, address, etc...) for the selected order#: <br></br>
-                    {this.state.selectedOrderId}
-                </Paper>
-                </div>
             <Dialog open={this.state.open}  onClose={() => this.handleClose()} aria-labelledby="form-dialog-title">
-              <DialogTitle id="form-dialog-title">Edit Information</DialogTitle>
+              <DialogTitle id="form-dialog-title">Order Information</DialogTitle>
               <DialogContent>
                 <DialogContentText>
-                  To subscribe to this website, please enter your email address here. We will send updates
-                  occasionally.
+                  <h3>User</h3>
+                  <p>First Name: {this.state.userData.first_name}</p>
+                  <p>Last Name:{this.state.userData.last_name}</p>
+                  <p>Address: {this.state.userData.address}</p>
+                  <p>Phone No: {this.state.userData.phone_no}</p>
+                  <p>Email: {this.state.userData.email}</p>
+
+                  <h3>Order:</h3>
+                {this.state.videos.map((vid, index) => (
+                    <p>{vid.Title} </p>
+                ))}
+
                 </DialogContentText>
-                <h1>hello</h1>
+                
               </DialogContent>
               <DialogActions>
                 <Button onClick={() => this.handleClose()} color="primary">
