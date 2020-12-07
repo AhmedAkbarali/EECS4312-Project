@@ -69,7 +69,7 @@ module.exports = app => {
     app.post('/api/orders/active', async (req, res) => {
         const { userId } = req.body;
 
-        const orders = await Order.find({ user : userId, status: {$nin: ["cancelled", "returned"]}}).populate('videos');
+        const orders = await Order.find({ user : userId, status: {$nin: ["cancelled", "returned", "lateReturned", "feePaid"]}}).populate('videos');
 
         res.send(orders);
     });
