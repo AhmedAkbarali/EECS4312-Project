@@ -5,6 +5,10 @@ import Manager_Page from './Manager_Page.js';
 import Operator from './Operator.js';
 import Shipping_Page from './Shipper_Page.js';
 import Warehouse_Page from './Warehouse_Page.js';
+import Snackbar from '@material-ui/core/Snackbar';
+import Alert from '@material-ui/lab/Alert';
+
+
 function Landing_Page() {
 
     const [user, setUser] = useState(0);
@@ -12,6 +16,8 @@ function Landing_Page() {
     const [operator, setOperator] = useState(0);
     const [shipper, setShipper] = useState(0);
     const [warehouse, setWarehouse] = useState(0);
+    const [openToast, setToastOpen] = useState(false);
+    const [fees, setFees] = useState(0);
 
     useEffect(()=>{
         axios.get("/access/customer",{
@@ -21,6 +27,7 @@ function Landing_Page() {
         .then(response => {
             console.log(response);
             setUser(1);
+            outstandingFeesCheck();
         })
         .catch(error => {
             setUser(0);
@@ -72,9 +79,46 @@ function Landing_Page() {
 
     },[]);
 
+    const outstandingFeesCheck = () => {
+        axios.get("user",{
+            headers: {
+            'Authorization': `token ${localStorage.getItem('token')}`
+          }})
+          .then(function (response) {
+            console.log(response.data.outstandingFees);
+            if(response.data.outstandingFees > 0) {
+                setFees(response.data.outstandingFees);
+                setToastOpen(true);
+            }
+          })
+          .catch(function (error) {
+            alert(error.response.data);
+          });
+    };
+  
+    // Outstanding fees.
+    const handleToastClose = (event, reason) => {
+      if (reason === 'clickaway') {
+        //return;
+      }
+  
+      setToastOpen(false);
+    };
+
+
     if (user)
     {
-        return <Customer_Page></Customer_Page> ;
+        return (
+            <div>
+            <Customer_Page></Customer_Page>
+
+            <Snackbar open={openToast} onClose={handleToastClose}>
+            <Alert onClose={handleToastClose} severity="error">
+                You have ${fees} in outstanding fees that must be paid!
+            </Alert>
+            </Snackbar>
+            </div>
+        );
     }
     else if (manager)
     {
