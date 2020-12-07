@@ -30,7 +30,6 @@ class Shipper_Page extends Component {
         data: [],
         selectedOrderId: [],
         open: false,
-        fullData: [],
         videos:[],
         userData: {}
     };
@@ -53,7 +52,7 @@ class Shipper_Page extends Component {
                     color="primary"
                     size="small"
                     style={{ marginLeft: 16 }}
-                    onClick={() => this.setStatusToShipped(params.data)}
+                    onClick={() => this.setStatusToShipping(params.data)}
                 >
                     Fulfilled and Shipped
                 </Button>
@@ -104,35 +103,25 @@ class Shipper_Page extends Component {
         let tempData = []
         let currentData = data;
         currentData.map((data) => {
-            tempData.push({"id": data._id, "videos": data.videos, "status": data.status, });
-        })
-        return tempData;
-    }
-    ordersConvertedfull = (data) => {
-        let tempData = []
-        let currentData = data;
-        currentData.map((data) => {
             tempData.push({"id": data._id, "videos": data.videos, "status": data.status, "subtotal":data.subtotal, "user":data.user,});
         })
         return tempData;
     }
 
-    setStatusToShipped = (data) => {
+    setStatusToShipping = (data) => {
         if (data.id){
             axios.post('/api/orders/update/' + data.id, {
-                status: 'shipped',
+                status: 'shipping',
               })
               .then((response) => {
                 console.log("Order '" + data.id + "' has been shipped!");
-                // THIS IS A GHETTO REFRESH! please have a look at this.
-                // window.location.reload();
                 this.componentDidMount();
               }, (error) => {
                 console.log(error);
               });
         }
         else {
-            alert("Could not change order status to shipped!")
+            alert("Could not change order status to shipping!")
         }
     };
 
@@ -142,14 +131,9 @@ class Shipper_Page extends Component {
             .then(response => {
                 //console.log(response);
                 let tempData = this.ordersConverted(response.data);
-                tempData = tempData.filter(d => d.status.includes("preparing"));
+                tempData = tempData.filter(d => d.status.includes("to-be-shipped"));
                 this.setState({data: tempData});
-                let tempData2 = this.ordersConvertedfull(response.data);
-                tempData2 = tempData2.filter(d => d.status.includes("preparing"));
-
-                this.setState({fullData: tempData2});
-
-                console.log(this.state.fullData);
+                console.log(this.state.data);
             }).catch((error) => {
                 console.log(error);
             })
@@ -173,19 +157,19 @@ class Shipper_Page extends Component {
 
                        for (var i =0; i < this.state.data.length; i++)
                        {
-                         if (this.state.fullData[i].id === this.state.selectedOrderId[0])
+                         if (this.state.data[i].id === this.state.selectedOrderId[0])
                          {
-                           console.log(this.state.fullData[i]);
+                           console.log(this.state.data[i]);
 
-                           axios.post('/video/get_videos_with_ids', {list_of_ids: this.state.fullData[i].videos})
+                           axios.post('/video/get_videos_with_ids', {list_of_ids: this.state.data[i].videos})
                            .then(response => {
                             this.setState({videos: response.data})
 
                             console.log(this.state.videos);
-                            console.log(this.state.fullData[i].user);});
+                            console.log(this.state.data[i].user);});
                   
                             axios.post("/user/get_customer_by_id", {
-                              userId: this.state.fullData[i].user
+                              userId: this.state.data[i].user
                             })
                             .then(response => {
                               this.setState({userData: response.data});
@@ -201,14 +185,6 @@ class Shipper_Page extends Component {
                 />
                 </div>
 
-                <br></br>
-                Current Order Information:
-                <div className={classes.videos}>
-                <Paper variant="outlined" elevation={4}>
-                    Somehow show the videos and order details(Name, address, etc...) for the selected order#: <br></br>
-                    {this.state.selectedOrderId}
-                </Paper>
-                </div>
             <Dialog open={this.state.open}  onClose={() => this.handleClose()} aria-labelledby="form-dialog-title">
               <DialogTitle id="form-dialog-title">Order Information</DialogTitle>
               <DialogContent>
