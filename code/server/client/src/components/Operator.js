@@ -14,10 +14,15 @@ import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import Input from '@material-ui/core/Input';
+import { InputLabel, } from '@material-ui/core';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import Paper from '@material-ui/core/Paper';
+
 
 import axios from 'axios';
 import Cart from './Cart';
-import { InputLabel } from '@material-ui/core';
+
 
 const styles = theme => ({
     textField: {
@@ -155,7 +160,10 @@ class Operator extends Component {
         customerLName: "",
         customerPN: "",
         customerAddress: "",
-        
+
+        // Call History,
+        callHistory: [],
+        isShowCalls: false,
         
         // Cart and Payment related 
         customerOrders: [],
@@ -485,9 +493,11 @@ class Operator extends Component {
                 last_name: this.state.customerLName,
                 address: this.state.customerAddress,
                 phone_no: this.state.customerPN,
-            }).then((res) => {
+            }).then(async (res) => {
                 // Retrieve some infomation or other actions here.
-                this.setState({
+                await this.setState({customerName: this.state.customerFName + " " + this.state.customerLName});
+                
+                await this.setState({
                     customerEmail: "",
                     customerFName: "",
                     customerLName: "",
@@ -496,18 +506,18 @@ class Operator extends Component {
                 })
             });
 
-            await axios.post('user/get_customer/info', {
-                customerId: this.state.customerId,
-            }).then((res1) => {
-                if(res1.data){
-                    this.setState({
-                        customerName: res1.data.first_name + " " + res1.data.last_name,
-                    });
-                }
-                else {
-                    console.log(res1);
-                }
-            });
+            // await axios.post('user/get_customer/info', {
+            //     customerId: this.state.customerId,
+            // }).then((res1) => {
+            //     if(res1.data){
+            //         this.setState({
+            //             customerName: res1.data.first_name + " " + res1.data.last_name,
+            //         });
+            //     }
+            //     else {
+            //         console.log(res1);
+            //     }
+            // });
         }
     }
 
@@ -516,8 +526,23 @@ class Operator extends Component {
         axios.post('/user/create_call_log', {staffId: this.state.sid});
     }
 
-    sendCallLog = () => {
+    showRecord = () => {
+        if(!this.state.isShowCalls)
+            axios.post('/user/get_call_logs', {
+                staffId: this.state.sid,
+            }).then((res) => {
+                console.log(res);
+                if (res.data){
+                    this.setState({callHistory: res.data, isShowCalls: true});
+                }
+            })
+        else{
+            this.setState({isShowCalls: false});
+        }
+    }
 
+    sendCallLog = () => {
+        console.log("Click");
         axios.post('/user/update_call_log', {
           staffId: this.state.sid,
           reason: this.state.reason,
@@ -636,7 +661,7 @@ class Operator extends Component {
                     <InputLabel padding="2 2 2 2" color="primary">Log</InputLabel>
                     <Input padding="2 2 2 2" variant="contained" name="log" value={this.state.log} onChange={this.handleTextChange} />
         
-                    <Button padding="2 2 2 2" variant="contained" color="secondary" onClick={() => this.sendCallLog}>End Call</Button>
+                    <Button padding="2 2 2 2" variant="contained" color="secondary" onClick={this.sendCallLog}>End Call</Button>
                 </form>
             );
 
@@ -752,12 +777,36 @@ class Operator extends Component {
                         variant="contained" 
                         color="primary" 
                         style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'}}
-                        onClick={() => this.startRecord}
+                        onClick={this.startRecord}
                     >
                         Record the Call
                     </Button>
-
+                    <Button 
+                        disabled={this.state.isCalling}
+                        variant="contained" 
+                        color="primary" 
+                        style={{maxWidth: '200px', maxHeight: '70px', minWidth: '50px', minHeight: '50px'}}
+                        onClick={this.showRecord}
+                    >
+                        {this.state.isShowCalls ? "Exit the Call Logs" : "Show the Call Logs"}
+                    </Button>
                     {logForm}
+                    {this.state.isShowCalls && 
+                        (
+                        <Paper style={{maxHeight: 600, overflow: 'auto'}}>
+                            <List height="200">
+                                {this.state.callHistory && this.state.callHistory.map((call) => (
+                                    <ListItem key={"call"+call._id} style={{ display: "flex", flexDirection: "column"}}>
+                                        <Typography component="paragraph">Time: {call.time} </Typography>
+                                        <Typography component="paragraph">Log: {call.log} </Typography>
+                                        <Typography component="paragraph">Reason: {call.reason} </Typography>
+                                        <Typography component="paragraph">Customer: {call.customer} </Typography>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        </Paper>)
+                    }   
+                    
                 </TabPanel>
 
                 <TabPanel value={this.state.sectionIndex} index={1}>
