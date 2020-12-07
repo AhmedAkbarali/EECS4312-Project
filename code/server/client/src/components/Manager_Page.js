@@ -305,6 +305,7 @@ function Manager_Page() {
             name="location"
             label="Warehouse Location"
             type="text"
+            fullWidth
             onChange={handlewarehouseInfo}
           />
         </DialogContent>
@@ -327,9 +328,10 @@ function Manager_Page() {
           <TextField
             autoFocus
             margin="dense"
-            name="warehouseID"
-            label="Warehouse ID to be deleted"
+            name="whID"
+            label="Warehouse ID"
             type="text"
+            fullWidth
             onChange={handlewarehouseID}
 
           />
@@ -339,6 +341,7 @@ function Manager_Page() {
           name="location"
           label="Warehouse Location"
           type="text"
+          fullWidth
           onChange={handlewarehouseInfo}
 
         />
