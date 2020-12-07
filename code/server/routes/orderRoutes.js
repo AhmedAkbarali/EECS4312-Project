@@ -77,13 +77,37 @@ module.exports = app => {
     // Create orders in the Operator View (don't know how to use verifyToken)
     app.post('/api/orders/create', async (req, res) => {
         const { userId, cart, subtotal, loyalty_points_used } = req.body;
+        const status = "preparing";
+        let obVideo = [];
+        let rentalPeriod = 0;
+        Promise.all(videos.map(async (video) => {
+            obVideo.push(mongoose.Types.ObjectId(video))
+            const v = await Video.findById(video)
+            if(rentalPeriod == 0 || rentalPeriod > v.DaysRent) {
+                rentalPeriod = v.DaysRent;
+            }
+        })).then(
+            async () => {
+                const date = new Date();
+                date.setDate(date.getDate() + rentalPeriod);
+                console.log(date);
+                const order = await new Order({
+                    user: mongoose.Types.ObjectId(req.userId),
+                    videos: obVideo,
+                    subtotal: subtotal,
+                    status: status,
+                    loyalty_points_used: loyalty_points_used,
+                    returnDate: date
+                });
 
-        const order = Order.create({
-            user: userId,
-            videos: cart,
-            subtotal: subtotal,
-            loyalty_points_used: loyalty_points_used
-        });
+                try{
+                    await order.save();
+                    res.send("order");
+                } catch(err) {
+                    res.status(422).send(err);
+                }
+            }
+        )
     });
 
     //Get specific order by id
@@ -141,9 +165,27 @@ module.exports = app => {
         })).then(
             async () => {
                 await User.findByIdAndUpdate(req.userId, {outstandingFees: lateFees});
-                console.log(lateFees)
-                console.log(lateOrders);
                 res.send(lateOrders);
             })
+    });
+
+    app.post('/api/orders/late/videos', verifyToken, async (req, res) => {
+        const { orders } = req.body;
+        let videos = []
+        let ids = []
+        Promise.all(orders.map((order) => {
+            ids.push(order.videos)
+        })).then(
+            () => {
+                Promise.all(ids.map(async (id) => {
+                    const video = await Video.findById(id);
+                    videos.push(video)
+                })).then(
+                    () => {
+                        res.send(videos);
+                    }
+                )
+            }
+            )
     });
 };

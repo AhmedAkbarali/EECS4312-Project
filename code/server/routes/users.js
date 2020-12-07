@@ -246,7 +246,7 @@ router.post('/pay_through_operator', (req, res) => {
     });
 });
 
-router.put('/pay',[verifyToken],(req,res) => {
+router.post('/pay',[verifyToken],(req,res) => {
     User.findByIdAndUpdate(req.userId, {"$set": { "outstandingFees": 0}}).exec(function(err,result) 
     {   
         if (err){

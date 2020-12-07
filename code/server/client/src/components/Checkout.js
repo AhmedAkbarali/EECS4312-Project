@@ -32,7 +32,8 @@ class Checkout extends Component {
         ccnum: '',
         newcc: false,
         outstandingFees: false,
-        openToast: false
+        openToast: false,
+        lateVideos: []
     }
 
     componentDidMount() {
@@ -73,6 +74,18 @@ class Checkout extends Component {
             .then(
                 (res) => {
                     console.log(res.data)
+                    axios.post('/api/orders/late/videos', {orders: res.data}, {
+                        headers: {
+                            'Authorization': `token ${localStorage.getItem('token')}`
+                        }})
+                        .then(response =>{
+                            console.log(response.data)
+                            list = []
+                            response.data.map((video) => {
+                                list.push(video)
+                            })
+                            this.setState({lateVideos: list})
+                        })
                 }
             )
     }
@@ -168,7 +181,19 @@ class Checkout extends Component {
                                     <h5 className="item-info">Title: {value.Title}</h5>
                                     <div className="item-info">Price: {value.Price}</div>
                                     <div className="item-info">Tier: {value.Tier}</div>
-                                    <div className="item-info">Return date</div>
+                                    <div className="item-info">Return date {value.DaysRent}</div>
+                                </div>
+                            )) : ''}
+                        </div>
+                    </div>
+                    <div className="shopping-list">
+                        <div style={{margin: '50px', textColor: 'red'}}>
+                            { this.state.lateVideos ? this.state.lateVideos.map((value) => (
+                                <div key={value._id} className="order-item">
+                                    <h5 className="item-info">Title: {value.Title}</h5>
+                                    <div className="item-info">Price: {value.Price}</div>
+                                    <div className="item-info">Tier: {value.Tier}</div>
+                                    <div className="item-info">LATE</div>
                                 </div>
                             )) : ''}
                         </div>

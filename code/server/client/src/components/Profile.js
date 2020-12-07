@@ -114,7 +114,7 @@ function Profile() {
     };
 
     const payCharges = () => {
-      axios.put("user/pay",{},{
+      axios.post("user/pay",{},{
         headers: {
         'Authorization': `token ${localStorage.getItem('token')}`
       }})
