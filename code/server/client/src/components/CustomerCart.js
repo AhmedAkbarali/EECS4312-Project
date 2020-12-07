@@ -10,7 +10,7 @@ class CustomerCart extends Component{
         videos: [],
         outstandingFees: false,
         subtotal: 0,
-        loyalty: 0
+        loyalty: 0,
 
     }
 
@@ -110,7 +110,15 @@ class CustomerCart extends Component{
                         <div style={{paddingBottom: '15px'}}>
                             {Math.floor(this.state.subtotal)}
                         </div>
-                        <Button disabled={this.state.outstandingFees} component={ Link } to="/checkout" variant="contained" color="primary">Checkout</Button>
+                        <Button disabled={this.state.outstandingFees || this.state.videos.length === 0} component={ Link } to="/checkout" variant="contained" color="primary">Checkout</Button>
+                        <div>
+                        {this.state.videos.length === 0 && (
+                            <div>
+                                <em>Your cart is empty.</em>
+                                <br></br>
+                            </div>
+                        )}
+                        </div>
                     </div>
                 </div>
             </div>
