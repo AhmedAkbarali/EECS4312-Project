@@ -357,7 +357,7 @@ router.post('/update_call_log', async (req, res) => {
     
     // console.log(call);
 
-    Call.findByIdAndUpdate(call._id, {"$set": {"reason": reason, "customer": customer, "log": log}}, (error, result) => {
+    Call.findByIdAndUpdate(call[0]._id, {"$set": {"reason": reason, "customer": customer, "log": log}}, (error, result) => {
         if(error)
             res.status(422).send(error);
         else
