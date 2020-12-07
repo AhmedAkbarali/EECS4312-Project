@@ -59,7 +59,7 @@ module.exports = app => {
     //get active orders
 //   Comment for now since haven't figured how to use verifyToken in Operator view
     app.get('/api/orders/user/active', verifyToken, async (req, res) => {
-        const orders = await Order.find({ user : req.userId, status: {$nin: ["cancelled", "returned"]}});
+        const orders = await Order.find({ user : req.userId, status: {$nin: ["cancelled", "returned", "lateReturned", "feePaid"]}});
 
         res.send(orders);
     });
