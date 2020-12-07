@@ -33,8 +33,8 @@ function App() {
           <Route path="/search" component={Search} />
           {/* <Route path="/operator" component={Operator} /> */}
           <Route path="/shipper" component={Shipper} />
-          {/* <Route path="/warehouseActiveOrders" component={Warehouse_Active_Orders} />
-          <Route path="/warehouseInventory" component={Warehouse_Inventory} /> */}
+          <Route path="/warehouseActiveOrders" component={Warehouse_Active_Orders} />
+          <Route path="/warehouseInventory" component={Warehouse_Inventory} />
       </Switch>
     </div>
 
