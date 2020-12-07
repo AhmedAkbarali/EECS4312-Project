@@ -19,10 +19,13 @@ function Profile() {
     const [info, setInfo] = useState(0);
     const [active, setActive] = useState([]);
     const [history, setHistory] = useState([]);
+    const [cancel, setCancel] = useState(false);
+
     useEffect(() => {
-        setActive(rentalInfo(1));
-        setHistory((rentalInfo(2)));
-    }, [] );
+        setActive(rentalInfo(2));
+        setHistory((rentalInfo(1)));
+        setCancel(false)
+    }, [cancel]);
     const classes = useStyles();
     const [userData, setData] = useState({
       urole:"",
@@ -125,8 +128,11 @@ function Profile() {
 
     const handleCancelOrder = (value) => {
         axios.post('/api/orders/cancel', {orderId: value._id}).then(
-           res => {console.log(res.data)
-           }
+            async () => {
+                await setCancel(true)
+                await setInfo(0)
+
+            }
         )
     };
 
@@ -285,7 +291,7 @@ function Profile() {
             </Container>
 
           <div className="rental-list">
-            <h2>Rental Information</h2>
+            {info !== 0 ? <h2>Rental Information</h2> : ''}
             <List style={{display: 'grid', justifyContent: 'center', alignContent: 'center'}}>
                 {info !== 0 ?
                     <ListItem
