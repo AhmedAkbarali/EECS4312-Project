@@ -246,19 +246,25 @@ router.post('/pay_through_operator', (req, res) => {
     });
 });
 
-router.put('/pay',[verifyToken],(req,res) => {
-    User.findByIdAndUpdate(req.userId, {"$set": { "outstandingFees": 0}}).exec(function(err,result) 
+router.post('/pay',[verifyToken],async (req,res) => {
+    const lateOrders = await Order.find({status: "lateNotReturned", user: req.userId});
+    let fee= 0;
+    let one_day = 1000 * 60 * 60 * 24;
+    lateOrders.map(async (order) => {
+        let did = (Date.now() - order.returnDate.getTime()) / one_day;
+        if(did > 0) {
+            fee += did < 10 ? order.subtotal * (0.1 * did) : order.subtotal
+        }
+    })
+    User.findByIdAndUpdate(req.userId, {"$set": { "outstandingFees": 0}}).exec(function(err,result)
     {   
         if (err){
             res.status(200).send("user not found");
         }
-        else
-        {
-            res.status(200).json(result);
-        }
 
     });
-
+    const lateOrder = await Order.updateMany({status: "lateReturned", user: req.userId}, { status: "feePaid" });
+    res.send(fee);
 });
 
 router.post('/get_customer', (req, res) => {
@@ -357,7 +363,7 @@ router.post('/update_call_log', async (req, res) => {
     
     // console.log(call);
 
-    Call.findByIdAndUpdate(call._id, {"$set": {"reason": reason, "customer": customer, "log": log}}, (error, result) => {
+    Call.findByIdAndUpdate(call[0]._id, {"$set": {"reason": reason, "customer": customer, "log": log}}, (error, result) => {
         if(error)
             res.status(422).send(error);
         else

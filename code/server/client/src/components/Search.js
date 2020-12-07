@@ -20,12 +20,16 @@ import IconButton from '@material-ui/core/IconButton'
 import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart'
 import FormLabel from '@material-ui/core/FormLabel'
 import Box from '@material-ui/core/Box'
-import Snackbar from '@material-ui/core/Snackbar';
-import Alert from '@material-ui/lab/Alert';
-
-
-
 import axios from 'axios'
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
+
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+  }
+
+
+
 
 const API_URL = "http://localhost:5000/";
 
@@ -187,7 +191,9 @@ class Search extends Component {
 
     if (this.state.priceFilter !== "all") {
       var p = Number(this.state.priceFilter);
-      filterData = filterData.filter(data => data.price >= p);
+      var smallestPrice = p;
+      var highestPrice = p == 3 ? 10 : (p + 10); 
+      filterData = filterData.filter(data => smallestPrice <= data.price && data.price <= highestPrice);
     }
 
     if (this.state.tierFilter !== "all") {
@@ -214,8 +220,10 @@ class Search extends Component {
                                       onChange={this.handleFilter}
                           >
                               <FormControlLabel value="all" control={<Radio />} label="All" />
-                              <FormControlLabel value="5" control={<Radio />} label=">5" />
-                              <FormControlLabel value="10" control={<Radio />} label=">10" />
+                              <FormControlLabel value="3" control={<Radio />} label="3-10" />
+                              <FormControlLabel value="10" control={<Radio />} label="10-20" />
+                              <FormControlLabel value="20" control={<Radio />} label="20-30" />
+                              <FormControlLabel value="30" control={<Radio />} label="30-40" />
                           </RadioGroup>
                       </Box>
 

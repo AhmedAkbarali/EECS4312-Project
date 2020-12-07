@@ -10,9 +10,11 @@ import Radio from "@material-ui/core/Radio";
 import RouteTest from "./RouteTest";
 import axios from "axios";
 import Snackbar from '@material-ui/core/Snackbar';
-import Alert from '@material-ui/lab/Alert';
+import MuiAlert from '@material-ui/lab/Alert';
 
-
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+  }
 
 const TIER_LOYALTY_COST = [75,50,25];
 const TIERS = [1,2,3];
@@ -32,7 +34,8 @@ class Checkout extends Component {
         ccnum: '',
         newcc: false,
         outstandingFees: false,
-        openToast: false
+        openToast: false,
+        lateVideos: []
     }
 
     componentDidMount() {
@@ -73,6 +76,18 @@ class Checkout extends Component {
             .then(
                 (res) => {
                     console.log(res.data)
+                    axios.post('/api/orders/late/videos', {orders: res.data}, {
+                        headers: {
+                            'Authorization': `token ${localStorage.getItem('token')}`
+                        }})
+                        .then(response =>{
+                            console.log(response.data)
+                            list = []
+                            response.data.map((video) => {
+                                list.push(video)
+                            })
+                            this.setState({lateVideos: list})
+                        })
                 }
             )
     }
@@ -168,7 +183,19 @@ class Checkout extends Component {
                                     <h5 className="item-info">Title: {value.Title}</h5>
                                     <div className="item-info">Price: {value.Price}</div>
                                     <div className="item-info">Tier: {value.Tier}</div>
-                                    <div className="item-info">Return date</div>
+                                    <div className="item-info">Return in {value.DaysRent} days</div>
+                                </div>
+                            )) : ''}
+                        </div>
+                    </div>
+                    <div className="shopping-list">
+                        <div style={{margin: '50px', textColor: 'red'}}>
+                            { this.state.lateVideos ? this.state.lateVideos.map((value) => (
+                                <div key={value._id} className="order-item">
+                                    <h5 className="item-info">Title: {value.Title}</h5>
+                                    <div className="item-info">Price: {value.Price}</div>
+                                    <div className="item-info">Tier: {value.Tier}</div>
+                                    <div className="item-info">LATE</div>
                                 </div>
                             )) : ''}
                         </div>
