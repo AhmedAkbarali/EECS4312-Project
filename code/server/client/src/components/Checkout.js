@@ -10,7 +10,7 @@ import Radio from "@material-ui/core/Radio";
 import RouteTest from "./RouteTest";
 import axios from "axios";
 
-const TIER_LOYALTY_COST = [0,0,0];
+const TIER_LOYALTY_COST = [75,50,25];
 const TIERS = [1,2,3];
 
 class Checkout extends Component {
