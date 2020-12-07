@@ -32,5 +32,4 @@ router.get('/inventory', (req, res) => {
 
 //update inventory but videos have quatity on them
 
-
 module.exports = router;
