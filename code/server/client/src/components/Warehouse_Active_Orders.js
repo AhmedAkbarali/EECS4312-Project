@@ -295,6 +295,7 @@ class Active_Orders extends Component {
                 <MenuItem value="delivered">Delivered</MenuItem>
                 <MenuItem value="returned">Returned</MenuItem>
                 <MenuItem value="cancelled">Cancelled</MenuItem>
+                <MenuItem value="late">Late</MenuItem>
                 </Select>
                 </DialogContent>
                 
