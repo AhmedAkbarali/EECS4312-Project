@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Order = mongoose.model('order');
 const User = mongoose.model('User');
 const verifyToken = require('../middlewares/verifyToken');
+const Video = mongoose.model('Video');
 
 module.exports = app => {
 
@@ -18,23 +19,35 @@ module.exports = app => {
         const { videos, subtotal, loyalty_points_used } = req.body;
         const status = "preparing";
         let obVideo = [];
-        videos.map((video) => {
+        let rentalPeriod = 0;
+        Promise.all(videos.map(async (video) => {
             obVideo.push(mongoose.Types.ObjectId(video))
-        });
-        const order = await new Order({
-           user: mongoose.Types.ObjectId(req.userId),
-           videos: obVideo,
-           subtotal: subtotal,
-           status: status,
-            loyalty_points_used: loyalty_points_used
-        });
+            const v = await Video.findById(video)
+            if(rentalPeriod == 0 || rentalPeriod > v.DaysRent) {
+                rentalPeriod = v.DaysRent;
+            }
+        })).then(
+            async () => {
+                const date = new Date();
+                date.setDate(date.getDate() + rentalPeriod);
+                console.log(date);
+                const order = await new Order({
+                    user: mongoose.Types.ObjectId(req.userId),
+                    videos: obVideo,
+                    subtotal: subtotal,
+                    status: status,
+                    loyalty_points_used: loyalty_points_used,
+                    returnDate: date
+                });
 
-        try{
-            await order.save();
-            res.send("order");
-        } catch(err) {
-            res.status(422).send(err);
-        }
+                try{
+                    await order.save();
+                    res.send("order");
+                } catch(err) {
+                    res.status(422).send(err);
+                }
+            }
+        )
     });
 
     //Get users orders
@@ -107,5 +120,30 @@ module.exports = app => {
                     res.send("Order Cancelation Completes");
             });
        });
+    });
+
+    app.post('/api/orders/late', verifyToken, async (req,res) => {
+        let one_day = 1000 * 60 * 60 * 24;
+        let lateFees = 0;
+        let lateOrders = [];
+        const orders = await Order.find({ user : req.userId, status: {$nin: ["cancelled", "feePaid"]}});
+        Promise.all(orders.map(async (order) => {
+            let did = order.status == "returned" ?
+                (order.dateReturned.getTime() - order.returnDate.getTime()) / one_day
+                : (Date.now() - order.returnDate.getTime()) / one_day;
+            console.log(did)
+            if(did > 0) {
+                order.status =  (order.status == "returned") ? "lateReturned" : "lateNotReturned"
+                await order.save();
+                lateFees += did < 10 ? order.subtotal * (0.1 * did) : order.subtotal
+                lateOrders.push(order)
+            }
+        })).then(
+            async () => {
+                await User.findByIdAndUpdate(req.userId, {outstandingFees: lateFees});
+                console.log(lateFees)
+                console.log(lateOrders);
+                res.send(lateOrders);
+            })
     });
 };
