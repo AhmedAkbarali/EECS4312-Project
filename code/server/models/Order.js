@@ -19,9 +19,10 @@ const orderSchema =  new Schema ({
     {
         type: String,
         default: "preparing",
-        enum: ["preparing", "to-be-shipped", "shipping", "delivered", "returned", "cancelled", "late"],
+        enum: ["preparing", "to-be-shipped", "shipping", "delivered", "returned", "cancelled", "lateNotReturned", "lateReturned", "feePaid"],
     },
-    returnDate: Date
+    returnDate: Date,
+    dateReturned: Date
 });
 
 mongoose.model('order', orderSchema);
