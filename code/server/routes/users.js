@@ -288,17 +288,6 @@ router.post('/get_customer', (req, res) => {
     
  });
 
-// router.post('/get_customer/info', (req, res) => {
-//     const {customerId} = req.body;
-
-//     User.findById(customerId, (err, user) => {
-//     if (err)
-//         res.status(404).send(err);
-//     else
-//         res.json(user);
-//     })
-// })
-
 router.post('/update_user_cart', (req, res) => {
     const { userId, cartIds } = req.body;
 
@@ -361,31 +350,42 @@ router.post('/create_call_log', (req) => {
 
 
 // Call log
-router.post('/update_call_log', (req, res) => {
+router.post('/update_call_log', async (req, res) => {
     const { staffId, reason, customer, log} = req.body;
 
-    Call.updateOne({"_id": staffId}, 
-        {
-            "$set": {
-                "reason": reason,
-                "customer": customer,
-                "log" : log,
-            }    
-        }, (err, result) => {
-            if (err)
-                res.status(422).send(err);
-            else
-                res.send(result);
-        });
+    const call = await Call.find({"staff": staffId}).sort({"time": -1}).limit(1);
+    
+    // console.log(call);
+
+    Call.findByIdAndUpdate(call._id, {"$set": {"reason": reason, "customer": customer, "log": log}}, (error, result) => {
+        if(error)
+            res.status(422).send(error);
+        else
+            res.send(result);
+    })
 })
 
-// router.put('/get_staff', [verifyToken], (req, res) => {
-//     User.findById(req.userId, (err, user) => {
-//         if (err)
-//             res.status(422).send(err);
-//         else 
-//             res.send(user._id);
+
+// router.post('/get_customer/info', (req, res) => {
+//     const {customerId} = req.body;
+
+//     User.findById(customerId, (err, user) => {
+//     if (err)
+//         res.status(404).send(err);
+//     else
+//         res.json(user);
 //     })
 // });
+
+router.post('/get_call_logs', (req, res) => {
+    const { staffId } = req.body;
+
+    Call.find({"staff" : staffId}, (error, calls) => {
+        if (error)
+            res.status(422).send(error);
+        else
+            res.send(calls);
+    })
+});
 
 module.exports = router;
