@@ -100,7 +100,7 @@ module.exports = app => {
        Order.findByIdAndUpdate(orderId, {"status": "cancelled"}, function(err, result){
             if (err)
                 errorMessage += err;
-            User.findByIdAndUpdate(result.user, {"$inc": {"loyalty_points": result.loyalty_points_used}}, function(err1){
+            User.findByIdAndUpdate(result.user, {"$inc": {"loyalty_points": result.loyalty_points_used - result.subtotal}}, function(err1){
                 if (err1)
                     res.status(404).send(errorMessage + " " + err1);
                 else

@@ -364,7 +364,7 @@ router.post('/create_call_log', (req) => {
 router.post('/update_call_log', (req, res) => {
     const { staffId, reason, customer, log} = req.body;
 
-    Call.findByIdAndUpdate(staffId, 
+    Call.updateOne({"_id": staffId}, 
         {
             "$set": {
                 "reason": reason,
