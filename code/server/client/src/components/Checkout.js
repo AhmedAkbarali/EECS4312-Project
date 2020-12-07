@@ -10,9 +10,11 @@ import Radio from "@material-ui/core/Radio";
 import RouteTest from "./RouteTest";
 import axios from "axios";
 import Snackbar from '@material-ui/core/Snackbar';
-import Alert from '@material-ui/lab/Alert';
+import MuiAlert from '@material-ui/lab/Alert';
 
-
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+  }
 
 const TIER_LOYALTY_COST = [75,50,25];
 const TIERS = [1,2,3];

@@ -6,8 +6,11 @@ import Operator from './Operator.js';
 import Shipping_Page from './Shipper_Page.js';
 import Warehouse_Page from './Warehouse_Page.js';
 import Snackbar from '@material-ui/core/Snackbar';
-import Alert from '@material-ui/lab/Alert';
+import MuiAlert from '@material-ui/lab/Alert';
 
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+  }
 
 function Landing_Page() {
 
