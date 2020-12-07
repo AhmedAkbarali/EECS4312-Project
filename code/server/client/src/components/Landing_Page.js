@@ -102,7 +102,7 @@ function Landing_Page() {
     // Outstanding fees.
     const handleToastClose = (event, reason) => {
       if (reason === 'clickaway') {
-        //return;
+        return;
       }
   
       setToastOpen(false);
