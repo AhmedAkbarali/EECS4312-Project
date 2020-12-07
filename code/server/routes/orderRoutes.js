@@ -80,7 +80,7 @@ module.exports = app => {
         const status = "preparing";
         let obVideo = [];
         let rentalPeriod = 0;
-        Promise.all(videos.map(async (video) => {
+        Promise.all(cart.map(async (video) => {
             obVideo.push(mongoose.Types.ObjectId(video))
             const v = await Video.findById(video)
             if(rentalPeriod == 0 || rentalPeriod > v.DaysRent) {
