@@ -114,12 +114,13 @@ function Profile() {
     };
 
     const payCharges = () => {
-      axios.put("user/pay",{},{
+      axios.post("user/pay",{},{
         headers: {
         'Authorization': `token ${localStorage.getItem('token')}`
       }})
       .then(function (response) {
-        console.log(response); 
+        console.log(response);
+        setData({uoutstandingFee: response.data[0]})
       })
       .catch(function (error) {
         alert(error.response.data);

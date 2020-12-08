@@ -59,7 +59,7 @@ module.exports = app => {
     //get active orders
 //   Comment for now since haven't figured how to use verifyToken in Operator view
     app.get('/api/orders/user/active', verifyToken, async (req, res) => {
-        const orders = await Order.find({ user : req.userId, status: {$nin: ["cancelled", "returned"]}});
+        const orders = await Order.find({ user : req.userId, status: {$nin: ["cancelled", "returned", "lateReturned", "feePaid"]}});
 
         res.send(orders);
     });
@@ -69,7 +69,7 @@ module.exports = app => {
     app.post('/api/orders/active', async (req, res) => {
         const { userId } = req.body;
 
-        const orders = await Order.find({ user : userId, status: {$nin: ["cancelled", "returned"]}}).populate('videos');
+        const orders = await Order.find({ user : userId, status: {$nin: ["cancelled", "returned", "lateReturned", "feePaid"]}}).populate('videos');
 
         res.send(orders);
     });
@@ -77,13 +77,37 @@ module.exports = app => {
     // Create orders in the Operator View (don't know how to use verifyToken)
     app.post('/api/orders/create', async (req, res) => {
         const { userId, cart, subtotal, loyalty_points_used } = req.body;
+        const status = "preparing";
+        let obVideo = [];
+        let rentalPeriod = 0;
+        Promise.all(cart.map(async (video) => {
+            obVideo.push(mongoose.Types.ObjectId(video))
+            const v = await Video.findById(video)
+            if(rentalPeriod == 0 || rentalPeriod > v.DaysRent) {
+                rentalPeriod = v.DaysRent;
+            }
+        })).then(
+            async () => {
+                const date = new Date();
+                date.setDate(date.getDate() + rentalPeriod);
+                console.log(date);
+                const order = await new Order({
+                    user: mongoose.Types.ObjectId(userId),
+                    videos: obVideo,
+                    subtotal: subtotal,
+                    status: status,
+                    loyalty_points_used: loyalty_points_used,
+                    returnDate: date
+                });
 
-        const order = Order.create({
-            user: userId,
-            videos: cart,
-            subtotal: subtotal,
-            loyalty_points_used: loyalty_points_used
-        });
+                try{
+                    await order.save();
+                    res.send("order");
+                } catch(err) {
+                    res.status(422).send(err);
+                }
+            }
+        )
     });
 
     //Get specific order by id
@@ -133,7 +157,7 @@ module.exports = app => {
                 : (Date.now() - order.returnDate.getTime()) / one_day;
             console.log(did)
             if(did > 0) {
-                order.status =  (order.status == "returned") ? "lateReturned" : "lateNotReturned"
+                order.status =  (order.status == "returned" || order.status == "lateReturned") ? "lateReturned" : "lateNotReturned"
                 await order.save();
                 lateFees += did < 10 ? order.subtotal * (0.1 * did) : order.subtotal
                 lateOrders.push(order)
@@ -141,9 +165,27 @@ module.exports = app => {
         })).then(
             async () => {
                 await User.findByIdAndUpdate(req.userId, {outstandingFees: lateFees});
-                console.log(lateFees)
-                console.log(lateOrders);
                 res.send(lateOrders);
             })
+    });
+
+    app.post('/api/orders/late/videos', verifyToken, async (req, res) => {
+        const { orders } = req.body;
+        let videos = []
+        let ids = []
+        Promise.all(orders.map((order) => {
+            ids.push(order.videos)
+        })).then(
+            () => {
+                Promise.all(ids.map(async (id) => {
+                    const video = await Video.findById(id);
+                    videos.push(video)
+                })).then(
+                    () => {
+                        res.send(videos);
+                    }
+                )
+            }
+            )
     });
 };

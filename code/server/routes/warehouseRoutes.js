@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const Warehouse = mongoose.model('warehouse')
+const Video = mongoose.model('Video');
 
 router.get('/', async (req, res) => {
     const ws = await Warehouse.find({});
@@ -39,8 +40,9 @@ router.post('/create', (req, res) => {
         if (warehouse)
             res.status(401).send("Warehouse already exists")
         else{
-            const video_ids = Videos.find({}).map(video => video._id);
-            Warehouse.create({"location": location, "iventory": video_ids});
+          const video_ids = [];
+          // Video.find({}, {"_id": 1});
+            Warehouse.create({"location": location, "inventory": video_ids});
         }
     })
 });
