@@ -49,15 +49,15 @@ router.post('/create', (req, res) => {
    
 
 router.post('/delete', (req, res) => {
-    const { videoId, location } = req.body
+    const { warehouseId, location } = req.body
 
     if(location)
         Warehouse.findOneAndRemove({"location": location}, (err) => {
             if(err)
                 res.status(401).send("Cannot remove the warehouse");
         });
-    else if (videoId)
-        Warehouse.findByIdAndRemove(whId, (err) => {
+    else if (warehouseId)
+        Warehouse.findByIdAndRemove(warehouseId, (err) => {
             if(err)
                 res.status(401).send("Cannot remove the warehouse");
         });
