@@ -319,6 +319,7 @@ function Profile() {
                         <ListItemText style={{width: '50px'}}>Order ID</ListItemText>
                         <ListItemText style={{width: '50px'}}>Subtotal</ListItemText>
                         <ListItemText style={{width: '50px'}}>Status</ListItemText>
+                        <ListItemText style={{width: '50px'}}>Due Date</ListItemText>
                         <ListItemText style={{width: '50px'}}>Cancel</ListItemText>
                     </ListItem> : ''}
               {info === 1 ? active.map((order) => {
@@ -334,6 +335,7 @@ function Profile() {
                           <ListItemText style={{width: '50px'}}>{order._id}</ListItemText>
                           <ListItemText style={{width: '50px'}}>{order.subtotal}</ListItemText>
                           <ListItemText style={{width: '50px'}}>{order.status}</ListItemText>
+                          <ListItemText style={{width: '50px'}}>{order.dateReturned ? <div>Returned</div> : order.returnDate}</ListItemText>
                           <ListItemText style={{width: '50px'}}>
                               {order.status == "preparing"  || order.status == "to-be-shipped" ? <Button onClick={() => {
                                   handleCancelOrder(order)
@@ -355,6 +357,7 @@ function Profile() {
                           <ListItemText style={{width: '50px'}}>{order._id}</ListItemText>
                           <ListItemText style={{width: '50px'}}>{order.subtotal}</ListItemText>
                           <ListItemText style={{width: '50px'}}>{order.status}</ListItemText>
+                          <ListItemText style={{width: '50px'}}>{order.dateReturned ? <div>Returned</div> : order.returnDate}</ListItemText>
                           <ListItemText style={{width: '50px'}}>
                             {order.status == "preparing"  || order.status == "to-be-shipped" ? <Button onClick={() => {handleCancelOrder(order)}}>Cancel</Button> : ''}
                           </ListItemText>
