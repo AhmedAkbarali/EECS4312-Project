@@ -304,14 +304,14 @@ function Profile() {
 
           <div className="rental-list">
             {info !== 0 ? <h2>Rental Information</h2> : ''}
-            <List style={{display: 'grid', justifyContent: 'center', alignContent: 'center'}}>
+            <List style={{display: 'grid', justifyContent: 'center', alignContent: 'center', minWidth: '80vw'}}>
                 {info !== 0 ?
                     <ListItem
                         style={{
                             display: 'flex',
                             flexDirection: 'row',
                             justifyContent: 'space-evenly',
-                            width: '50vw',
+                            width: '80vw',
                             borderStyle: 'outset'
                         }}
                         key={0}
@@ -329,7 +329,7 @@ function Profile() {
                           flexDirection: 'row',
                           justifyContent: 'space-evenly',
                           alignContent: 'space-between',
-                          width: '50vw',
+                          width: '80vw',
                           borderStyle: 'outset'
                       }} key={order._id}>
                           <ListItemText style={{width: '50px'}}>{order._id}</ListItemText>
@@ -351,7 +351,7 @@ function Profile() {
                           flexDirection: 'row',
                           justifyContent: 'space-between',
                           alignContent: 'space-between',
-                          width: '50vw',
+                          width: '80vw',
                           borderStyle: 'outset'
                       }} key={order._id}>
                           <ListItemText style={{width: '50px'}}>{order._id}</ListItemText>
