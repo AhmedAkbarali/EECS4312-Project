@@ -243,6 +243,7 @@ class Operator extends Component {
         else {
             alert("Video already exists in the Cart.")
         }
+        this.setState({notification: ""});
     };
 
     deleteVideoFromCart = (data) => {
@@ -252,11 +253,17 @@ class Operator extends Component {
             videos, 
             counter: this.state.counter - 1,
             customerSubtotal: this.state.customerSubtotal - data.price,
+            notification: "",
         })
     };
 
     selectForLP = (data) => {
-        if (data.useLP || this.state.customerLP >= data.price){
+        if (this.state.videos < 2)
+        {
+            this.setState({notification: "Can't use LP for only 2 videos "});
+        } 
+        else if (data.useLP || this.state.customerLP >= data.price)
+        {
             this.setState({
                 isLoyaltyPointUsed: !this.state.isLoyaltyPointUsed,
                 customerSave: !data.useLP ? data.price : 0,
@@ -264,7 +271,7 @@ class Operator extends Component {
             });
             data.useLP = !data.useLP;
         } else {
-            alert("Not enough LP");
+            this.setState({notification: "Not enough LP"});
         }
     };
     // End of Cart function

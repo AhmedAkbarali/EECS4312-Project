@@ -40,8 +40,8 @@ router.post('/create', (req, res) => {
         if (warehouse)
             res.status(401).send("Warehouse already exists")
         else{
-          const video_ids = [];
-          // Video.find({}, {"_id": 1});
+            // const video_ids = Video.find({}, {_id: 1});
+            const video_ids = [];
             Warehouse.create({"location": location, "inventory": video_ids});
         }
     })
@@ -49,14 +49,14 @@ router.post('/create', (req, res) => {
    
 
 router.post('/delete', (req, res) => {
-    const { whId, location } = req.body
+    const { videoId, location } = req.body
 
     if(location)
         Warehouse.findOneAndRemove({"location": location}, (err) => {
             if(err)
                 res.status(401).send("Cannot remove the warehouse");
         });
-    else if (whId)
+    else if (videoId)
         Warehouse.findByIdAndRemove(whId, (err) => {
             if(err)
                 res.status(401).send("Cannot remove the warehouse");
