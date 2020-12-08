@@ -4,6 +4,8 @@ import { Grid, Button, DialogTitle, DialogContent, DialogContentText, TextField,
 import Typography from '@material-ui/core/Typography';
 import Operator from './Operator.js';
 import { useHistory } from 'react-router-dom';
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
 
 function Manager_Page() {
   const API_URL = "http://localhost:5000/";
@@ -22,6 +24,16 @@ function Manager_Page() {
     vcopy: 0
   });
 
+  const [warehouse, setWarehouse] = useState([]);
+
+  useEffect(() => {
+    axios.get('/warehouse')
+        .then(
+            (res) => {
+              setWarehouse(res.data)
+            }
+        )
+  }, []);
   const [videoID, setID] = useState({
     vvideoId: "",
   });
@@ -373,15 +385,19 @@ function Manager_Page() {
           <Operator />
         </Grid>
         <Grid item xs={2}>
-          {/* <p> list of warehouses can go here</p>
-           */}
-           <List style={{display: "flex", overflow: "scroll", height: 600}}>
-              {warehouses && warehouses.map((house) => {
-                <ListItem>
-                  <Typography component="h2">{house.location}</Typography>
-                </ListItem>
-              })}
-           </List>
+          {warehouse !== [] ? warehouse.map((order) => {
+            return (
+                <ListItem style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignContent: 'space-between',
+                  width: '30vw',
+                  borderStyle: 'outset'
+                }} key={order._id}>
+                  <ListItemText style={{width: '50px'}}>{order.location}</ListItemText>
+                </ListItem>)
+          }) : ''}
         </Grid>
       </Grid>
     </div>
