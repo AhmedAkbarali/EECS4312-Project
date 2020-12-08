@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const Warehouse = mongoose.model('warehouse')
+const Video = mongoose.model('Video');
 
 router.get('/', async (req, res) => {
     const ws = await Warehouse.find({});
@@ -40,6 +41,8 @@ router.post('/create', (req, res) => {
             res.status(401).send("Warehouse already exists")
         else{
             const video_ids = Videos.find({}).map(video => video._id);
+            // const video_ids = Video.find({}, {_id: 1});
+            const video_ids = [];
             Warehouse.create({"location": location, "inventory": video_ids});
         }
     })
@@ -47,15 +50,15 @@ router.post('/create', (req, res) => {
    
 
 router.post('/delete', (req, res) => {
-    const { whId, location } = req.body
+    const { warehouseId, location } = req.body
 
     if(location)
         Warehouse.findOneAndRemove({"location": location}, (err) => {
             if(err)
                 res.status(401).send("Cannot remove the warehouse");
         });
-    else if (whId)
-        Warehouse.findByIdAndRemove(whId, (err) => {
+    else if (warehouseId)
+        Warehouse.findByIdAndRemove(warehouseId, (err) => {
             if(err)
                 res.status(401).send("Cannot remove the warehouse");
         });

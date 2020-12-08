@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
-import { Grid, Button, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Dialog, } from '@material-ui/core';
+import { Grid, Button, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Dialog, List, ListItem } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
-import Operator from './Operator.js'
+import Operator from './Operator.js';
 import { useHistory } from 'react-router-dom';
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -10,10 +10,7 @@ import ListItemText from "@material-ui/core/ListItemText";
 function Manager_Page() {
   const API_URL = "http://localhost:5000/";
   let history = useHistory();
-
-  const [videoID, setID] = useState({
-    vvideoId: "",
-  });
+ 
   
   const [videoData, setData] = useState({
     vtitle: "",
@@ -37,6 +34,31 @@ function Manager_Page() {
             }
         )
   }, []);
+  const [videoID, setID] = useState({
+    vvideoId: "",
+  });
+
+  const [warehouseInfo, setWarehouse] = useState({
+    location: "",
+  });
+  const [warehouseId, setWarehouseID] = useState({
+    whID: "",
+  });
+
+  const [warehouses, setWarehouses] = useState([]);
+
+  const handlewarehouseID = e =>{
+    const {wId} = e.target;
+    setWarehouseID({
+      whID: wId,
+    });
+  }
+  const handlewarehouseInfo = e => {
+    const { value } = e.target;
+    setWarehouse({
+      location: value
+    });
+  }
 
   const handleInformationChange = e => {
     const { name, value } = e.target;
@@ -54,13 +76,67 @@ function Manager_Page() {
   }
   const [edit_open, setOpen] = useState(false);
   const [deleteOpen, setOpened] = useState(false);
+  const [addWarehouseOpen, setwarehouseOpened] = useState(false);
+  const [deleteWarehouseOpen, setremoveOpened] = useState(false);
+  
+  const clickdeleteWarehouse = () => {
+    setremoveOpened(true);
+  }
+  const closedeleteWarehouse = () => {
+    setremoveOpened(false);
+  }
+  const handleWarehousedeletion = () => {
+    closedeleteWarehouse();
+    axios.post("warehouse/delete", {
+      warehouseID : warehouseId.whID,
+      location: warehouseInfo.location
+    }).then(function (response) {
+      console.log("Warehouse location " + warehouseInfo.location + " deleted")
+    }).catch(function (error) {
+      console.log("Warehouse removal failed")
+    })
+    setWarehouseID({
+      whID: "",
+      location:""
+    })
+  }
 
+  const addWarehouseOpened = () => {
+    setwarehouseOpened(true);
+  }
+  const closeaddWarehouse = () =>{
+    setwarehouseOpened(false);
+  }
+  const handleaddWarehouse = () =>{
+    closeaddWarehouse();
+    axios.post(API_URL + "warehouse/create", {
+      "location": warehouseInfo.location,
+      "warehouseId": warehouseInfo.location,
+    }).then(function(response) {
+      alert("New warehouse location added")
+      console.log("New warehouse location added at " + warehouseInfo.location)
+    }).catch(function (error) {
+      alert(error)
+    })
+    setWarehouse({
+      location: ""
+    })
+  }
   const handleClickDelete = () => {
     setOpened(true);
   }
   const closeDelete = () => {
     setOpened(false);
   }
+
+  useEffect(() =>{
+    axios.get('/warehouse').then((res) => {
+      if(res.data)
+        setWarehouses(res.data);
+      else
+        console.log("Error getting all the warehouses"); 
+    })
+  })
 
   const handleDelete = () => {
     closeDelete();
@@ -240,8 +316,69 @@ function Manager_Page() {
           </Button>
         </DialogActions>
       </Dialog>
-      <Button>Add warehouse</Button>
-      <Button>Remove Warehouse</Button>
+      <Button onClick={addWarehouseOpened}>Add warehouse</Button>
+      <Dialog open={addWarehouseOpen} onClose={closeaddWarehouse} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Add Warehouse</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Enter location for new warehouse
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            name="location"
+            label="Warehouse Location"
+            type="text"
+            fullWidth
+            onChange={handlewarehouseInfo}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeaddWarehouse} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleaddWarehouse} color="primary">
+            Add warehouse
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Button onClick={clickdeleteWarehouse}>Remove Warehouse</Button>
+      <Dialog open={deleteWarehouseOpen} onClose={closedeleteWarehouse} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Add Warehouse</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Enter ID or location of warehouse to be deleted
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            name="whID"
+            label="Warehouse ID"
+            type="text"
+            fullWidth
+            onChange={handlewarehouseID}
+
+          />
+          <TextField
+          autoFocus
+          margin="dense"
+          name="location"
+          label="Warehouse Location"
+          type="text"
+          fullWidth
+          onChange={handlewarehouseInfo}
+
+        />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closedeleteWarehouse} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleWarehousedeletion} color="primary">
+            Delete warehouse
+          </Button>
+        </DialogActions>
+      </Dialog>
       <br />
       <Grid container>
         <Grid item xs={10}>
