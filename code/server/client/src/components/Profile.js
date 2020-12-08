@@ -22,6 +22,18 @@ function Profile() {
     const [cancel, setCancel] = useState(false);
 
     useEffect(() => {
+        axios.post('/api/orders/late', {}, {
+            headers: {
+                'Authorization': `token ${localStorage.getItem('token')}`
+            }})
+            .then(
+                (res) => {
+                    console.log(res.data)
+                }
+            )
+    }, []);
+
+    useEffect(() => {
         setActive(rentalInfo(2));
         setHistory((rentalInfo(1)));
         setCancel(false)
