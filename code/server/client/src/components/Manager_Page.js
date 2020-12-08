@@ -98,7 +98,8 @@ function Manager_Page() {
   const handleaddWarehouse = () =>{
     closeaddWarehouse();
     axios.post(API_URL + "warehouse/create", {
-      "location": warehouseInfo.location
+      "location": warehouseInfo.location,
+      "warehouseId": warehouseInfo.location,
     }).then(function(response) {
       alert("New warehouse location added")
       console.log("New warehouse location added at " + warehouseInfo.location)
