@@ -40,7 +40,7 @@ router.post('/create', (req, res) => {
             res.status(401).send("Warehouse already exists")
         else{
             const video_ids = Videos.find({}).map(video => video._id);
-            Warehouse.create({"location": location, "iventory": video_ids});
+            Warehouse.create({"location": location, "inventory": video_ids});
         }
     })
 });
