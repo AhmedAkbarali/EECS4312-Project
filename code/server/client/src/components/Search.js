@@ -201,6 +201,8 @@ class Search extends Component {
       filterData = filterData.filter(data => data.tier === t);
     }
 
+    filterData.filter(data => data.availability === this.state.availFilter);
+
       if (this.state.searchData.length > 0){
           // // result = (
           // //     <Result
