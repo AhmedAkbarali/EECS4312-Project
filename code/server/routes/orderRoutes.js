@@ -92,7 +92,7 @@ module.exports = app => {
                 date.setDate(date.getDate() + rentalPeriod);
                 console.log(date);
                 const order = await new Order({
-                    user: mongoose.Types.ObjectId(req.userId),
+                    user: mongoose.Types.ObjectId(userId),
                     videos: obVideo,
                     subtotal: subtotal,
                     status: status,
