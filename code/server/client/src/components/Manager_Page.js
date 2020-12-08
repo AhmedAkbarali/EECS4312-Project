@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
-import { Grid, Button, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Dialog, } from '@material-ui/core';
+import { Grid, Button, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Dialog, List, ListItem } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
-import Operator from './Operator.js'
+import Operator from './Operator.js';
 import { useHistory } from 'react-router-dom';
 
 function Manager_Page() {
@@ -32,6 +32,8 @@ function Manager_Page() {
   const [warehouseId, setWarehouseID] = useState({
     whID: "",
   });
+
+  const [warehouses, setWarehouses] = useState([]);
 
   const handlewarehouseID = e =>{
     const {wId} = e.target;
@@ -113,6 +115,15 @@ function Manager_Page() {
   const closeDelete = () => {
     setOpened(false);
   }
+
+  useEffect(() =>{
+    axios.get('/warehouse').then((res) => {
+      if(res.data)
+        setWarehouses(res.data);
+      else
+        console.log("Error getting all the warehouses"); 
+    })
+  })
 
   const handleDelete = () => {
     closeDelete();
@@ -361,7 +372,15 @@ function Manager_Page() {
           <Operator />
         </Grid>
         <Grid item xs={2}>
-          <p> list of warehouses can go here</p>
+          {/* <p> list of warehouses can go here</p>
+           */}
+           <List style={{display: "flex", overflow: "scroll", height: 600}}>
+              {warehouses && warehouses.map((house) => {
+                <ListItem>
+                  <Typography component="h2">{house.location}</Typography>
+                </ListItem>
+              })}
+           </List>
         </Grid>
       </Grid>
     </div>
