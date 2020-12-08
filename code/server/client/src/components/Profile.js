@@ -120,7 +120,18 @@ function Profile() {
       }})
       .then(function (response) {
         console.log(response);
-        setData({uoutstandingFee: response.data[0]})
+        setData({
+            urole:userData.urole,
+            ufname:userData.ufname,
+            ulname:userData.ulname,
+            uemail:userData.uemail,
+            uaddress:userData.uaddress,
+            uphone_no:userData.uphone_no,
+            ucc_info:userData.ucc_info,
+            uoutstandingFee:response.data[0],
+            uloyaltypoints:userData.uloyaltypoints,
+            upin:userData.upin
+        })
       })
       .catch(function (error) {
         alert(error.response.data);

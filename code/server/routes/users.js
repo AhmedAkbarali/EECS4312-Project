@@ -250,13 +250,7 @@ router.post('/pay',[verifyToken],async (req,res) => {
     const lateOrders = await Order.find({status: "lateNotReturned", user: req.userId});
     let fee= 0;
     let one_day = 1000 * 60 * 60 * 24;
-    User.findByIdAndUpdate(req.userId, {"$set": { "outstandingFees": 0}}).exec(function(err,result)
-    {   
-        if (err){
-            res.status(200).send("user not found");
-        }
 
-    });
     const lateOrder = await Order.updateMany({status: "lateReturned", user: req.userId}, { status: "feePaid" });
     Promise.all(lateOrders.map((order) => {
         let did = (Date.now() - order.returnDate.getTime()) / one_day;
@@ -265,6 +259,14 @@ router.post('/pay',[verifyToken],async (req,res) => {
         }
     })).then(() =>{
         console.log(fee)
+        User.findByIdAndUpdate(req.userId, {"$set": { "outstandingFees": fee}}).exec(function(err,result)
+        {
+            if (err){
+                res.status(200).send("user not found");
+            }
+
+        });
+
         res.send([fee])
     })
 
